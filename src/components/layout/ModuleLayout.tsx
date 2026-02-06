@@ -35,6 +35,7 @@ export function ModuleLayout({
               onClick={() => setShowInfo(!showInfo)}
               className="flex items-center gap-1 shrink-0 text-xs text-primary hover:text-primary-light transition-colors px-2 py-1 rounded-md hover:bg-primary/10"
               aria-expanded={showInfo}
+              aria-label="Toggle module information"
             >
               <Info size={14} />
               <span className="hidden sm:inline">{showInfo ? 'Hide' : 'How it works'}</span>

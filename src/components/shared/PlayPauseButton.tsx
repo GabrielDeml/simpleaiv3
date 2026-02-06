@@ -23,6 +23,7 @@ export function PlayPauseButton({ isPlaying, onToggle, onReset, disabled }: Play
           onClick={onReset}
           className="p-2 rounded-md hover:bg-surface-lighter text-text-muted transition-colors"
           title="Reset"
+          aria-label="Reset"
         >
           <RotateCcw size={16} />
         </button>

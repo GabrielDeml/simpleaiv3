@@ -19,6 +19,14 @@ export function extractFeatures(img: ImageData | HTMLImageElement | HTMLVideoEle
     embedding.dispose();
     return batched;
   }
+  if (embedding.shape.length > 2) {
+    const reshaped = embedding.reshape([
+      1,
+      embedding.shape[embedding.shape.length - 1],
+    ]) as tf.Tensor2D;
+    embedding.dispose();
+    return reshaped;
+  }
   return embedding as tf.Tensor2D;
 }
 

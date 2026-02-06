@@ -1,0 +1,16 @@
+{
+  "name": "SimpleAI — Interactive Machine Learning Playground",
+  "short_name": "SimpleAI",
+  "description": "Explore core ML concepts through hands-on visualizations — from linear regression to large language models, all running entirely in your browser.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

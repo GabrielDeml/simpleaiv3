@@ -101,8 +101,10 @@ export function getWeights(model: tf.LayersModel): number[][][] {
   const weights: number[][][] = [];
   for (const layer of model.layers) {
     const layerWeights: number[][] = [];
-    for (const w of layer.getWeights()) {
+    const tensors = layer.getWeights();
+    for (const w of tensors) {
       layerWeights.push(Array.from(w.dataSync()));
+      w.dispose();
     }
     weights.push(layerWeights);
   }
