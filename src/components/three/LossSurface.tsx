@@ -13,9 +13,6 @@ export function LossSurface({ surfaceType, resolution = 80, range = 3 }: LossSur
   const prevGeoRef = useRef<THREE.BufferGeometry | null>(null);
 
   const geometry = useMemo(() => {
-    if (prevGeoRef.current) {
-      prevGeoRef.current.dispose();
-    }
     const geo = new THREE.BufferGeometry();
     const vertices: number[] = [];
     const colors: number[] = [];
@@ -65,17 +62,20 @@ export function LossSurface({ surfaceType, resolution = 80, range = 3 }: LossSur
     geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
     geo.setIndex(indices);
     geo.computeVertexNormals();
-    prevGeoRef.current = geo;
     return geo;
   }, [surfaceType, resolution, range]);
 
+  // Dispose previous geometry when a new one is created, and on unmount
   useEffect(() => {
+    const prev = prevGeoRef.current;
+    prevGeoRef.current = geometry;
+    if (prev && prev !== geometry) {
+      prev.dispose();
+    }
     return () => {
-      if (prevGeoRef.current) {
-        prevGeoRef.current.dispose();
-      }
+      prevGeoRef.current?.dispose();
     };
-  }, []);
+  }, [geometry]);
 
   return (
     <mesh geometry={geometry}>

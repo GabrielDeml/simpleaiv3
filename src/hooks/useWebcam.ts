@@ -1,6 +1,15 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 
-export function useWebcam() {
+interface WebcamResult {
+  videoRef: React.RefObject<HTMLVideoElement | null>;
+  isActive: boolean;
+  error: string | null;
+  start: () => Promise<void>;
+  stop: () => void;
+  capture: () => ImageData | null;
+}
+
+export function useWebcam(): WebcamResult {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [isActive, setIsActive] = useState(false);

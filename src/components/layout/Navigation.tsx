@@ -33,11 +33,13 @@ export function Navigation() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const [prevPathname, setPrevPathname] = useState(location.pathname);
 
   // Close mobile nav on route change
-  useEffect(() => {
+  if (location.pathname !== prevPathname) {
+    setPrevPathname(location.pathname);
     setMobileOpen(false);
-  }, [location.pathname]);
+  }
 
   // Close mobile nav on Escape
   const handleKeyDown = useCallback((e: KeyboardEvent) => {

@@ -33,8 +33,16 @@ function PredictionBar({
 
 export default function TransferLearningPage() {
   const store = useTransferLearningStore();
-  const webcam = useWebcam();
+  const {
+    videoRef,
+    isActive: webcamActive,
+    error: webcamError,
+    start: startWebcam,
+    stop: stopWebcam,
+    capture: captureWebcam,
+  } = useWebcam();
   const [newCategory, setNewCategory] = useState('');
+  const [isPredicting, setIsPredicting] = useState(false);
   const collectIntervalRef = useRef<number | null>(null);
   const predictIntervalRef = useRef<number | null>(null);
 
@@ -50,10 +58,10 @@ export default function TransferLearningPage() {
   }, [newCategory, store]);
 
   const handleStartCollecting = useCallback(() => {
-    if (!webcam.isActive || !store.activeCategory) return;
+    if (!webcamActive || !store.activeCategory) return;
     store.setCollecting(true);
     collectIntervalRef.current = window.setInterval(() => {
-      const imageData = webcam.capture();
+      const imageData = captureWebcam();
       if (!imageData || !store.activeCategory) return;
       const canvas = document.createElement('canvas');
       canvas.width = imageData.width;
@@ -63,7 +71,7 @@ export default function TransferLearningPage() {
       ctx.putImageData(imageData, 0, 0);
       store.addSample(store.activeCategory, canvas.toDataURL('image/jpeg', 0.7), imageData);
     }, 200);
-  }, [webcam, store]);
+  }, [webcamActive, captureWebcam, store]);
 
   const handleStopCollecting = useCallback(() => {
     store.setCollecting(false);
@@ -74,12 +82,13 @@ export default function TransferLearningPage() {
   }, [store]);
 
   const handleStartPredicting = useCallback(() => {
-    if (!webcam.isActive || store.modelStatus !== 'ready') return;
+    if (!webcamActive || store.modelStatus !== 'ready') return;
+    setIsPredicting(true);
     predictIntervalRef.current = window.setInterval(() => {
-      const imageData = webcam.capture();
+      const imageData = captureWebcam();
       if (imageData) store.predict(imageData);
     }, 500);
-  }, [webcam, store]);
+  }, [webcamActive, captureWebcam, store]);
 
   useEffect(() => {
     return () => {
@@ -88,15 +97,20 @@ export default function TransferLearningPage() {
     };
   }, []);
 
-  const handleReset = useCallback(() => {
-    handleStopCollecting();
+  const handleStopPredicting = useCallback(() => {
     if (predictIntervalRef.current) {
       clearInterval(predictIntervalRef.current);
       predictIntervalRef.current = null;
     }
-    if (webcam.isActive) webcam.stop();
+    setIsPredicting(false);
+  }, []);
+
+  const handleReset = useCallback(() => {
+    handleStopCollecting();
+    handleStopPredicting();
+    if (webcamActive) stopWebcam();
     store.reset();
-  }, [store, webcam, handleStopCollecting]);
+  }, [store, webcamActive, stopWebcam, handleStopCollecting, handleStopPredicting]);
 
   return (
     <ModuleLayout
@@ -109,11 +123,11 @@ export default function TransferLearningPage() {
         <div className="flex items-center justify-between">
           <div className="flex gap-2">
             <button
-              onClick={() => (webcam.isActive ? webcam.stop() : webcam.start())}
+              onClick={() => (webcamActive ? stopWebcam() : startWebcam())}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md bg-surface-light border border-border hover:border-primary/50 text-text-muted hover:text-text transition-colors"
             >
-              {webcam.isActive ? <CameraOff size={14} /> : <Camera size={14} />}
-              {webcam.isActive ? 'Stop Webcam' : 'Start Webcam'}
+              {webcamActive ? <CameraOff size={14} /> : <Camera size={14} />}
+              {webcamActive ? 'Stop Webcam' : 'Start Webcam'}
             </button>
             <button
               onClick={handleReset}
@@ -130,12 +144,12 @@ export default function TransferLearningPage() {
           {/* Left: Webcam + Controls */}
           <div className="space-y-4">
             {/* Webcam feed */}
-            {webcam.isActive && (
+            {webcamActive && (
               <div className="rounded-lg overflow-hidden bg-surface border border-border">
-                <video ref={webcam.videoRef} className="w-full" autoPlay playsInline muted />
+                <video ref={videoRef} className="w-full" autoPlay playsInline muted />
               </div>
             )}
-            {webcam.error && <p className="text-xs text-red-400">{webcam.error}</p>}
+            {webcamError && <p className="text-xs text-red-400">{webcamError}</p>}
 
             {/* Step 1: Define Categories */}
             <div className="p-4 bg-surface rounded-lg border border-border space-y-3">
@@ -212,7 +226,7 @@ export default function TransferLearningPage() {
                     </button>
                   ))}
                 </div>
-                {store.activeCategory && webcam.isActive && (
+                {store.activeCategory && webcamActive && (
                   <button
                     onMouseDown={handleStartCollecting}
                     onMouseUp={handleStopCollecting}
@@ -230,7 +244,7 @@ export default function TransferLearningPage() {
                       : `Hold to Collect "${store.activeCategory}"`}
                   </button>
                 )}
-                {store.activeCategory && !webcam.isActive && (
+                {store.activeCategory && !webcamActive && (
                   <p className="text-xs text-amber-400">Start the webcam to collect samples</p>
                 )}
               </div>
@@ -310,20 +324,19 @@ export default function TransferLearningPage() {
             {store.modelStatus === 'ready' && (
               <div className="p-4 bg-surface rounded-lg border border-border space-y-3">
                 <h3 className="text-sm font-semibold text-text">4. Live Prediction</h3>
-                {webcam.isActive ? (
+                {webcamActive ? (
                   <>
                     <button
                       onClick={() => {
-                        if (predictIntervalRef.current) {
-                          clearInterval(predictIntervalRef.current);
-                          predictIntervalRef.current = null;
+                        if (isPredicting) {
+                          handleStopPredicting();
                         } else {
                           handleStartPredicting();
                         }
                       }}
                       className="w-full py-2 rounded-md bg-primary hover:bg-primary-light text-white text-sm font-medium transition-colors"
                     >
-                      {predictIntervalRef.current ? 'Stop Predicting' : 'Start Live Prediction'}
+                      {isPredicting ? 'Stop Predicting' : 'Start Live Prediction'}
                     </button>
                     {store.prediction && (
                       <div className="space-y-2">

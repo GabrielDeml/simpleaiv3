@@ -30,24 +30,30 @@ function MiniCanvas({ imageData, size = 48 }: { imageData: ImageData; size?: num
 
 export default function CNNVisualizationPage() {
   const store = useCNNVisualizerStore();
-  const webcam = useWebcam();
+  const {
+    videoRef,
+    isActive: webcamActive,
+    start: startWebcam,
+    stop: stopWebcam,
+    capture: captureWebcam,
+  } = useWebcam();
   const imgRef = useRef<HTMLImageElement | null>(null);
 
+  const { loadModel, computeFilters, computeActivations, selectedLayer, modelStatus } = store;
+
   useEffect(() => {
-    store.loadModel();
-  }, [store.loadModel]);
+    loadModel();
+  }, [loadModel]);
 
   // When layer changes, recompute if we have an input
   useEffect(() => {
-    if (store.selectedLayer && store.modelStatus === 'ready') {
-      store.computeFilters();
+    if (selectedLayer && modelStatus === 'ready') {
+      computeFilters();
       if (imgRef.current) {
-        store.computeActivations(imgRef.current);
+        computeActivations(imgRef.current);
       }
     }
-    // Only re-run when selectedLayer changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [store.selectedLayer]);
+  }, [selectedLayer, modelStatus, computeFilters, computeActivations]);
 
   const handleImageLoad = useCallback(
     (img: HTMLImageElement) => {
@@ -68,7 +74,7 @@ export default function CNNVisualizationPage() {
   );
 
   const handleWebcamCapture = useCallback(() => {
-    const imageData = webcam.capture();
+    const imageData = captureWebcam();
     if (!imageData) return;
     const canvas = document.createElement('canvas');
     canvas.width = imageData.width;
@@ -83,13 +89,13 @@ export default function CNNVisualizationPage() {
       if (store.selectedLayer) store.computeActivations(img);
     };
     img.src = canvas.toDataURL();
-  }, [webcam, store]);
+  }, [captureWebcam, store]);
 
   const handleReset = useCallback(() => {
     store.setImage(null);
     imgRef.current = null;
-    if (webcam.isActive) webcam.stop();
-  }, [store, webcam]);
+    if (webcamActive) stopWebcam();
+  }, [store, webcamActive, stopWebcam]);
 
   return (
     <ModuleLayout
@@ -102,11 +108,11 @@ export default function CNNVisualizationPage() {
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex gap-2">
             <button
-              onClick={() => (webcam.isActive ? webcam.stop() : webcam.start())}
+              onClick={() => (webcamActive ? stopWebcam() : startWebcam())}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md bg-surface-light border border-border hover:border-primary/50 text-text-muted hover:text-text transition-colors"
             >
-              {webcam.isActive ? <CameraOff size={14} /> : <Camera size={14} />}
-              {webcam.isActive ? 'Stop' : 'Webcam'}
+              {webcamActive ? <CameraOff size={14} /> : <Camera size={14} />}
+              {webcamActive ? 'Stop' : 'Webcam'}
             </button>
             <button
               onClick={handleReset}
@@ -162,10 +168,10 @@ export default function CNNVisualizationPage() {
               <h3 className="text-sm font-semibold text-text uppercase tracking-wider">
                 Input Image
               </h3>
-              {webcam.isActive ? (
+              {webcamActive ? (
                 <div className="space-y-2">
                   <div className="rounded-lg overflow-hidden bg-surface border border-border">
-                    <video ref={webcam.videoRef} className="w-full" autoPlay playsInline muted />
+                    <video ref={videoRef} className="w-full" autoPlay playsInline muted />
                   </div>
                   <button
                     onClick={handleWebcamCapture}

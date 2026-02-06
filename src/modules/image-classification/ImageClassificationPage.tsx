@@ -47,7 +47,14 @@ export default function ImageClassificationPage() {
     reset,
   } = useImageClassifierStore();
 
-  const webcam = useWebcam();
+  const {
+    videoRef,
+    isActive: webcamActive,
+    error: webcamError,
+    start: startWebcam,
+    stop: stopWebcam,
+    capture: captureWebcam,
+  } = useWebcam();
   const imgRef = useRef<HTMLImageElement | null>(null);
 
   useEffect(() => {
@@ -76,7 +83,7 @@ export default function ImageClassificationPage() {
   }, [classify]);
 
   const handleWebcamCapture = useCallback(async () => {
-    const imageData = webcam.capture();
+    const imageData = captureWebcam();
     if (!imageData) return;
     const canvas = document.createElement('canvas');
     canvas.width = imageData.width;
@@ -92,13 +99,13 @@ export default function ImageClassificationPage() {
       classify(img);
     };
     img.src = dataUrl;
-  }, [webcam, setImage, classify]);
+  }, [captureWebcam, setImage, classify]);
 
   const handleReset = useCallback(() => {
     reset();
     imgRef.current = null;
-    if (webcam.isActive) webcam.stop();
-  }, [reset, webcam]);
+    if (webcamActive) stopWebcam();
+  }, [reset, webcamActive, stopWebcam]);
 
   return (
     <ModuleLayout
@@ -113,11 +120,11 @@ export default function ImageClassificationPage() {
             <h2 className="text-sm font-semibold text-text uppercase tracking-wider">Input</h2>
             <div className="flex gap-2">
               <button
-                onClick={() => (webcam.isActive ? webcam.stop() : webcam.start())}
+                onClick={() => (webcamActive ? stopWebcam() : startWebcam())}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md bg-surface-light border border-border hover:border-primary/50 text-text-muted hover:text-text transition-colors"
               >
-                {webcam.isActive ? <CameraOff size={14} /> : <Camera size={14} />}
-                {webcam.isActive ? 'Stop' : 'Webcam'}
+                {webcamActive ? <CameraOff size={14} /> : <Camera size={14} />}
+                {webcamActive ? 'Stop' : 'Webcam'}
               </button>
               <button
                 onClick={handleReset}
@@ -129,10 +136,10 @@ export default function ImageClassificationPage() {
             </div>
           </div>
 
-          {webcam.isActive ? (
+          {webcamActive ? (
             <div className="space-y-3">
               <div className="rounded-lg overflow-hidden bg-surface border border-border">
-                <video ref={webcam.videoRef} className="w-full" autoPlay playsInline muted />
+                <video ref={videoRef} className="w-full" autoPlay playsInline muted />
               </div>
               <button
                 onClick={handleWebcamCapture}
@@ -141,7 +148,7 @@ export default function ImageClassificationPage() {
               >
                 Capture & Classify
               </button>
-              {webcam.error && <p className="text-xs text-red-400">{webcam.error}</p>}
+              {webcamError && <p className="text-xs text-red-400">{webcamError}</p>}
             </div>
           ) : inputImage ? (
             <div className="space-y-3">

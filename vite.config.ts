@@ -29,7 +29,8 @@ export default defineConfig(async () => {
     },
     build: {
       target: 'esnext',
-      sourcemap: true,
+      sourcemap: false,
+      chunkSizeWarningLimit: 6000,
       rollupOptions: {
         output: {
           manualChunks: {

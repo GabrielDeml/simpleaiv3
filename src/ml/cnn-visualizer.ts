@@ -41,7 +41,9 @@ export async function activationToImageData(
   height: number,
 ): Promise<ImageData> {
   const singleMap = tf.tidy(() => {
-    const map = activation.slice([0, 0, 0, filterIndex], [1, -1, -1, 1]).squeeze();
+    const h = activation.shape[1];
+    const w = activation.shape[2];
+    const map = activation.slice([0, 0, 0, filterIndex], [1, -1, -1, 1]).reshape([h, w]);
     const min = map.min();
     const max = map.max();
     const range = max.sub(min).add(1e-8);
@@ -51,7 +53,7 @@ export async function activationToImageData(
   const resized = tf.tidy(() => {
     return tf.image
       .resizeBilinear(singleMap.expandDims(-1) as tf.Tensor3D, [height, width])
-      .squeeze() as tf.Tensor2D;
+      .reshape([height, width]) as tf.Tensor2D;
   });
 
   const data = await resized.data();
@@ -86,13 +88,13 @@ export async function filterToImageData(
     let filter: tf.Tensor2D;
     if (shape[3] === 1) {
       // Depthwise: extract channel slice
-      filter = weights.slice([0, 0, filterIndex, 0], [-1, -1, 1, 1]).squeeze() as tf.Tensor2D;
+      filter = weights
+        .slice([0, 0, filterIndex, 0], [-1, -1, 1, 1])
+        .reshape([shape[0], shape[1]]) as tf.Tensor2D;
     } else {
       // Standard conv: take mean across input channels for the given output filter
-      filter = weights
-        .slice([0, 0, 0, filterIndex], [-1, -1, -1, 1])
-        .mean(2)
-        .squeeze() as tf.Tensor2D;
+      const slice = weights.slice([0, 0, 0, filterIndex], [-1, -1, -1, 1]).mean(2);
+      filter = slice.reshape([shape[0], shape[1]]) as tf.Tensor2D;
     }
     const min = filter.min();
     const max = filter.max();
@@ -103,7 +105,7 @@ export async function filterToImageData(
   const resized = tf.tidy(() => {
     return tf.image
       .resizeBilinear(singleFilter.expandDims(-1) as tf.Tensor3D, [height, width], false)
-      .squeeze() as tf.Tensor2D;
+      .reshape([height, width]) as tf.Tensor2D;
   });
 
   const data = await resized.data();
