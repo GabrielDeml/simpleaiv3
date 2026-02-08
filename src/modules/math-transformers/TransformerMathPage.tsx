@@ -398,8 +398,9 @@ function TokenEmbeddingsDemo() {
     <InteractiveDemo title="Token Embedding Lookup">
       <div className="space-y-4">
         <div className="space-y-1.5">
-          <label className="text-xs text-text-muted">Input sentence:</label>
+          <label htmlFor="token-embed-input" className="text-xs text-text-muted">Input sentence:</label>
           <input
+            id="token-embed-input"
             type="text"
             value={sentence}
             onChange={(e) => setSentence(e.target.value)}
@@ -828,6 +829,7 @@ function AttentionHeatmap() {
   const [pattern, setPattern] = useState<AttentionPattern>('content-based');
   const [hoverCell, setHoverCell] = useState<{ r: number; c: number } | null>(null);
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization -- SENTENCES is a module-level constant
   const tokens = useMemo(() => SENTENCES[sentIdx].split(' '), [sentIdx]);
   const weights = useMemo(
     () => generateAttentionPattern(tokens, pattern),
@@ -840,7 +842,7 @@ function AttentionHeatmap() {
         {/* Controls row */}
         <div className="flex flex-wrap gap-3">
           <div className="space-y-1">
-            <label className="text-[10px] text-text-muted uppercase tracking-wider">Sentence</label>
+            <span className="text-[10px] text-text-muted uppercase tracking-wider">Sentence</span>
             <div className="flex flex-wrap gap-1.5">
               {SENTENCES.map((s, i) => (
                 <button
@@ -860,9 +862,9 @@ function AttentionHeatmap() {
         </div>
 
         <div className="space-y-1">
-          <label className="text-[10px] text-text-muted uppercase tracking-wider">
+          <span className="text-[10px] text-text-muted uppercase tracking-wider">
             Attention Pattern
-          </label>
+          </span>
           <div className="flex gap-2">
             {(['uniform', 'positional', 'content-based'] as AttentionPattern[]).map((p) => (
               <button
@@ -1014,10 +1016,11 @@ function MultiHeadDemo() {
         {/* Mini heatmaps side by side */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {headWeights.map((hw, h) => (
-            <div
+            <button
+              type="button"
               key={h}
               onClick={() => setActiveHead(h)}
-              className={`p-2 rounded-lg border cursor-pointer transition-all ${
+              className={`p-2 rounded-lg border cursor-pointer transition-all text-left ${
                 activeHead === h ? 'ring-2' : 'border-white/[0.06]'
               }`}
               style={
@@ -1041,7 +1044,7 @@ function MultiHeadDemo() {
                   />
                 ))}
               </div>
-            </div>
+            </button>
           ))}
         </div>
 
@@ -1106,6 +1109,31 @@ function MultiHeadDemo() {
    Section 7: Feed-Forward Network
    ═══════════════════════════════════════════════════════════════════ */
 
+function VectorBar({ values, label, color, maxAbs }: { values: number[]; label: string; color: string; maxAbs: number }) {
+  return (
+    <div className="space-y-1">
+      <div className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
+        {label} ({values.length} dims)
+      </div>
+      <div className="flex gap-1">
+        {values.map((v, i) => (
+          <div key={i} className="flex flex-col items-center gap-0.5" style={{ flex: 1 }}>
+            <div
+              className="w-full rounded-sm transition-all"
+              style={{
+                height: Math.max(4, (Math.abs(v) / maxAbs) * 40),
+                backgroundColor: v >= 0 ? color : '#ef4444',
+                opacity: 0.3 + (Math.abs(v) / maxAbs) * 0.7,
+              }}
+            />
+            <span className="text-[8px] font-mono text-text-muted">{v.toFixed(2)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function FeedForwardDemo() {
   const [inputVec, setInputVec] = useState([0.5, -0.3, 0.8, -0.1]);
   const D_FF = 8; // expansion factor of 2x
@@ -1155,31 +1183,6 @@ function FeedForwardDemo() {
     0.01
   );
 
-  function VectorBar({ values, label, color }: { values: number[]; label: string; color: string }) {
-    return (
-      <div className="space-y-1">
-        <div className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
-          {label} ({values.length} dims)
-        </div>
-        <div className="flex gap-1">
-          {values.map((v, i) => (
-            <div key={i} className="flex flex-col items-center gap-0.5" style={{ flex: 1 }}>
-              <div
-                className="w-full rounded-sm transition-all"
-                style={{
-                  height: Math.max(4, (Math.abs(v) / maxAbs) * 40),
-                  backgroundColor: v >= 0 ? color : '#ef4444',
-                  opacity: 0.3 + (Math.abs(v) / maxAbs) * 0.7,
-                }}
-              />
-              <span className="text-[8px] font-mono text-text-muted">{v.toFixed(2)}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <InteractiveDemo title="Feed-Forward Network (Single Token)">
       <div className="space-y-5">
@@ -1209,13 +1212,13 @@ function FeedForwardDemo() {
 
         {/* Visual pipeline */}
         <div className="space-y-3">
-          <VectorBar values={inputVec} label="Input x" color="#2563eb" />
+          <VectorBar values={inputVec} label="Input x" color="#2563eb" maxAbs={maxAbs} />
           <div className="text-center text-text-muted text-xs">&darr; Linear (4 &rarr; 8) + bias</div>
-          <VectorBar values={hidden} label="Hidden (pre-ReLU)" color="#8b5cf6" />
+          <VectorBar values={hidden} label="Hidden (pre-ReLU)" color="#8b5cf6" maxAbs={maxAbs} />
           <div className="text-center text-text-muted text-xs">&darr; ReLU (negative values &rarr; 0)</div>
-          <VectorBar values={afterRelu} label="Hidden (post-ReLU)" color="#10b981" />
+          <VectorBar values={afterRelu} label="Hidden (post-ReLU)" color="#10b981" maxAbs={maxAbs} />
           <div className="text-center text-text-muted text-xs">&darr; Linear (8 &rarr; 4) + bias</div>
-          <VectorBar values={outputVec} label="FFN Output" color="#f59e0b" />
+          <VectorBar values={outputVec} label="FFN Output" color="#f59e0b" maxAbs={maxAbs} />
         </div>
 
         <p className="text-[11px] text-text-muted italic">
@@ -1367,7 +1370,7 @@ function FullPipelineDemo() {
 
   // Compute actual data at each stage
   const tokens = DEMO_TOKENS;
-  const X = useMemo(() => tokens.map((t) => wordEmbedding(t, D_MODEL)), []);
+  const X = useMemo(() => tokens.map((t) => wordEmbedding(t, D_MODEL)), [tokens]);
 
   const PE = useMemo(() => {
     const mat: number[][] = [];
@@ -1381,7 +1384,7 @@ function FullPipelineDemo() {
       mat.push(row);
     }
     return mat;
-  }, []);
+  }, [tokens.length]);
 
   const XplusPE = useMemo(() => matAdd(X, PE), [X, PE]);
   const Q = useMemo(() => matMul(XplusPE, W_Q), [XplusPE]);
@@ -1467,9 +1470,10 @@ function FullPipelineDemo() {
             const isActive = i === activeStage;
             const isPast = i < activeStage;
             return (
-              <div
+              <button
+                type="button"
                 key={stage.id}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 cursor-pointer ${
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 cursor-pointer text-left w-full ${
                   isActive
                     ? 'bg-surface-lighter ring-1'
                     : isPast
@@ -1505,7 +1509,7 @@ function FullPipelineDemo() {
                 <span className="text-[10px] font-mono text-text-muted flex-shrink-0">
                   {stage.shape}
                 </span>
-              </div>
+              </button>
             );
           })}
         </div>

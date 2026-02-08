@@ -135,29 +135,37 @@ function Cell({
       ? `rgba(241,245,249,${clamp(value, 0, 1)})`
       : `rgba(241,245,249,${clamp(value, 0, 1)})`;
 
+  const className = `
+    relative flex items-center justify-center rounded-sm border border-white/[0.06]
+    transition-all duration-150 select-none
+    ${onClick ? 'cursor-pointer hover:border-primary/40' : ''}
+    ${highlight ? `ring-2 ${highlightColor} z-10` : ''}
+    ${isMaxPoolWinner ? 'ring-2 ring-accent-green z-10' : ''}
+  `;
+  const style = {
+    width: size,
+    height: size,
+    minWidth: size,
+    minHeight: size,
+    backgroundColor: bg,
+  };
+  const content = showNumber ? (
+    <span className="text-[10px] font-mono text-text-muted leading-none">
+      {numberValue !== undefined ? numberValue : value.toFixed(1)}
+    </span>
+  ) : null;
+
+  if (onClick) {
+    return (
+      <button type="button" onClick={onClick} className={className} style={style}>
+        {content}
+      </button>
+    );
+  }
+
   return (
-    <div
-      onClick={onClick}
-      className={`
-        relative flex items-center justify-center rounded-sm border border-white/[0.06]
-        transition-all duration-150 select-none
-        ${onClick ? 'cursor-pointer hover:border-primary/40' : ''}
-        ${highlight ? `ring-2 ${highlightColor} z-10` : ''}
-        ${isMaxPoolWinner ? 'ring-2 ring-accent-green z-10' : ''}
-      `}
-      style={{
-        width: size,
-        height: size,
-        minWidth: size,
-        minHeight: size,
-        backgroundColor: bg,
-      }}
-    >
-      {showNumber && (
-        <span className="text-[10px] font-mono text-text-muted leading-none">
-          {numberValue !== undefined ? numberValue : value.toFixed(1)}
-        </span>
-      )}
+    <div className={className} style={style}>
+      {content}
     </div>
   );
 }
@@ -932,7 +940,8 @@ function PoolingSection() {
                     const val = poolOutput[idx];
                     const isActive = idx === activeWindow;
                     return (
-                      <div
+                      <button
+                        type="button"
                         key={c}
                         onClick={() => setActiveWindow(idx)}
                         className={`
@@ -948,7 +957,7 @@ function PoolingSection() {
                         <span className="text-sm font-mono text-text font-bold">
                           {poolType === 'avg' ? val.toFixed(1) : val}
                         </span>
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
@@ -1101,9 +1110,10 @@ function FeatureMapsSection() {
           </p>
           <div className="flex flex-wrap gap-6">
             {featureMaps.map((fm, i) => (
-              <div
+              <button
+                type="button"
                 key={i}
-                className={`rounded-lg border p-3 transition-colors cursor-pointer
+                className={`rounded-lg border p-3 transition-colors cursor-pointer text-left
                   ${activeKernel === i
                     ? 'border-primary/40 bg-primary/5'
                     : 'border-white/[0.06] bg-surface hover:border-primary/20'
@@ -1115,7 +1125,7 @@ function FeatureMapsSection() {
                   {featureKernels[i].name}
                 </p>
                 <PixelGrid grid={fm} cellSize={24} />
-              </div>
+              </button>
             ))}
           </div>
         </div>
