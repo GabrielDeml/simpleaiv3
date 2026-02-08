@@ -244,7 +244,7 @@ export default function NeuralNetworkPage() {
         <div className="flex-1 min-h-0">
           <DecisionBoundaryCanvas />
         </div>
-        <div className="h-32 shrink-0 bg-surface-light rounded-lg p-2 border border-border">
+        <div className="h-36 shrink-0 bg-surface-light rounded-lg p-2 border border-white/[0.06] overflow-hidden">
           <NetworkDiagram />
         </div>
       </div>

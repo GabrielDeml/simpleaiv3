@@ -124,14 +124,14 @@ export default function TransferLearningPage() {
           <div className="flex gap-2">
             <button
               onClick={() => (webcamActive ? stopWebcam() : startWebcam())}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md bg-surface-light border border-border hover:border-primary/50 text-text-muted hover:text-text transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-surface-lighter/50 border border-border/80 hover:border-primary/40 hover:bg-surface-lighter text-text-muted hover:text-text transition-colors"
             >
               {webcamActive ? <CameraOff size={14} /> : <Camera size={14} />}
               {webcamActive ? 'Stop Webcam' : 'Start Webcam'}
             </button>
             <button
               onClick={handleReset}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md bg-surface-light border border-border hover:border-primary/50 text-text-muted hover:text-text transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-surface-lighter/50 border border-border/80 hover:border-primary/40 hover:bg-surface-lighter text-text-muted hover:text-text transition-colors"
             >
               <RotateCcw size={14} />
               Reset

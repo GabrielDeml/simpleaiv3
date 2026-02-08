@@ -18,6 +18,7 @@ export function ParameterSlider({
   format,
 }: ParameterSliderProps) {
   const id = `slider-${label.toLowerCase().replace(/\s+/g, '-')}`;
+  const percent = ((value - min) / (max - min)) * 100;
   return (
     <div className="space-y-1.5">
       <div className="flex justify-between text-sm">
@@ -34,7 +35,8 @@ export function ParameterSlider({
         step={step}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
-        className="w-full accent-primary h-1.5 bg-surface-lighter rounded-full appearance-none cursor-pointer"
+        style={{ '--slider-fill': `${percent}%` } as React.CSSProperties}
+        className="w-full cursor-pointer slider-filled"
       />
     </div>
   );

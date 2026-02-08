@@ -202,7 +202,7 @@ export default function GradientDescentPage() {
               onClick={() => setSurfaceType(opt.value)}
               className={`text-left px-3 py-1.5 rounded text-sm transition-colors ${
                 surfaceType === opt.value
-                  ? 'bg-primary text-white'
+                  ? 'bg-primary/10 text-primary-light'
                   : 'text-text-muted hover:bg-surface-lighter'
               }`}
             >
@@ -228,7 +228,7 @@ export default function GradientDescentPage() {
         <div className="flex flex-col gap-2">
           <button
             onClick={step}
-            className="px-4 py-2 rounded-md bg-surface-lighter hover:bg-border text-text text-sm font-medium transition-colors"
+            className="px-4 py-2 rounded-lg border border-border/80 bg-surface-lighter/50 hover:bg-surface-lighter hover:border-border text-text text-sm font-medium transition-colors"
           >
             Step
           </button>
@@ -241,7 +241,7 @@ export default function GradientDescentPage() {
           <button
             onClick={() => setViewMode('3d')}
             className={`flex-1 px-3 py-1.5 rounded text-sm transition-colors ${
-              viewMode === '3d' ? 'bg-primary text-white' : 'bg-surface-lighter text-text-muted'
+              viewMode === '3d' ? 'bg-primary/15 text-primary-light border border-primary/30' : 'bg-transparent text-text-muted hover:text-text hover:bg-surface-lighter border border-transparent'
             }`}
           >
             3D
@@ -250,8 +250,8 @@ export default function GradientDescentPage() {
             onClick={() => setViewMode('contour')}
             className={`flex-1 px-3 py-1.5 rounded text-sm transition-colors ${
               viewMode === 'contour'
-                ? 'bg-primary text-white'
-                : 'bg-surface-lighter text-text-muted'
+                ? 'bg-primary/15 text-primary-light border border-primary/30'
+                : 'bg-transparent text-text-muted hover:text-text hover:bg-surface-lighter border border-transparent'
             }`}
           >
             Contour
@@ -260,12 +260,12 @@ export default function GradientDescentPage() {
       </ParameterPanel>
 
       <ParameterPanel title="Status">
-        <div className="bg-surface rounded-md p-3">
-          <p className="text-xs text-text-muted">Steps</p>
-          <p className="text-lg font-mono text-text">{stepCount}</p>
+        <div className="bg-surface rounded-lg p-3 border border-white/[0.04]">
+          <p className="text-[10px] text-text-muted uppercase tracking-wider">Steps</p>
+          <p className="text-lg font-mono text-text tabular-nums">{stepCount}</p>
         </div>
-        <div className="bg-surface rounded-md p-3">
-          <p className="text-xs text-text-muted">Value</p>
+        <div className="bg-surface rounded-lg p-3 border border-white/[0.04]">
+          <p className="text-[10px] text-text-muted uppercase tracking-wider">Value</p>
           <p className="text-lg font-mono text-text">
             {evaluateSurface(position[0], position[1], surfaceType).toFixed(4)}
           </p>
@@ -289,9 +289,10 @@ export default function GradientDescentPage() {
       {viewMode === '3d' ? (
         <div className="w-full h-full rounded-lg overflow-hidden" style={{ background: '#1e293b' }}>
           <Canvas camera={{ position: [6, 5, 6], fov: 50 }}>
-            <ambientLight intensity={0.6} />
-            <directionalLight position={[5, 10, 5]} intensity={0.8} />
-            <LossSurface surfaceType={surfaceType} />
+            <ambientLight intensity={1.2} />
+            <directionalLight position={[5, 10, 5]} intensity={1.5} />
+            <directionalLight position={[-5, 3, -5]} intensity={0.6} />
+            <LossSurface surfaceType={surfaceType} onSurfaceClick={(x, y) => setPosition([x, y])} />
             <GradientPath path={path} surfaceType={surfaceType} />
             <CameraControls />
           </Canvas>

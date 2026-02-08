@@ -64,12 +64,12 @@ export function NetworkDiagram() {
   }, [layerSizes, numLayers, svgHeight]);
 
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="w-full h-full overflow-x-auto overflow-y-hidden flex items-center">
       <svg
         width={svgWidth}
         height={svgHeight}
         viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-        className="mx-auto"
+        className="mx-auto shrink-0"
       >
         {/* Edges */}
         {nodePositions.map((layer, l) => {

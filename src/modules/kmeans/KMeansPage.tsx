@@ -129,14 +129,14 @@ export default function KMeansPage() {
           <button
             onClick={initialize}
             disabled={points.length < k}
-            className="px-4 py-2 rounded-md bg-surface-lighter hover:bg-border text-text text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 rounded-lg border border-border/80 bg-surface-lighter/50 hover:bg-surface-lighter hover:border-border text-text text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Initialize Centroids
           </button>
           <button
             onClick={step}
             disabled={points.length < k || converged}
-            className="px-4 py-2 rounded-md bg-surface-lighter hover:bg-border text-text text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 rounded-lg border border-border/80 bg-surface-lighter/50 hover:bg-surface-lighter hover:border-border text-text text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Step
           </button>
@@ -150,13 +150,13 @@ export default function KMeansPage() {
       </ParameterPanel>
 
       <ParameterPanel title="Status">
-        <div className="bg-surface rounded-md p-3">
-          <p className="text-xs text-text-muted">Steps</p>
-          <p className="text-lg font-mono text-text">{stepCount}</p>
+        <div className="bg-surface rounded-lg p-3 border border-white/[0.04]">
+          <p className="text-[10px] text-text-muted uppercase tracking-wider">Steps</p>
+          <p className="text-lg font-mono text-text tabular-nums">{stepCount}</p>
         </div>
-        <div className="bg-surface rounded-md p-3">
-          <p className="text-xs text-text-muted">Points</p>
-          <p className="text-lg font-mono text-text">{points.length}</p>
+        <div className="bg-surface rounded-lg p-3 border border-white/[0.04]">
+          <p className="text-[10px] text-text-muted uppercase tracking-wider">Points</p>
+          <p className="text-lg font-mono text-text tabular-nums">{points.length}</p>
         </div>
         {converged && (
           <div className="flex items-center gap-2">

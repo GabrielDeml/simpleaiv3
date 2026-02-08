@@ -14,6 +14,7 @@ import {
   X,
   PanelLeftClose,
   PanelLeft,
+  Shield,
 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -55,8 +56,9 @@ export function Navigation() {
     <>
       <div className="flex items-center justify-between p-4 border-b border-border">
         {!collapsed && (
-          <NavLink to="/" className="text-lg font-bold text-text tracking-tight">
-            SimpleAI
+          <NavLink to="/" className="text-lg font-bold tracking-tight">
+            <span className="text-text">Simple</span>
+            <span className="bg-gradient-to-r from-primary to-accent-purple bg-clip-text text-transparent">AI</span>
           </NavLink>
         )}
         {/* Desktop collapse toggle */}
@@ -84,8 +86,8 @@ export function Navigation() {
           className={({ isActive }) =>
             `flex items-center gap-3 px-4 py-2.5 mx-2 rounded-md text-sm transition-colors ${
               isActive
-                ? 'bg-primary text-white'
-                : 'text-text-muted hover:text-text hover:bg-surface-lighter'
+                ? 'bg-primary/10 text-primary-light font-medium border-l-2 border-primary'
+                : 'text-text-muted hover:text-text hover:bg-surface-lighter border-l-2 border-transparent'
             }`
           }
         >
@@ -95,9 +97,12 @@ export function Navigation() {
 
         <div className="mt-4 mb-1 px-4">
           {!collapsed && (
-            <span className="text-[10px] font-medium text-text-muted uppercase tracking-wider">
-              Modules
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-medium text-text-muted uppercase tracking-wider">
+                Modules
+              </span>
+              <div className="flex-1 h-px bg-gradient-to-r from-border/50 to-transparent" />
+            </div>
           )}
         </div>
 
@@ -110,8 +115,8 @@ export function Navigation() {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-sm transition-colors ${
                   isActive
-                    ? 'bg-primary text-white'
-                    : 'text-text-muted hover:text-text hover:bg-surface-lighter'
+                    ? 'bg-primary/10 text-primary-light font-medium border-l-2 border-primary'
+                    : 'text-text-muted hover:text-text hover:bg-surface-lighter border-l-2 border-transparent'
                 }`
               }
             >
@@ -124,9 +129,10 @@ export function Navigation() {
 
       {!collapsed && (
         <div className="p-4 border-t border-border">
-          <p className="text-[11px] text-text-muted leading-relaxed">
-            All ML runs in your browser. No data leaves your device.
-          </p>
+          <div className="flex items-center gap-2 px-1 py-1.5 rounded-md bg-accent-green/5">
+            <Shield size={12} className="text-accent-green/60 shrink-0" />
+            <p className="text-[11px] text-text-muted/80">100% client-side. No data leaves your device.</p>
+          </div>
         </div>
       )}
     </>

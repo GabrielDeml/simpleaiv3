@@ -33,7 +33,7 @@ export const Canvas2D = forwardRef<HTMLCanvasElement, Canvas2DProps>(
       <div ref={containerRef} className={`w-full h-full ${className}`}>
         <canvas
           ref={canvasRef}
-          className="block rounded-lg"
+          className="block rounded-lg border border-white/[0.04]"
           role="img"
           aria-label={ariaLabel}
           tabIndex={0}

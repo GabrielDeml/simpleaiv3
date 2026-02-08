@@ -1,49 +1,32 @@
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
+import type { ThreeEvent } from '@react-three/fiber';
 import { evaluateSurface, type SurfaceType } from '../../ml/gradient-descent';
-import { createViridisScale } from '../../utils/color-scales';
 
 interface LossSurfaceProps {
   surfaceType: SurfaceType;
   resolution?: number;
   range?: number;
+  onSurfaceClick?: (x: number, y: number) => void;
 }
 
-export function LossSurface({ surfaceType, resolution = 80, range = 3 }: LossSurfaceProps) {
+export function LossSurface({ surfaceType, resolution = 60, range = 3, onSurfaceClick }: LossSurfaceProps) {
   const prevGeoRef = useRef<THREE.BufferGeometry | null>(null);
 
   const geometry = useMemo(() => {
     const geo = new THREE.BufferGeometry();
     const vertices: number[] = [];
-    const colors: number[] = [];
     const indices: number[] = [];
 
     const step = (range * 2) / resolution;
-    const zValues: number[] = [];
 
     for (let i = 0; i <= resolution; i++) {
       for (let j = 0; j <= resolution; j++) {
         const x = -range + i * step;
         const y = -range + j * step;
         let z = evaluateSurface(x, y, surfaceType);
-        // Clamp z for visualization
         z = Math.min(z, 20);
-        vertices.push(x, z * 0.3, y); // y-up coordinate system: (x, height, z)
-        zValues.push(z);
-      }
-    }
-
-    const zMin = Math.min(...zValues);
-    const zMax = Math.max(...zValues);
-    const colorScale = createViridisScale([zMin, zMax]);
-
-    for (let i = 0; i < zValues.length; i++) {
-      const colorStr = colorScale(zValues[i]);
-      const match = colorStr.match(/\d+/g);
-      if (match) {
-        colors.push(parseInt(match[0]) / 255, parseInt(match[1]) / 255, parseInt(match[2]) / 255);
-      } else {
-        colors.push(0, 0, 0);
+        vertices.push(x, z * 0.3, y);
       }
     }
 
@@ -59,27 +42,38 @@ export function LossSurface({ surfaceType, resolution = 80, range = 3 }: LossSur
     }
 
     geo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-    geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
     geo.setIndex(indices);
     geo.computeVertexNormals();
     return geo;
   }, [surfaceType, resolution, range]);
 
-  // Dispose previous geometry when a new one is created, and on unmount
   useEffect(() => {
-    const prev = prevGeoRef.current;
+    const prevGeo = prevGeoRef.current;
     prevGeoRef.current = geometry;
-    if (prev && prev !== geometry) {
-      prev.dispose();
-    }
+    if (prevGeo && prevGeo !== geometry) prevGeo.dispose();
     return () => {
       prevGeoRef.current?.dispose();
     };
   }, [geometry]);
 
+  const handleClick = (e: ThreeEvent<MouseEvent>) => {
+    if (!onSurfaceClick) return;
+    e.stopPropagation();
+    // In the geometry: x maps to data-x, z maps to data-y (y is the height)
+    const dataX = Math.max(-range, Math.min(range, e.point.x));
+    const dataY = Math.max(-range, Math.min(range, e.point.z));
+    onSurfaceClick(dataX, dataY);
+  };
+
   return (
-    <mesh geometry={geometry}>
-      <meshStandardMaterial vertexColors transparent opacity={0.8} side={THREE.DoubleSide} />
+    <mesh geometry={geometry} onClick={handleClick}>
+      <meshBasicMaterial
+        wireframe
+        color="#38bdf8"
+        transparent
+        opacity={0.6}
+        side={THREE.DoubleSide}
+      />
     </mesh>
   );
 }

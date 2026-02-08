@@ -24,16 +24,16 @@ export function ModuleLayout({
 
   return (
     <div className="flex flex-col h-full">
-      <header className="flex items-center justify-between px-6 py-4 border-b border-border">
+      <header className="flex items-center justify-between px-6 py-4 border-b border-border bg-surface-light/50 backdrop-blur-sm">
         <div className="flex items-center gap-4 min-w-0">
           <div className="min-w-0">
-            <h1 className="text-xl font-bold text-text truncate">{title}</h1>
+            <h1 className="text-xl font-bold text-text truncate tracking-tight">{title}</h1>
             <p className="text-sm text-text-muted mt-0.5">{description}</p>
           </div>
           {learnMore && (
             <button
               onClick={() => setShowInfo(!showInfo)}
-              className="flex items-center gap-1 shrink-0 text-xs text-primary hover:text-primary-light transition-colors px-2 py-1 rounded-md hover:bg-primary/10"
+              className="flex items-center gap-1 shrink-0 text-xs text-primary hover:text-primary-light transition-colors px-3 py-1.5 rounded-lg bg-primary/5 hover:bg-primary/15 border border-primary/10 hover:border-primary/25"
               aria-expanded={showInfo}
               aria-label="Toggle module information"
             >
@@ -67,7 +67,7 @@ export function ModuleLayout({
       <div className="flex flex-1 overflow-hidden flex-col md:flex-row">
         <div className="flex-1 p-6 overflow-auto">{children}</div>
         {controls && (
-          <aside className="w-full md:w-72 border-t md:border-t-0 md:border-l border-border p-4 overflow-y-auto bg-surface-light">
+          <aside className="w-full md:w-72 border-t md:border-t-0 md:border-l border-border/50 p-4 overflow-y-auto bg-surface-light/80">
             {controls}
           </aside>
         )}

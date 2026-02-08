@@ -42,8 +42,8 @@ export default function HomePage() {
     <div className="max-w-6xl mx-auto px-6 py-12">
       {/* Hero */}
       <div className="relative mb-16">
-        <div className="absolute -top-8 -left-8 w-72 h-72 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-16 right-0 w-48 h-48 bg-accent-purple/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-16 -left-16 w-96 h-96 bg-primary/15 rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute top-8 -right-8 w-72 h-72 bg-accent-purple/15 rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ animationDuration: '6s' }} />
 
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -64,11 +64,11 @@ export default function HomePage() {
           </p>
 
           <div className="flex flex-wrap gap-3 mt-6">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-green/10 text-accent-green text-xs font-medium">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-green/10 text-accent-green text-xs font-medium border border-accent-green/20">
               <Shield size={14} />
               No data leaves your device
             </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium border border-primary/20">
               <Cpu size={14} />
               GPU-accelerated in browser
             </div>
@@ -90,11 +90,11 @@ export default function HomePage() {
             <motion.div key={route.path} variants={cardVariant}>
               <Link
                 to={route.path}
-                className="group flex flex-col p-5 rounded-xl border border-border bg-surface-light hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-200 h-full"
+                className="group flex flex-col p-5 rounded-xl border border-white/[0.06] bg-surface-light/80 backdrop-blur-sm hover:border-primary/50 hover:shadow-[0_8px_32px_rgba(0,0,0,0.3),0_0_15px_rgba(37,99,235,0.08)] transition-all duration-300 h-full"
               >
                 <div className="flex items-start justify-between mb-3">
-                  <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors">
-                    <Icon size={20} />
+                  <div className="p-2.5 rounded-xl bg-primary/10 text-primary group-hover:bg-primary/20 group-hover:shadow-[0_0_12px_rgba(37,99,235,0.15)] transition-colors">
+                    <Icon size={22} />
                   </div>
                   <span
                     className="text-[10px] font-medium px-2 py-0.5 rounded-full"
@@ -103,14 +103,14 @@ export default function HomePage() {
                     {diff.label}
                   </span>
                 </div>
-                <h3 className="text-sm font-semibold text-text mb-1.5 group-hover:text-primary transition-colors">
+                <h3 className="text-[15px] font-semibold text-text mb-1.5 group-hover:text-primary transition-colors">
                   {route.title}
                 </h3>
                 <p className="text-xs text-text-muted leading-relaxed flex-1">
                   {route.description}
                 </p>
-                <div className="mt-3 pt-3 border-t border-border">
-                  <span className="text-[10px] font-mono text-text-muted bg-surface px-2 py-0.5 rounded">
+                <div className="mt-3 pt-3 border-t border-white/[0.06]">
+                  <span className="text-[10px] font-mono text-text-muted bg-surface px-2 py-0.5 rounded border border-white/[0.04]">
                     {route.tech}
                   </span>
                 </div>

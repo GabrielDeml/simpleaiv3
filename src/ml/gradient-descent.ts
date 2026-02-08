@@ -42,6 +42,13 @@ export function gradientStep(
   learningRate: number,
   surfaceType: SurfaceType,
 ): [number, number] {
-  const [gx, gy] = computeGradient(x, y, surfaceType);
+  let [gx, gy] = computeGradient(x, y, surfaceType);
+  // Clip gradient magnitude to prevent divergence on steep surfaces
+  const mag = Math.sqrt(gx * gx + gy * gy);
+  const maxMag = 50;
+  if (mag > maxMag) {
+    gx = (gx / mag) * maxMag;
+    gy = (gy / mag) * maxMag;
+  }
   return [x - learningRate * gx, y - learningRate * gy];
 }

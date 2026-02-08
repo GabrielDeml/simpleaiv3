@@ -117,18 +117,18 @@ export default function ImageClassificationPage() {
         {/* Left: Image Input */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-text uppercase tracking-wider">Input</h2>
+            <h2 className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">Input</h2>
             <div className="flex gap-2">
               <button
                 onClick={() => (webcamActive ? stopWebcam() : startWebcam())}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md bg-surface-light border border-border hover:border-primary/50 text-text-muted hover:text-text transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-surface-lighter/50 border border-border/80 hover:border-primary/40 hover:bg-surface-lighter text-text-muted hover:text-text transition-colors"
               >
                 {webcamActive ? <CameraOff size={14} /> : <Camera size={14} />}
                 {webcamActive ? 'Stop' : 'Webcam'}
               </button>
               <button
                 onClick={handleReset}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md bg-surface-light border border-border hover:border-primary/50 text-text-muted hover:text-text transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-surface-lighter/50 border border-border/80 hover:border-primary/40 hover:bg-surface-lighter text-text-muted hover:text-text transition-colors"
               >
                 <RotateCcw size={14} />
                 Reset
@@ -170,7 +170,7 @@ export default function ImageClassificationPage() {
 
         {/* Right: Predictions */}
         <div className="space-y-4">
-          <h2 className="text-sm font-semibold text-text uppercase tracking-wider">Predictions</h2>
+          <h2 className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">Predictions</h2>
 
           {modelStatus === 'loading' && (
             <div className="space-y-3 p-4 bg-surface rounded-lg border border-border">

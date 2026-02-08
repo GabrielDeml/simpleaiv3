@@ -109,14 +109,14 @@ export default function CNNVisualizationPage() {
           <div className="flex gap-2">
             <button
               onClick={() => (webcamActive ? stopWebcam() : startWebcam())}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md bg-surface-light border border-border hover:border-primary/50 text-text-muted hover:text-text transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-surface-lighter/50 border border-border/80 hover:border-primary/40 hover:bg-surface-lighter text-text-muted hover:text-text transition-colors"
             >
               {webcamActive ? <CameraOff size={14} /> : <Camera size={14} />}
               {webcamActive ? 'Stop' : 'Webcam'}
             </button>
             <button
               onClick={handleReset}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md bg-surface-light border border-border hover:border-primary/50 text-text-muted hover:text-text transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-surface-lighter/50 border border-border/80 hover:border-primary/40 hover:bg-surface-lighter text-text-muted hover:text-text transition-colors"
             >
               <RotateCcw size={14} />
               Reset
@@ -165,7 +165,7 @@ export default function CNNVisualizationPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Input section */}
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-text uppercase tracking-wider">
+              <h3 className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">
                 Input Image
               </h3>
               {webcamActive ? (
@@ -211,7 +211,7 @@ export default function CNNVisualizationPage() {
 
             {/* Filter Weights */}
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-text uppercase tracking-wider">
+              <h3 className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">
                 Filter Weights
                 {store.filterWeightImages.length > 0 && (
                   <span className="text-text-muted font-normal ml-1">
@@ -241,7 +241,7 @@ export default function CNNVisualizationPage() {
 
             {/* Activation Maps */}
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-text uppercase tracking-wider">
+              <h3 className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">
                 Activation Maps
                 {store.activationMapImages.length > 0 && (
                   <span className="text-text-muted font-normal ml-1">

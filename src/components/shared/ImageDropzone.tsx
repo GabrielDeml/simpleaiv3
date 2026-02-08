@@ -42,8 +42,8 @@ export function ImageDropzone({ onImageLoad, children, className = '' }: ImageDr
       }}
       onDragLeave={() => setIsDragging(false)}
       onDrop={onDrop}
-      className={`relative border-2 border-dashed rounded-lg transition-colors ${
-        isDragging ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'
+      className={`relative border-2 border-dashed rounded-xl transition-colors ${
+        isDragging ? 'border-primary bg-primary/10 shadow-[0_0_20px_rgba(37,99,235,0.1)]' : 'border-border/60 hover:border-primary/50 hover:bg-primary/[0.03]'
       } ${className}`}
     >
       {children || (

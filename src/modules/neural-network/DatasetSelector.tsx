@@ -125,16 +125,19 @@ interface DatasetSelectorProps {
 export function DatasetSelector({ selected, onSelect }: DatasetSelectorProps) {
   return (
     <div className="space-y-2">
-      <h4 className="text-xs text-text-muted uppercase tracking-wider">Dataset</h4>
+      <div className="flex items-center gap-2">
+        <h4 className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">Dataset</h4>
+        <div className="flex-1 h-px bg-gradient-to-r from-border/50 to-transparent" />
+      </div>
       <div className="grid grid-cols-5 gap-1.5">
         {datasets.map(({ type, label }) => (
           <button
             key={type}
             onClick={() => onSelect(type)}
-            className={`flex flex-col items-center gap-1 p-1.5 rounded-md border transition-colors ${
+            className={`flex flex-col items-center gap-1 p-1.5 rounded-lg border transition-colors ${
               selected === type
-                ? 'border-primary bg-primary/10'
-                : 'border-transparent hover:bg-surface-lighter'
+                ? 'border-primary/50 bg-primary/10'
+                : 'border-border/50 hover:bg-surface-lighter hover:border-border'
             }`}
           >
             <PreviewCanvas type={type} />
