@@ -502,6 +502,8 @@ function PositionalEncodingDemo() {
     canvas.height = height * dpr;
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
+    canvas.style.maxWidth = '100%';
+    canvas.style.aspectRatio = `${width}/${height}`;
     ctx.scale(dpr, dpr);
 
     for (let pos = 0; pos < seqLen; pos++) {
@@ -523,10 +525,15 @@ function PositionalEncodingDemo() {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
       const cellW = Math.max(8, Math.floor(480 / dModel));
       const cellH = 14;
+      const cssW = cellW * dModel;
+      const cssH = cellH * seqLen;
+      // Account for responsive scaling (maxWidth: 100% may shrink the canvas)
+      const scaleX = cssW / rect.width;
+      const scaleY = cssH / rect.height;
+      const x = (e.clientX - rect.left) * scaleX;
+      const y = (e.clientY - rect.top) * scaleY;
       const dim = Math.floor(x / cellW);
       const pos = Math.floor(y / cellH);
       if (dim >= 0 && dim < dModel && pos >= 0 && pos < seqLen) {
@@ -1275,7 +1282,7 @@ function LayerNormDemo() {
     <InteractiveDemo title="Layer Normalization">
       <div className="space-y-4">
         <Eq block>
-          LayerNorm(x<sub>i</sub>) = (x<sub>i</sub> - &mu;) / &sigma;
+          LayerNorm(x<sub>i</sub>) = &gamma; &middot; (x<sub>i</sub> - &mu;) / &sigma; + &beta;
         </Eq>
 
         {/* Sliders for input values */}
@@ -1366,8 +1373,10 @@ function LayerNormDemo() {
         </div>
 
         <p className="text-[11px] text-text-muted italic">
-          Layer normalization centers values around zero with unit variance. This stabilizes
-          training by preventing values from growing too large or too small across layers.
+          Layer normalization centers values around zero with unit variance. The learnable
+          parameters &gamma; (scale) and &beta; (shift) allow the model to undo the normalization
+          when needed. Here we show just the normalization step (&gamma;=1, &beta;=0). This
+          stabilizes training by preventing values from growing too large or too small across layers.
         </p>
       </div>
     </InteractiveDemo>

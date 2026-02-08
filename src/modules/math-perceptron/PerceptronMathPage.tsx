@@ -36,13 +36,16 @@ function setupCanvas(
   height: number,
 ): CanvasRenderingContext2D | null {
   const dpr = window.devicePixelRatio || 1;
-  canvas.width = width * dpr;
-  canvas.height = height * dpr;
-  canvas.style.width = `${width}px`;
-  canvas.style.height = `${height}px`;
+  const needsResize = canvas.width !== width * dpr || canvas.height !== height * dpr;
+  if (needsResize) {
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+  }
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
-  ctx.scale(dpr, dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   return ctx;
 }
 
@@ -66,222 +69,198 @@ function NeuronDiagram({
   z: number;
   output: number;
 }) {
-  const inputY1 = 50;
-  const inputY2 = 150;
-  const biasY = 200;
-  const sumX = 200;
-  const sumY = 110;
-  const outX = 340;
-  const outY = 110;
+  const inX = 55;
+  const y1 = 50;
+  const y2 = 140;
+  const biasY = 195;
+  const sumX = 235;
+  const sumY = 100;
+  const sumR = 32;
+  const outX = 410;
+  const outY = 100;
+  const outR = 28;
 
   return (
     <svg
-      viewBox="0 0 420 240"
+      viewBox="0 0 500 245"
       className="w-full max-w-md mx-auto"
       aria-label="Perceptron neuron diagram"
     >
-      {/* Connection lines */}
+      {/* Connection lines — inputs to sum */}
       <line
-        x1={60}
-        y1={inputY1}
-        x2={sumX - 30}
-        y2={sumY}
+        x1={inX + 18}
+        y1={y1}
+        x2={sumX - sumR}
+        y2={sumY - 8}
         stroke={COLORS.primaryLight}
-        strokeWidth={2}
-        opacity={0.7}
+        strokeWidth={1.5}
+        opacity={0.6}
       />
       <line
-        x1={60}
-        y1={inputY2}
-        x2={sumX - 30}
-        y2={sumY}
+        x1={inX + 18}
+        y1={y2}
+        x2={sumX - sumR}
+        y2={sumY + 8}
         stroke={COLORS.primaryLight}
-        strokeWidth={2}
-        opacity={0.7}
+        strokeWidth={1.5}
+        opacity={0.6}
       />
       <line
-        x1={60}
+        x1={inX + 14}
         y1={biasY}
-        x2={sumX - 30}
-        y2={sumY + 15}
+        x2={sumX - sumR + 4}
+        y2={sumY + 20}
         stroke={COLORS.accentPurple}
-        strokeWidth={2}
-        opacity={0.7}
+        strokeWidth={1.5}
+        opacity={0.5}
         strokeDasharray="4 3"
       />
+      {/* Connection line — sum to output */}
       <line
-        x1={sumX + 30}
+        x1={sumX + sumR}
         y1={sumY}
-        x2={outX - 30}
+        x2={outX - outR}
         y2={outY}
-        stroke={COLORS.text}
-        strokeWidth={2}
+        stroke={COLORS.textMuted}
+        strokeWidth={1.5}
+        opacity={0.5}
+      />
+      {/* Arrowhead */}
+      <polygon
+        points={`${outX - outR - 2},${outY - 4} ${outX - outR - 2},${outY + 4} ${outX - outR + 5},${outY}`}
+        fill={COLORS.textMuted}
         opacity={0.7}
       />
 
       {/* Weight labels on edges */}
       <text
-        x={110}
-        y={inputY1 + 18}
+        x={130}
+        y={y1 + 14}
         fill={COLORS.primaryLight}
-        fontSize={12}
+        fontSize={11}
         fontFamily="monospace"
+        opacity={0.8}
       >
-        w1={fmt(w1)}
+        {'\u00d7'}{fmt(w1)}
       </text>
-      <text x={110} y={inputY2 - 6} fill={COLORS.primaryLight} fontSize={12} fontFamily="monospace">
-        w2={fmt(w2)}
+      <text
+        x={130}
+        y={y2 - 8}
+        fill={COLORS.primaryLight}
+        fontSize={11}
+        fontFamily="monospace"
+        opacity={0.8}
+      >
+        {'\u00d7'}{fmt(w2)}
       </text>
 
       {/* Input nodes */}
-      <circle
-        cx={40}
-        cy={inputY1}
-        r={18}
-        fill={COLORS.surfaceLight}
-        stroke={COLORS.border}
-        strokeWidth={1.5}
-      />
-      <text
-        x={40}
-        y={inputY1 + 4}
-        textAnchor="middle"
-        fill={COLORS.text}
-        fontSize={12}
-        fontFamily="monospace"
-      >
+      <circle cx={inX} cy={y1} r={18} fill={COLORS.surfaceLight} stroke={COLORS.border} strokeWidth={1.5} />
+      <text x={inX} y={y1 + 5} textAnchor="middle" fill={COLORS.text} fontSize={13} fontFamily="monospace">
         {fmt(x1)}
       </text>
-      <text x={40} y={inputY1 - 24} textAnchor="middle" fill={COLORS.textMuted} fontSize={10}>
-        x1
+      <text x={inX} y={y1 - 24} textAnchor="middle" fill={COLORS.textMuted} fontSize={10}>
+        x{'\u2081'}
       </text>
 
-      <circle
-        cx={40}
-        cy={inputY2}
-        r={18}
-        fill={COLORS.surfaceLight}
-        stroke={COLORS.border}
-        strokeWidth={1.5}
-      />
-      <text
-        x={40}
-        y={inputY2 + 4}
-        textAnchor="middle"
-        fill={COLORS.text}
-        fontSize={12}
-        fontFamily="monospace"
-      >
+      <circle cx={inX} cy={y2} r={18} fill={COLORS.surfaceLight} stroke={COLORS.border} strokeWidth={1.5} />
+      <text x={inX} y={y2 + 5} textAnchor="middle" fill={COLORS.text} fontSize={13} fontFamily="monospace">
         {fmt(x2)}
       </text>
-      <text x={40} y={inputY2 - 24} textAnchor="middle" fill={COLORS.textMuted} fontSize={10}>
-        x2
+      <text x={inX} y={y2 - 24} textAnchor="middle" fill={COLORS.textMuted} fontSize={10}>
+        x{'\u2082'}
       </text>
 
-      {/* Bias node */}
+      {/* Bias node — smaller, dashed */}
       <circle
-        cx={40}
+        cx={inX}
         cy={biasY}
-        r={14}
+        r={13}
         fill={COLORS.surfaceLight}
         stroke={COLORS.accentPurple}
         strokeWidth={1.5}
         strokeDasharray="3 2"
+        opacity={0.8}
       />
-      <text
-        x={40}
-        y={biasY + 4}
-        textAnchor="middle"
-        fill={COLORS.accentPurple}
-        fontSize={11}
-        fontFamily="monospace"
-      >
+      <text x={inX} y={biasY + 4} textAnchor="middle" fill={COLORS.accentPurple} fontSize={10} fontFamily="monospace">
         {fmt(bias)}
       </text>
-      <text x={40} y={biasY - 20} textAnchor="middle" fill={COLORS.textMuted} fontSize={10}>
-        b
+      <text x={inX} y={biasY - 18} textAnchor="middle" fill={COLORS.textMuted} fontSize={9}>
+        bias
       </text>
 
-      {/* Sum node */}
-      <circle
-        cx={sumX}
-        cy={sumY}
-        r={28}
-        fill={COLORS.surfaceLight}
-        stroke={COLORS.primary}
-        strokeWidth={2}
-      />
-      <text x={sumX} y={sumY - 4} textAnchor="middle" fill={COLORS.textMuted} fontSize={9}>
-        sum
+      {/* Sum node — big circle with Σ */}
+      <circle cx={sumX} cy={sumY} r={sumR} fill={COLORS.surfaceLight} stroke={COLORS.primary} strokeWidth={2} />
+      <text x={sumX} y={sumY - 6} textAnchor="middle" fill={COLORS.primary} fontSize={20}>
+        {'\u03a3'}
       </text>
-      <text
-        x={sumX}
-        y={sumY + 12}
-        textAnchor="middle"
-        fill={COLORS.text}
-        fontSize={12}
-        fontFamily="monospace"
-        fontWeight="bold"
-      >
+      <text x={sumX} y={sumY + 14} textAnchor="middle" fill={COLORS.text} fontSize={13} fontFamily="monospace" fontWeight="bold">
         {fmt(z)}
       </text>
+      {/* z label above */}
+      <text x={sumX} y={sumY - sumR - 8} textAnchor="middle" fill={COLORS.textMuted} fontSize={10}>
+        z = weighted sum
+      </text>
 
-      {/* Arrow */}
-      <polygon
-        points={`${outX - 32},${outY - 4} ${outX - 32},${outY + 4} ${outX - 24},${outY}`}
-        fill={COLORS.text}
-        opacity={0.7}
-      />
+      {/* Sigmoid label between sum and output */}
       <text
-        x={(sumX + outX) / 2 + 2}
+        x={(sumX + outX) / 2}
         y={outY - 14}
         textAnchor="middle"
         fill={COLORS.textMuted}
         fontSize={9}
       >
-        activation
+        sigmoid
+      </text>
+      <text
+        x={(sumX + outX) / 2}
+        y={outY + 2}
+        textAnchor="middle"
+        fill={COLORS.text}
+        fontSize={13}
+        fontFamily="monospace"
+      >
+        {'\u03c3'}(z)
       </text>
 
       {/* Output node */}
-      <circle
-        cx={outX}
-        cy={outY}
-        r={24}
-        fill={output >= 0.5 ? COLORS.positive : COLORS.negative}
-        opacity={0.25}
-      />
-      <circle
-        cx={outX}
-        cy={outY}
-        r={24}
-        fill="none"
-        stroke={output >= 0.5 ? COLORS.positive : COLORS.negative}
-        strokeWidth={2}
-      />
-      <text x={outX} y={outY - 6} textAnchor="middle" fill={COLORS.textMuted} fontSize={9}>
-        output
-      </text>
+      <circle cx={outX} cy={outY} r={outR} fill={output >= 0.5 ? COLORS.positive : COLORS.negative} opacity={0.15} />
+      <circle cx={outX} cy={outY} r={outR} fill="none" stroke={output >= 0.5 ? COLORS.positive : COLORS.negative} strokeWidth={2} />
       <text
         x={outX}
-        y={outY + 12}
+        y={outY + 6}
         textAnchor="middle"
         fill={COLORS.text}
-        fontSize={14}
+        fontSize={16}
         fontFamily="monospace"
         fontWeight="bold"
       >
         {fmt(output)}
       </text>
+      {/* Output label above */}
+      <text x={outX} y={outY - outR - 8} textAnchor="middle" fill={COLORS.textMuted} fontSize={10}>
+        output
+      </text>
 
-      {/* Labels at very right */}
+      {/* Classification — below output */}
       <text
-        x={outX + 34}
-        y={outY + 4}
+        x={outX}
+        y={outY + outR + 20}
+        textAnchor="middle"
         fill={output >= 0.5 ? COLORS.positive : COLORS.negative}
-        fontSize={11}
+        fontSize={13}
         fontWeight="bold"
       >
         {output >= 0.5 ? 'Class 1' : 'Class 0'}
+      </text>
+      <text
+        x={outX}
+        y={outY + outR + 34}
+        textAnchor="middle"
+        fill={COLORS.textMuted}
+        fontSize={9}
+      >
+        {output >= 0.5 ? `${fmt(output)} \u2265 0.5` : `${fmt(output)} < 0.5`}
       </text>
     </svg>
   );
@@ -1282,7 +1261,7 @@ export default function PerceptronMathPage() {
               {/* Computation breakdown */}
               <div className="rounded-lg bg-surface p-4 border border-white/[0.06] space-y-2">
                 <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
-                  Computation
+                  Step 1: Weighted Sum
                 </h4>
                 <div className="font-mono text-sm text-text-muted space-y-1">
                   <p>
@@ -1306,16 +1285,32 @@ export default function PerceptronMathPage() {
                       </span>
                       <span className="text-primary-light font-bold">{fmt(wsZ)}</span>
                     </p>
-                    <p className="mt-1">
-                      <span className="text-text">{'\u03c3'}(z) = </span>
-                      <span
-                        className={`font-bold ${wsOutput >= 0.5 ? 'text-[#3b82f6]' : 'text-[#ef4444]'}`}
-                      >
-                        {fmt(wsOutput)}
-                      </span>
-                    </p>
                   </div>
                 </div>
+                <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mt-3 mb-1">
+                  Step 2: Sigmoid Activation
+                </h4>
+                <div className="font-mono text-sm text-text-muted">
+                  <p>
+                    <span className="text-text">{'\u03c3'}(z) = 1 / (1 + e</span>
+                    <sup className="text-text">-{fmt(wsZ)}</sup>
+                    <span className="text-text">) = </span>
+                    <span
+                      className={`font-bold ${wsOutput >= 0.5 ? 'text-[#3b82f6]' : 'text-[#ef4444]'}`}
+                    >
+                      {fmt(wsOutput)}
+                    </span>
+                  </p>
+                </div>
+                <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mt-3 mb-1">
+                  Step 3: Classification
+                </h4>
+                <p className="text-sm">
+                  <span className="text-text">{fmt(wsOutput)} {wsOutput >= 0.5 ? '\u2265' : '<'} 0.5 → </span>
+                  <span className={`font-bold ${wsOutput >= 0.5 ? 'text-[#3b82f6]' : 'text-[#ef4444]'}`}>
+                    {wsOutput >= 0.5 ? 'Class 1' : 'Class 0'}
+                  </span>
+                </p>
               </div>
             </div>
 

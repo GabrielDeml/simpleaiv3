@@ -334,7 +334,7 @@ interface GraphEdge {
 }
 
 function buildGraph() {
-  // Simple computation: z = w1*x1 + w2*x2, a = sigmoid(z), L = (a - t)^2
+  // Simple computation: z = w1*x1 + w2*x2, a = sigmoid(z), L = 0.5*(a - t)^2
   const x1 = 1.0,
     x2 = 0.5,
     w1 = 0.3,
@@ -346,11 +346,11 @@ function buildGraph() {
   const p2 = w2 * x2; // mul node 2
   const z = p1 + p2 + b; // sum node
   const a = sigmoid(z); // activation node
-  const L = (a - t) ** 2; // loss node
+  const L = 0.5 * (a - t) ** 2; // loss node
 
   // Backward pass
   const dL_dL = 1.0;
-  const dL_da = 2 * (a - t);
+  const dL_da = a - t;
   const dL_dz = dL_da * sigmoidDeriv(a);
   const dL_dw1 = dL_dz * x1;
   const dL_dw2 = dL_dz * x2;
@@ -500,6 +500,7 @@ function ComputationGraphDemo() {
                   }
                   strokeWidth={highlighted ? 2 : 1}
                   opacity={highlighted ? 1 : 0.4}
+                  style={{ transition: 'stroke 0.3s ease, strokeWidth 0.3s ease' }}
                 />
               );
             })}
@@ -611,7 +612,7 @@ function ForwardPassSection() {
       eq: `a₂ = σ(z₂) = σ(${fmt(z2)}) = ${fmt(a2)}`,
     },
     {
-      label: 'Loss — Mean Squared Error',
+      label: 'Loss — Squared Error Loss',
       eq: `L = ½(a₁-t₁)² + ½(a₂-t₂)² = ½(${fmt(a1)}-${fmt(t1)})² + ½(${fmt(a2)}-${fmt(t2)})² = ${fmt(L)}`,
     },
   ];
@@ -623,7 +624,7 @@ function ForwardPassSection() {
       <Prose>
         <p>
           Let us trace a concrete example through the network. We have two inputs, two output
-          neurons with sigmoid activations, and mean squared error loss.
+          neurons with sigmoid activations, and squared error loss.
         </p>
       </Prose>
 
@@ -723,10 +724,10 @@ function buildBackpropSteps() {
   const p2 = w2 * x2;
   const z = p1 + p2 + b;
   const a = sigmoid(z);
-  const L = (a - t) ** 2;
+  const L = 0.5 * (a - t) ** 2;
 
   const dL_dL = 1.0;
-  const dL_da = 2 * (a - t);
+  const dL_da = a - t;
   const da_dz = sigmoidDeriv(a);
   const dL_dz = dL_da * da_dz;
   const dL_dw1 = dL_dz * x1;
@@ -745,9 +746,9 @@ function buildBackpropSteps() {
     {
       nodeLabel: 'Activation output',
       highlightId: 'act',
-      expression: '∂L/∂a = 2(a - t)',
-      numerical: `2·(${fmt(a)} - ${fmt(t)}) = ${fmt(dL_da)}`,
-      explanation: `The derivative of L = (a-t)² with respect to a. Since a=${fmt(a)} and target=${fmt(t)}, the prediction is too low, giving a negative gradient.`,
+      expression: '∂L/∂a = (a - t)',
+      numerical: `(${fmt(a)} - ${fmt(t)}) = ${fmt(dL_da)}`,
+      explanation: `The derivative of L = ½(a-t)² with respect to a. Since a=${fmt(a)} and target=${fmt(t)}, the prediction is too low, giving a negative gradient.`,
     },
     {
       nodeLabel: 'Pre-activation (z)',
@@ -1068,11 +1069,15 @@ function GradientFlowVisualization() {
     const dpr = window.devicePixelRatio || 1;
     const w = 650,
       h = 320;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    canvas.style.width = `${w}px`;
-    canvas.style.height = `${h}px`;
-    ctx.scale(dpr, dpr);
+    const targetW = w * dpr;
+    const targetH = h * dpr;
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+    }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     const { activations, weightGrads, loss, output } = forwardAndBack(adjustW);
 
@@ -1222,7 +1227,7 @@ function GradientFlowVisualization() {
           <canvas
             ref={canvasRef}
             className="w-full border border-white/[0.06] rounded-lg"
-            style={{ maxWidth: 650 }}
+            style={{ maxWidth: 650, aspectRatio: `${650}/${320}` }}
           />
         </div>
         <p className="text-xs text-text-muted mt-2">
@@ -1249,7 +1254,7 @@ function VanishingGradientSection() {
   for (let i = 0; i < numLayers; i++) {
     gradientMagnitudes.push(grad);
     // Multiply by typical sigmoid derivative * typical weight magnitude
-    grad *= 0.25 * 0.8;
+    grad *= 0.25;
   }
   gradientMagnitudes.reverse(); // from input layer to output layer
 
@@ -1263,11 +1268,15 @@ function VanishingGradientSection() {
     const dpr = window.devicePixelRatio || 1;
     const w = 500,
       h = 220;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    canvas.style.width = `${w}px`;
-    canvas.style.height = `${h}px`;
-    ctx.scale(dpr, dpr);
+    const targetW = w * dpr;
+    const targetH = h * dpr;
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+    }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     ctx.fillStyle = COLORS.bg;
     ctx.fillRect(0, 0, w, h);
@@ -1393,7 +1402,7 @@ function VanishingGradientSection() {
         <span className="text-text-muted">σ'·...·</span>
         <span className="text-text-muted">σ'</span>
         {' ≤ '}
-        <span className="text-red-400">0.25ⁿ</span>
+        <span className="text-red-400">0.25⁽ⁿ⁻¹⁾</span>
         {' (shrinks exponentially)'}
       </Eq>
 
@@ -1463,7 +1472,7 @@ function VanishingGradientSection() {
         <canvas
           ref={sigmoidCanvasRef}
           className="w-full border border-white/[0.06] rounded-lg"
-          style={{ maxWidth: 500 }}
+          style={{ maxWidth: 500, aspectRatio: `${500}/${220}` }}
         />
         <Prose>
           <p>

@@ -27,13 +27,16 @@ function setupCanvas(
   h: number,
 ): CanvasRenderingContext2D | null {
   const dpr = window.devicePixelRatio || 1;
-  canvas.width = w * dpr;
-  canvas.height = h * dpr;
-  canvas.style.width = `${w}px`;
-  canvas.style.height = `${h}px`;
+  const needsResize = canvas.width !== w * dpr || canvas.height !== h * dpr;
+  if (needsResize) {
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+  }
   const ctx = canvas.getContext('2d');
   if (ctx) {
-    ctx.scale(dpr, dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
   return ctx;
 }
@@ -168,6 +171,43 @@ function drawContourDPR(
     }
   }
   ctx.putImageData(imageData, 0, 0);
+  ctx.restore();
+}
+
+// ── Cached contour: render once to offscreen canvas, blit each frame ─
+function ensureContourCache(
+  cacheRef: React.MutableRefObject<HTMLCanvasElement | null>,
+  w: number,
+  h: number,
+  xRange: [number, number],
+  yRange: [number, number],
+  fn: (x: number, y: number) => number,
+  maxVal: number,
+  levels: number[],
+): HTMLCanvasElement {
+  if (!cacheRef.current) {
+    const dpr = window.devicePixelRatio || 1;
+    const offscreen = document.createElement('canvas');
+    offscreen.width = w * dpr;
+    offscreen.height = h * dpr;
+    const offCtx = offscreen.getContext('2d')!;
+    // Draw contour at native resolution
+    drawContourDPR(offCtx, offscreen, w, h, xRange, yRange, fn, maxVal);
+    // Draw contour lines at CSS resolution
+    offCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    drawContourLines(offCtx, w, h, xRange, yRange, fn, levels);
+    cacheRef.current = offscreen;
+  }
+  return cacheRef.current;
+}
+
+function blitContourCache(
+  ctx: CanvasRenderingContext2D,
+  cache: HTMLCanvasElement,
+) {
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.drawImage(cache, 0, 0);
   ctx.restore();
 }
 
@@ -341,7 +381,7 @@ function DerivativeDemo() {
       <canvas
         ref={canvasRef}
         className="border border-white/[0.06] rounded-lg cursor-grab active:cursor-grabbing w-full"
-        style={{ maxWidth: W }}
+        style={{ maxWidth: W, aspectRatio: `${W}/${H}` }}
         onMouseDown={() => {
           isDragging.current = true;
         }}
@@ -377,6 +417,7 @@ function DerivativeDemo() {
 // ══════════════════════════════════════════════════════════════════════
 function GradientDemo() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const contourCacheRef = useRef<HTMLCanvasElement | null>(null);
   const [clickPt, setClickPt] = useState<{ x: number; y: number } | null>(null);
   const W = 500;
   const H = 500;
@@ -396,12 +437,10 @@ function GradientDemo() {
     const ctx = setupCanvas(canvas, W, H);
     if (!ctx) return;
 
-    // Draw contour
-    drawContourDPR(ctx, canvas, W, H, xRange, yRange, fn, 20);
-
-    // Contour lines
+    // Blit cached contour + contour lines
     const levels = [1, 2, 4, 6, 8, 10, 14, 18];
-    drawContourLines(ctx, W, H, xRange, yRange, fn, levels);
+    const cache = ensureContourCache(contourCacheRef, W, H, xRange, yRange, fn, 20, levels);
+    blitContourCache(ctx, cache);
 
     // Draw gradient arrows on grid
     const step = 1;
@@ -460,7 +499,7 @@ function GradientDemo() {
       <canvas
         ref={canvasRef}
         className="border border-white/[0.06] rounded-lg cursor-crosshair w-full"
-        style={{ maxWidth: W }}
+        style={{ maxWidth: W, aspectRatio: `${W}/${H}` }}
         onClick={handleClick}
       />
       <p className="text-xs text-text-muted mt-3">
@@ -568,7 +607,7 @@ function GDStepDemo() {
       <canvas
         ref={canvasRef}
         className="border border-white/[0.06] rounded-lg w-full"
-        style={{ maxWidth: W }}
+        style={{ maxWidth: W, aspectRatio: `${W}/${H}` }}
       />
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button
@@ -603,10 +642,11 @@ function GDStepDemo() {
 // ══════════════════════════════════════════════════════════════════════
 function LearningRateDemo() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const contourCacheRef = useRef<HTMLCanvasElement | null>(null);
   const [userLr, setUserLr] = useState(0.1);
   const [running, setRunning] = useState(false);
   const animRef = useRef(0);
-  // Paths are computed on each render/animation frame
+  const lastTimeRef = useRef(0);
   const W = 600;
   const H = 450;
   const R = 4;
@@ -641,10 +681,10 @@ function LearningRateDemo() {
       const ctx = setupCanvas(canvas, W, H);
       if (!ctx) return;
 
-      // Contour
-      drawContourDPR(ctx, canvas, W, H, xRange, yRange, fn, 32);
+      // Blit cached contour
       const levels = [0.5, 1, 2, 4, 8, 12, 16, 24, 32];
-      drawContourLines(ctx, W, H, xRange, yRange, fn, levels);
+      const cache = ensureContourCache(contourCacheRef, W, H, xRange, yRange, fn, 32, levels);
+      blitContourCache(ctx, cache);
 
       const configs: { path: [number, number][]; color: string; label: string }[] = [
         {
@@ -680,17 +720,13 @@ function LearningRateDemo() {
         }
         ctx.stroke();
 
-        // Trail dots
+        // Trail dots with alpha via globalAlpha
         for (let i = 0; i < path.length; i++) {
           const alpha = 0.3 + 0.7 * (i / path.length);
-          drawDot(
-            ctx,
-            toSx(path[i][0]),
-            toSy(path[i][1]),
-            3,
-            color.replace(')', `,${alpha})`).replace('rgb', 'rgba'),
-          );
+          ctx.globalAlpha = alpha;
+          drawDot(ctx, toSx(path[i][0]), toSy(path[i][1]), 3, color);
         }
+        ctx.globalAlpha = 1.0;
 
         // Current head
         const last = path[path.length - 1];
@@ -717,9 +753,15 @@ function LearningRateDemo() {
       return;
     }
     let step = 1;
-    const animate = () => {
+    lastTimeRef.current = 0;
+    const animate = (timestamp: number) => {
+      if (!lastTimeRef.current) lastTimeRef.current = timestamp;
+      const elapsed = timestamp - lastTimeRef.current;
+      if (elapsed >= 16.67) {
+        step++;
+        lastTimeRef.current = timestamp;
+      }
       drawPaths(step);
-      step++;
       if (step > 80) {
         setRunning(false);
         return;
@@ -740,7 +782,7 @@ function LearningRateDemo() {
       <canvas
         ref={canvasRef}
         className="border border-white/[0.06] rounded-lg w-full"
-        style={{ maxWidth: W }}
+        style={{ maxWidth: W, aspectRatio: `${W}/${H}` }}
       />
       <div className="mt-4 flex flex-wrap gap-3 items-end">
         <button
@@ -774,9 +816,11 @@ function LearningRateDemo() {
 // ══════════════════════════════════════════════════════════════════════
 function MomentumDemo() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const contourCacheRef = useRef<HTMLCanvasElement | null>(null);
   const [beta, setBeta] = useState(0.9);
   const [running, setRunning] = useState(false);
   const animRef = useRef(0);
+  const lastTimeRef = useRef(0);
   const W = 600;
   const H = 450;
   const R = 4;
@@ -829,9 +873,9 @@ function MomentumDemo() {
       const ctx = setupCanvas(canvas, W, H);
       if (!ctx) return;
 
-      drawContourDPR(ctx, canvas, W, H, xRange, yRange, fn, 20);
       const levels = [0.2, 0.5, 1, 2, 4, 8, 12, 16];
-      drawContourLines(ctx, W, H, xRange, yRange, fn, levels);
+      const cache = ensureContourCache(contourCacheRef, W, H, xRange, yRange, fn, 20, levels);
+      blitContourCache(ctx, cache);
 
       const vanilla = computeVanilla(stepCount);
       const momentum = computeMomentum(stepCount, beta);
@@ -886,9 +930,15 @@ function MomentumDemo() {
       return;
     }
     let step = 1;
-    const animate = () => {
+    lastTimeRef.current = 0;
+    const animate = (timestamp: number) => {
+      if (!lastTimeRef.current) lastTimeRef.current = timestamp;
+      const elapsed = timestamp - lastTimeRef.current;
+      if (elapsed >= 16.67) {
+        step += 1;
+        lastTimeRef.current = timestamp;
+      }
       draw(step);
-      step += 1;
       if (step > 100) {
         setRunning(false);
         return;
@@ -908,7 +958,7 @@ function MomentumDemo() {
       <canvas
         ref={canvasRef}
         className="border border-white/[0.06] rounded-lg w-full"
-        style={{ maxWidth: W }}
+        style={{ maxWidth: W, aspectRatio: `${W}/${H}` }}
       />
       <div className="mt-4 flex flex-wrap gap-3 items-end">
         <button
@@ -942,10 +992,11 @@ function MomentumDemo() {
 // ══════════════════════════════════════════════════════════════════════
 function StochasticDemo() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const contourCacheRef = useRef<HTMLCanvasElement | null>(null);
   const [mode, setMode] = useState<'all' | 'sgd' | 'batch' | 'mini'>('all');
   const [running, setRunning] = useState(false);
   const animRef = useRef(0);
-  // Paths are computed on each render/animation frame
+  const lastTimeRef = useRef(0);
   const W = 600;
   const H = 450;
   const R = 4;
@@ -994,9 +1045,9 @@ function StochasticDemo() {
       const ctx = setupCanvas(canvas, W, H);
       if (!ctx) return;
 
-      drawContourDPR(ctx, canvas, W, H, xRange, yRange, fn, 20);
       const levels = [1, 2, 4, 8, 12, 16];
-      drawContourLines(ctx, W, H, xRange, yRange, fn, levels);
+      const cache = ensureContourCache(contourCacheRef, W, H, xRange, yRange, fn, 20, levels);
+      blitContourCache(ctx, cache);
 
       const configs: { key: string; noise: number; color: string; label: string; seed: number }[] =
         [
@@ -1054,9 +1105,15 @@ function StochasticDemo() {
       return;
     }
     let step = 1;
-    const animate = () => {
+    lastTimeRef.current = 0;
+    const animate = (timestamp: number) => {
+      if (!lastTimeRef.current) lastTimeRef.current = timestamp;
+      const elapsed = timestamp - lastTimeRef.current;
+      if (elapsed >= 16.67) {
+        step++;
+        lastTimeRef.current = timestamp;
+      }
       draw(step);
-      step++;
       if (step > 80) {
         setRunning(false);
         return;
@@ -1076,7 +1133,7 @@ function StochasticDemo() {
       <canvas
         ref={canvasRef}
         className="border border-white/[0.06] rounded-lg w-full"
-        style={{ maxWidth: W }}
+        style={{ maxWidth: W, aspectRatio: `${W}/${H}` }}
       />
       <div className="mt-4 flex flex-wrap gap-2">
         {(
@@ -1119,8 +1176,10 @@ function StochasticDemo() {
 // ══════════════════════════════════════════════════════════════════════
 function AdamDemo() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const contourCacheRef = useRef<HTMLCanvasElement | null>(null);
   const [running, setRunning] = useState(false);
   const animRef = useRef(0);
+  const lastTimeRef = useRef(0);
   const W = 600;
   const H = 500;
   // Rosenbrock-like: f(x,y) = (1-x)^2 + 100*(y-x^2)^2
@@ -1209,6 +1268,9 @@ function AdamDemo() {
     return path;
   }, []);
 
+  // Log-scale loss function for contour visualization
+  const logFn = useCallback((x: number, y: number) => Math.log(1 + fn(x, y)), []);
+
   const draw = useCallback(
     (stepCount: number) => {
       const canvas = canvasRef.current;
@@ -1216,11 +1278,10 @@ function AdamDemo() {
       const ctx = setupCanvas(canvas, W, H);
       if (!ctx) return;
 
-      // Contour - use log scale for Rosenbrock
-      const logFn = (x: number, y: number) => Math.log(1 + fn(x, y));
-      drawContourDPR(ctx, canvas, W, H, xRange, yRange, logFn, Math.log(1 + 50));
+      // Blit cached contour (log scale for Rosenbrock)
       const levels = [0.1, 0.5, 1, 2, 3, 5, 10, 20, 40].map((v) => Math.log(1 + v));
-      drawContourLines(ctx, W, H, xRange, yRange, logFn, levels);
+      const cache = ensureContourCache(contourCacheRef, W, H, xRange, yRange, logFn, Math.log(1 + 50), levels);
+      blitContourCache(ctx, cache);
 
       // Mark the minimum at (1, 1)
       drawDot(ctx, toSx(1), toSy(1), 4, 'white');
@@ -1287,9 +1348,15 @@ function AdamDemo() {
       return;
     }
     let step = 1;
-    const animate = () => {
+    lastTimeRef.current = 0;
+    const animate = (timestamp: number) => {
+      if (!lastTimeRef.current) lastTimeRef.current = timestamp;
+      const elapsed = timestamp - lastTimeRef.current;
+      if (elapsed >= 16.67) {
+        step += 2;
+        lastTimeRef.current = timestamp;
+      }
       draw(step);
-      step += 2;
       if (step > 300) {
         setRunning(false);
         return;
@@ -1305,7 +1372,7 @@ function AdamDemo() {
       <canvas
         ref={canvasRef}
         className="border border-white/[0.06] rounded-lg w-full"
-        style={{ maxWidth: W }}
+        style={{ maxWidth: W, aspectRatio: `${W}/${H}` }}
       />
       <div className="mt-4 flex gap-3">
         <button
