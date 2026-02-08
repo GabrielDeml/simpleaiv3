@@ -1,5 +1,38 @@
 import { lazy } from 'react';
 
+export const mathRoutes = [
+  {
+    path: '/math/perceptron',
+    component: lazy(() => import('../modules/math-perceptron/PerceptronMathPage')),
+    title: 'The Perceptron',
+    icon: 'Zap',
+  },
+  {
+    path: '/math/backpropagation',
+    component: lazy(() => import('../modules/math-backprop/BackpropMathPage')),
+    title: 'Backpropagation',
+    icon: 'GitBranch',
+  },
+  {
+    path: '/math/gradient-descent',
+    component: lazy(() => import('../modules/math-gradient-descent/GradientDescentMathPage')),
+    title: 'Gradient Descent',
+    icon: 'ArrowDownRight',
+  },
+  {
+    path: '/math/cnn',
+    component: lazy(() => import('../modules/math-cnn/CNNMathPage')),
+    title: 'CNNs',
+    icon: 'Grid3x3',
+  },
+  {
+    path: '/math/transformers',
+    component: lazy(() => import('../modules/math-transformers/TransformerMathPage')),
+    title: 'Transformers',
+    icon: 'Sparkles',
+  },
+];
+
 export const moduleRoutes = [
   {
     path: '/linear-regression',

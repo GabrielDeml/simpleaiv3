@@ -17,6 +17,7 @@ export default defineConfig(async () => {
   }
 
   return {
+    base: '/simpleaiv3/',
     plugins,
     worker: {
       format: 'es' as const,

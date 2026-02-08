@@ -4,7 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 import { AppShell } from './components/layout/AppShell';
 import { ErrorBoundary } from './components/shared/ErrorBoundary';
 import { PageTransition } from './components/shared/PageTransition';
-import { moduleRoutes } from './config/routes';
+import { moduleRoutes, mathRoutes } from './config/routes';
 import { initTFBackend } from './ml/backend-init';
 import HomePage from './pages/HomePage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -39,6 +39,21 @@ function AnimatedRoutes() {
             }
           />
           {moduleRoutes.map(({ path, component: Component, title }) => (
+            <Route
+              key={path}
+              path={path}
+              element={
+                <PageTransition>
+                  <ErrorBoundary moduleName={title}>
+                    <Suspense fallback={<LoadingFallback name={title} />}>
+                      <Component />
+                    </Suspense>
+                  </ErrorBoundary>
+                </PageTransition>
+              }
+            />
+          ))}
+          {mathRoutes.map(({ path, component: Component, title }) => (
             <Route
               key={path}
               path={path}

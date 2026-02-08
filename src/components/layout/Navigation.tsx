@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router';
-import { moduleRoutes } from '../../config/routes';
+import { moduleRoutes, mathRoutes } from '../../config/routes';
 import {
   Home,
   TrendingUp,
@@ -15,6 +15,11 @@ import {
   PanelLeftClose,
   PanelLeft,
   Shield,
+  Zap,
+  GitBranch,
+  ArrowDownRight,
+  Grid3x3,
+  Sparkles,
 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -28,6 +33,11 @@ const iconMap: Record<string, React.ComponentType<{ size?: number }>> = {
   Repeat,
   Eye,
   MessageSquare,
+  Zap,
+  GitBranch,
+  ArrowDownRight,
+  Grid3x3,
+  Sparkles,
 };
 
 export function Navigation() {
@@ -107,6 +117,37 @@ export function Navigation() {
         </div>
 
         {moduleRoutes.map((route) => {
+          const Icon = iconMap[route.icon] || Brain;
+          return (
+            <NavLink
+              key={route.path}
+              to={route.path}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-sm transition-colors ${
+                  isActive
+                    ? 'bg-primary/10 text-primary-light font-medium border-l-2 border-primary'
+                    : 'text-text-muted hover:text-text hover:bg-surface-lighter border-l-2 border-transparent'
+                }`
+              }
+            >
+              <Icon size={18} />
+              {!collapsed && <span>{route.title}</span>}
+            </NavLink>
+          );
+        })}
+
+        <div className="mt-4 mb-1 px-4">
+          {!collapsed && (
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-medium text-text-muted uppercase tracking-wider">
+                Math Deep Dives
+              </span>
+              <div className="flex-1 h-px bg-gradient-to-r from-border/50 to-transparent" />
+            </div>
+          )}
+        </div>
+
+        {mathRoutes.map((route) => {
           const Icon = iconMap[route.icon] || Brain;
           return (
             <NavLink

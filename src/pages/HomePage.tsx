@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
 import { motion } from 'framer-motion';
-import { moduleRoutes } from '../config/routes';
+import { moduleRoutes, mathRoutes } from '../config/routes';
 import { DIFFICULTY } from '../config/constants';
 import {
   TrendingUp,
@@ -13,6 +13,11 @@ import {
   MessageSquare,
   Shield,
   Cpu,
+  Zap,
+  GitBranch,
+  ArrowDownRight,
+  Grid3x3,
+  Sparkles,
 } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
@@ -25,6 +30,11 @@ const iconMap: Record<string, React.ComponentType<{ size?: number; className?: s
   Repeat,
   Eye,
   MessageSquare,
+  Zap,
+  GitBranch,
+  ArrowDownRight,
+  Grid3x3,
+  Sparkles,
 };
 
 const container = {
@@ -119,6 +129,52 @@ export default function HomePage() {
           );
         })}
       </motion.div>
+
+      {/* Math Deep Dives */}
+      <div className="mt-16">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <h2 className="text-2xl font-bold text-text mb-2 tracking-tight">
+            Math Deep Dives
+          </h2>
+          <p className="text-sm text-text-muted mb-6">
+            Interactive walkthroughs of the math behind AI — play with every equation.
+          </p>
+        </motion.div>
+        <motion.div
+          variants={container}
+          initial="initial"
+          animate="animate"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4"
+        >
+          {mathRoutes.map((route) => {
+            const Icon = iconMap[route.icon] || Brain;
+            return (
+              <motion.div key={route.path} variants={cardVariant}>
+                <Link
+                  to={route.path}
+                  className="group flex flex-col p-5 rounded-xl border border-white/[0.06] bg-surface-light/80 backdrop-blur-sm hover:border-accent-purple/50 hover:shadow-[0_8px_32px_rgba(0,0,0,0.3),0_0_15px_rgba(139,92,246,0.08)] transition-all duration-300 h-full"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="p-2.5 rounded-xl bg-accent-purple/10 text-accent-purple group-hover:bg-accent-purple/20 group-hover:shadow-[0_0_12px_rgba(139,92,246,0.15)] transition-colors">
+                      <Icon size={22} />
+                    </div>
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-accent-purple/15 text-accent-purple">
+                      Math
+                    </span>
+                  </div>
+                  <h3 className="text-[15px] font-semibold text-text mb-1.5 group-hover:text-accent-purple transition-colors">
+                    {route.title}
+                  </h3>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      </div>
 
       {/* Footer */}
       <motion.footer
