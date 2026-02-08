@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import { useNeuralNetworkStore } from '../../stores/useNeuralNetworkStore';
 
 const NODE_RADIUS = 12;
-const LAYER_SPACING = 100;
-const NODE_SPACING = 36;
+const LAYER_SPACING = 50;
+const NODE_SPACING = 46;
 
 function weightToColor(w: number): string {
   const clamped = Math.max(-1, Math.min(1, w));
@@ -44,32 +44,32 @@ export function NetworkDiagram() {
 
   const numLayers = layerSizes.length;
   const maxNodes = Math.max(...layerSizes);
-  const svgWidth = (numLayers - 1) * LAYER_SPACING + 60;
-  const svgHeight = Math.max((maxNodes - 1) * NODE_SPACING + 60, 120);
+  // Rotated: width is based on max nodes (horizontal), height on layers (vertical)
+  const svgWidth = (maxNodes - 1) * NODE_SPACING + 60;
+  const svgHeight = (numLayers - 1) * LAYER_SPACING + 60;
 
   const nodePositions = useMemo(() => {
     const positions: { x: number; y: number }[][] = [];
     for (let l = 0; l < numLayers; l++) {
       const count = layerSizes[l];
-      const layerHeight = (count - 1) * NODE_SPACING;
-      const startY = (svgHeight - layerHeight) / 2;
-      const x = 30 + l * LAYER_SPACING;
+      const layerWidth = (count - 1) * NODE_SPACING;
+      const startX = (svgWidth - layerWidth) / 2;
+      const y = 30 + l * LAYER_SPACING;
       const layer: { x: number; y: number }[] = [];
       for (let n = 0; n < count; n++) {
-        layer.push({ x, y: startY + n * NODE_SPACING });
+        layer.push({ x: startX + n * NODE_SPACING, y });
       }
       positions.push(layer);
     }
     return positions;
-  }, [layerSizes, numLayers, svgHeight]);
+  }, [layerSizes, numLayers, svgWidth]);
 
   return (
-    <div className="w-full h-full overflow-x-auto overflow-y-hidden flex items-center">
+    <div className="w-full h-full flex items-center justify-center">
       <svg
-        width={svgWidth}
-        height={svgHeight}
         viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-        className="mx-auto shrink-0"
+        className="w-full h-full"
+        preserveAspectRatio="xMidYMid meet"
       >
         {/* Edges */}
         {nodePositions.map((layer, l) => {
@@ -114,15 +114,15 @@ export function NetworkDiagram() {
           )),
         )}
 
-        {/* Layer labels */}
+        {/* Layer labels on the right side */}
         {nodePositions.map((layer, l) => {
-          const x = layer[0].x;
+          const lastNode = layer[layer.length - 1];
           return (
             <text
               key={`label-${l}`}
-              x={x}
-              y={svgHeight - 4}
-              textAnchor="middle"
+              x={lastNode.x + NODE_RADIUS + 8}
+              y={lastNode.y + 4}
+              textAnchor="start"
               fill="#94a3b8"
               fontSize={9}
             >
