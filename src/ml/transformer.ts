@@ -21,21 +21,21 @@ export const DEFAULT_CONFIG: TransformerConfig = {
 /* ─────────────────────────── Weights ─────────────────────────── */
 
 export interface TransformerWeights {
-  wEmbed: tf.Variable;    // [vocabSize, dModel]
-  wQ: tf.Variable;        // [dModel, dModel]
-  wK: tf.Variable;        // [dModel, dModel]
-  wV: tf.Variable;        // [dModel, dModel]
-  wO: tf.Variable;        // [dModel, dModel]
-  ffnW1: tf.Variable;     // [dModel, ffnDim]
-  ffnB1: tf.Variable;     // [ffnDim]
-  ffnW2: tf.Variable;     // [ffnDim, dModel]
-  ffnB2: tf.Variable;     // [dModel]
-  lnGamma1: tf.Variable;  // [dModel]
-  lnBeta1: tf.Variable;   // [dModel]
-  lnGamma2: tf.Variable;  // [dModel]
-  lnBeta2: tf.Variable;   // [dModel]
-  wOut: tf.Variable;      // [dModel, vocabSize]
-  bOut: tf.Variable;      // [vocabSize]
+  wEmbed: tf.Variable; // [vocabSize, dModel]
+  wQ: tf.Variable; // [dModel, dModel]
+  wK: tf.Variable; // [dModel, dModel]
+  wV: tf.Variable; // [dModel, dModel]
+  wO: tf.Variable; // [dModel, dModel]
+  ffnW1: tf.Variable; // [dModel, ffnDim]
+  ffnB1: tf.Variable; // [ffnDim]
+  ffnW2: tf.Variable; // [ffnDim, dModel]
+  ffnB2: tf.Variable; // [dModel]
+  lnGamma1: tf.Variable; // [dModel]
+  lnBeta1: tf.Variable; // [dModel]
+  lnGamma2: tf.Variable; // [dModel]
+  lnBeta2: tf.Variable; // [dModel]
+  wOut: tf.Variable; // [dModel, vocabSize]
+  bOut: tf.Variable; // [vocabSize]
 }
 
 function initWeight(shape: number[], scale: number = 0.02): tf.Variable {
@@ -66,10 +66,21 @@ export function createWeights(config: TransformerConfig): TransformerWeights {
 
 export function getTrainableVars(w: TransformerWeights): tf.Variable[] {
   return [
-    w.wEmbed, w.wQ, w.wK, w.wV, w.wO,
-    w.ffnW1, w.ffnB1, w.ffnW2, w.ffnB2,
-    w.lnGamma1, w.lnBeta1, w.lnGamma2, w.lnBeta2,
-    w.wOut, w.bOut,
+    w.wEmbed,
+    w.wQ,
+    w.wK,
+    w.wV,
+    w.wO,
+    w.ffnW1,
+    w.ffnB1,
+    w.ffnW2,
+    w.ffnB2,
+    w.lnGamma1,
+    w.lnBeta1,
+    w.lnGamma2,
+    w.lnBeta2,
+    w.wOut,
+    w.bOut,
   ];
 }
 
@@ -83,12 +94,12 @@ export function disposeWeights(w: TransformerWeights) {
 
 function sinusoidalPE(seqLen: number, dModel: number): tf.Tensor2D {
   return tf.tidy(() => {
-    const positions = tf.range(0, seqLen).reshape([seqLen, 1]);          // [seqLen,1]
-    const dims = tf.range(0, dModel).reshape([1, dModel]);               // [1,dModel]
-    const dimPairs = tf.floor(dims.div(2));                              // [1,dModel]
+    const positions = tf.range(0, seqLen).reshape([seqLen, 1]); // [seqLen,1]
+    const dims = tf.range(0, dModel).reshape([1, dModel]); // [1,dModel]
+    const dimPairs = tf.floor(dims.div(2)); // [1,dModel]
     const angles = positions.div(tf.pow(10000, dimPairs.mul(2).div(dModel))); // [seqLen,dModel]
     // even dims = sin, odd dims = cos
-    const isEven = tf.equal(dims.mod(2), 0).cast('float32');             // [1,dModel]
+    const isEven = tf.equal(dims.mod(2), 0).cast('float32'); // [1,dModel]
     const sinPart = tf.sin(angles).mul(isEven);
     const cosPart = tf.cos(angles).mul(tf.sub(1, isEven));
     return sinPart.add(cosPart) as tf.Tensor2D;
@@ -98,9 +109,9 @@ function sinusoidalPE(seqLen: number, dModel: number): tf.Tensor2D {
 /* ──────────────────── Layer Normalization ──────────────────── */
 
 function layerNorm(
-  x: tf.Tensor,        // [..., dModel]
-  gamma: tf.Variable,  // [dModel]
-  beta: tf.Variable,   // [dModel]
+  x: tf.Tensor, // [..., dModel]
+  gamma: tf.Variable, // [dModel]
+  beta: tf.Variable, // [dModel]
 ): tf.Tensor {
   return tf.tidy(() => {
     const mean = x.mean(-1, true);
@@ -113,12 +124,12 @@ function layerNorm(
 /* ──────────────────── Forward Pass ──────────────────── */
 
 export interface ForwardResult {
-  logits: tf.Tensor;              // [batch, seqLen, vocabSize]
-  attentionWeights: tf.Tensor;    // [batch, numHeads, seqLen, seqLen]
+  logits: tf.Tensor; // [batch, seqLen, vocabSize]
+  attentionWeights: tf.Tensor; // [batch, numHeads, seqLen, seqLen]
 }
 
 export function forward(
-  ids: tf.Tensor2D,               // [batch, seqLen] int32
+  ids: tf.Tensor2D, // [batch, seqLen] int32
   weights: TransformerWeights,
   config: TransformerConfig,
 ): ForwardResult {
@@ -127,10 +138,10 @@ export function forward(
 
   // Embedding: oneHot → matmul (differentiable)
   const oneHot = tf.oneHot(ids.cast('int32'), vocabSize).cast('float32'); // [batch, seqLen, vocabSize]
-  let x = tf.matMul(oneHot, weights.wEmbed);                              // [batch, seqLen, dModel]
+  let x = tf.matMul(oneHot, weights.wEmbed); // [batch, seqLen, dModel]
 
   // Add sinusoidal positional encoding
-  const pe = sinusoidalPE(seqLen, dModel);                                 // [seqLen, dModel]
+  const pe = sinusoidalPE(seqLen, dModel); // [seqLen, dModel]
   x = x.add(pe);
 
   // --- Multi-Head Self-Attention ---
@@ -151,9 +162,9 @@ export function forward(
   const Vh = reshapeToHeads(V);
 
   // Scaled dot-product attention
-  const scores = tf.matMul(Qh, Kh, false, true).div(Math.sqrt(dK));       // [batch, heads, seqLen, seqLen]
+  const scores = tf.matMul(Qh, Kh, false, true).div(Math.sqrt(dK)); // [batch, heads, seqLen, seqLen]
   const attnWeights = tf.softmax(scores, -1);
-  const attnOut = tf.matMul(attnWeights, Vh);                             // [batch, heads, seqLen, dK]
+  const attnOut = tf.matMul(attnWeights, Vh); // [batch, heads, seqLen, dK]
 
   // Concat heads → [batch, seqLen, dModel], project via W_O
   const concatHeads = attnOut.transpose([0, 2, 1, 3]).reshape([batchSize, seqLen, dModel]);
@@ -164,14 +175,14 @@ export function forward(
 
   // --- Feed-Forward Network ---
   const residual2 = x;
-  const hidden = tf.matMul(x, weights.ffnW1).add(weights.ffnB1).relu();   // [batch, seqLen, ffnDim]
-  const ffnOut = tf.matMul(hidden, weights.ffnW2).add(weights.ffnB2);     // [batch, seqLen, dModel]
+  const hidden = tf.matMul(x, weights.ffnW1).add(weights.ffnB1).relu(); // [batch, seqLen, ffnDim]
+  const ffnOut = tf.matMul(hidden, weights.ffnW2).add(weights.ffnB2); // [batch, seqLen, dModel]
 
   // Residual + LayerNorm
   x = layerNorm(residual2.add(ffnOut), weights.lnGamma2, weights.lnBeta2);
 
   // Output projection → logits per position
-  const logits = tf.matMul(x, weights.wOut).add(weights.bOut);            // [batch, seqLen, vocabSize]
+  const logits = tf.matMul(x, weights.wOut).add(weights.bOut); // [batch, seqLen, vocabSize]
 
   return { logits, attentionWeights: attnWeights };
 }
@@ -179,8 +190,8 @@ export function forward(
 /* ──────────────────── Loss & Accuracy ──────────────────── */
 
 export function computeLoss(
-  logits: tf.Tensor,     // [batch, seqLen, vocabSize]
-  targets: tf.Tensor2D,  // [batch, seqLen] int32
+  logits: tf.Tensor, // [batch, seqLen, vocabSize]
+  targets: tf.Tensor2D, // [batch, seqLen] int32
   vocabSize: number,
 ): tf.Scalar {
   return tf.tidy(() => {
@@ -191,11 +202,11 @@ export function computeLoss(
 }
 
 export function computeAccuracy(
-  logits: tf.Tensor,     // [batch, seqLen, vocabSize]
-  targets: tf.Tensor2D,  // [batch, seqLen] int32
+  logits: tf.Tensor, // [batch, seqLen, vocabSize]
+  targets: tf.Tensor2D, // [batch, seqLen] int32
 ): number {
   return tf.tidy(() => {
-    const preds = logits.argMax(-1);    // [batch, seqLen]
+    const preds = logits.argMax(-1); // [batch, seqLen]
     const correct = preds.equal(targets.cast('int32')).cast('float32');
     return correct.mean().dataSync()[0];
   });
@@ -207,8 +218,8 @@ export function trainStep(
   weights: TransformerWeights,
   config: TransformerConfig,
   optimizer: tf.Optimizer,
-  inputIds: tf.Tensor2D,   // [batch, seqLen]
-  targetIds: tf.Tensor2D,  // [batch, seqLen]
+  inputIds: tf.Tensor2D, // [batch, seqLen]
+  targetIds: tf.Tensor2D, // [batch, seqLen]
 ): { loss: number; accuracy: number; attentionWeights: number[] } {
   const vars = getTrainableVars(weights);
 

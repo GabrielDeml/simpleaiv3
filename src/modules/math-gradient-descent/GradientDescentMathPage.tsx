@@ -201,10 +201,7 @@ function ensureContourCache(
   return cacheRef.current;
 }
 
-function blitContourCache(
-  ctx: CanvasRenderingContext2D,
-  cache: HTMLCanvasElement,
-) {
+function blitContourCache(ctx: CanvasRenderingContext2D, cache: HTMLCanvasElement) {
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.drawImage(cache, 0, 0);
@@ -1280,7 +1277,16 @@ function AdamDemo() {
 
       // Blit cached contour (log scale for Rosenbrock)
       const levels = [0.1, 0.5, 1, 2, 3, 5, 10, 20, 40].map((v) => Math.log(1 + v));
-      const cache = ensureContourCache(contourCacheRef, W, H, xRange, yRange, logFn, Math.log(1 + 50), levels);
+      const cache = ensureContourCache(
+        contourCacheRef,
+        W,
+        H,
+        xRange,
+        yRange,
+        logFn,
+        Math.log(1 + 50),
+        levels,
+      );
       blitContourCache(ctx, cache);
 
       // Mark the minimum at (1, 1)

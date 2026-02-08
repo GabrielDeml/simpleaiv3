@@ -493,9 +493,7 @@ function TokenEmbeddingsDemo() {
           <span className="text-[10px] text-text-muted font-mono">{progress}%</span>
         </div>
         {progressFile && (
-          <p className="text-[10px] text-text-muted font-mono truncate max-w-xs">
-            {progressFile}
-          </p>
+          <p className="text-[10px] text-text-muted font-mono truncate max-w-xs">{progressFile}</p>
         )}
       </div>
     );
@@ -988,7 +986,8 @@ function generateAttentionPattern(
   }
 
   // content-based: use real embeddings if available, else hash-based fallback
-  const embs = realEmbs && realEmbs.length === n ? realEmbs : tokens.map((t) => wordEmbeddingHash(t, 8));
+  const embs =
+    realEmbs && realEmbs.length === n ? realEmbs : tokens.map((t) => wordEmbeddingHash(t, 8));
   const raw = embs.map((q) =>
     embs.map((k) => {
       let dot = 0;
@@ -1563,7 +1562,8 @@ function LayerNormDemo() {
           Layer normalization centers values around zero with unit variance. The learnable
           parameters &gamma; (scale) and &beta; (shift) allow the model to undo the normalization
           when needed. Here we show just the normalization step (&gamma;=1, &beta;=0). This
-          stabilizes training by preventing values from growing too large or too small across layers.
+          stabilizes training by preventing values from growing too large or too small across
+          layers.
         </p>
       </div>
     </InteractiveDemo>
@@ -1799,30 +1799,114 @@ function TrainingChart({
   const lossToY = (v: number) => padT + (1 - v / maxLoss) * plotH;
   const accToY = (v: number) => padT + (1 - v) * plotH;
 
-  const lossPath = lossHistory.map((v, i) => `${i === 0 ? 'M' : 'L'}${toX(i)},${lossToY(v)}`).join('');
-  const accPath = accuracyHistory.map((v, i) => `${i === 0 ? 'M' : 'L'}${toX(i)},${accToY(v)}`).join('');
+  const lossPath = lossHistory
+    .map((v, i) => `${i === 0 ? 'M' : 'L'}${toX(i)},${lossToY(v)}`)
+    .join('');
+  const accPath = accuracyHistory
+    .map((v, i) => `${i === 0 ? 'M' : 'L'}${toX(i)},${accToY(v)}`)
+    .join('');
 
   return (
     <svg viewBox={`0 0 ${width} ${height}`} className="w-full max-w-[500px]">
       {/* Grid */}
       {[0, 0.25, 0.5, 0.75, 1].map((t) => (
-        <line key={t} x1={padL} y1={padT + t * plotH} x2={padL + plotW} y2={padT + t * plotH}
-          stroke="#334155" strokeWidth="0.5" />
+        <line
+          key={t}
+          x1={padL}
+          y1={padT + t * plotH}
+          x2={padL + plotW}
+          y2={padT + t * plotH}
+          stroke="#334155"
+          strokeWidth="0.5"
+        />
       ))}
 
       {/* Loss axis labels (left) */}
-      <text x={padL - 4} y={padT + 3} textAnchor="end" fill="#ef4444" fontSize="9" fontFamily="monospace">{maxLoss.toFixed(1)}</text>
-      <text x={padL - 4} y={padT + plotH + 3} textAnchor="end" fill="#ef4444" fontSize="9" fontFamily="monospace">0</text>
-      <text x={4} y={padT + plotH / 2} fill="#ef4444" fontSize="8" fontFamily="monospace" transform={`rotate(-90, 4, ${padT + plotH / 2})`} textAnchor="middle">Loss</text>
+      <text
+        x={padL - 4}
+        y={padT + 3}
+        textAnchor="end"
+        fill="#ef4444"
+        fontSize="9"
+        fontFamily="monospace"
+      >
+        {maxLoss.toFixed(1)}
+      </text>
+      <text
+        x={padL - 4}
+        y={padT + plotH + 3}
+        textAnchor="end"
+        fill="#ef4444"
+        fontSize="9"
+        fontFamily="monospace"
+      >
+        0
+      </text>
+      <text
+        x={4}
+        y={padT + plotH / 2}
+        fill="#ef4444"
+        fontSize="8"
+        fontFamily="monospace"
+        transform={`rotate(-90, 4, ${padT + plotH / 2})`}
+        textAnchor="middle"
+      >
+        Loss
+      </text>
 
       {/* Accuracy axis labels (right) */}
-      <text x={padL + plotW + padR} y={padT + 3} textAnchor="end" fill="#10b981" fontSize="9" fontFamily="monospace">100%</text>
-      <text x={padL + plotW + padR} y={padT + plotH + 3} textAnchor="end" fill="#10b981" fontSize="9" fontFamily="monospace">0%</text>
+      <text
+        x={padL + plotW + padR}
+        y={padT + 3}
+        textAnchor="end"
+        fill="#10b981"
+        fontSize="9"
+        fontFamily="monospace"
+      >
+        100%
+      </text>
+      <text
+        x={padL + plotW + padR}
+        y={padT + plotH + 3}
+        textAnchor="end"
+        fill="#10b981"
+        fontSize="9"
+        fontFamily="monospace"
+      >
+        0%
+      </text>
 
       {/* X axis */}
-      <text x={padL + plotW / 2} y={height - 4} textAnchor="middle" fill="#64748b" fontSize="9" fontFamily="monospace">Step</text>
-      <text x={padL} y={height - 4} textAnchor="start" fill="#64748b" fontSize="8" fontFamily="monospace">1</text>
-      <text x={padL + plotW} y={height - 4} textAnchor="end" fill="#64748b" fontSize="8" fontFamily="monospace">{n}</text>
+      <text
+        x={padL + plotW / 2}
+        y={height - 4}
+        textAnchor="middle"
+        fill="#64748b"
+        fontSize="9"
+        fontFamily="monospace"
+      >
+        Step
+      </text>
+      <text
+        x={padL}
+        y={height - 4}
+        textAnchor="start"
+        fill="#64748b"
+        fontSize="8"
+        fontFamily="monospace"
+      >
+        1
+      </text>
+      <text
+        x={padL + plotW}
+        y={height - 4}
+        textAnchor="end"
+        fill="#64748b"
+        fontSize="8"
+        fontFamily="monospace"
+      >
+        {n}
+      </text>
 
       {/* Loss line */}
       <path d={lossPath} fill="none" stroke="#ef4444" strokeWidth="1.5" opacity="0.8" />
@@ -1831,9 +1915,13 @@ function TrainingChart({
 
       {/* Legend */}
       <line x1={padL + 10} y1={10} x2={padL + 25} y2={10} stroke="#ef4444" strokeWidth="2" />
-      <text x={padL + 28} y={13} fill="#ef4444" fontSize="9" fontFamily="monospace">Loss</text>
+      <text x={padL + 28} y={13} fill="#ef4444" fontSize="9" fontFamily="monospace">
+        Loss
+      </text>
       <line x1={padL + 70} y1={10} x2={padL + 85} y2={10} stroke="#10b981" strokeWidth="2" />
-      <text x={padL + 88} y={13} fill="#10b981" fontSize="9" fontFamily="monospace">Accuracy</text>
+      <text x={padL + 88} y={13} fill="#10b981" fontSize="9" fontFamily="monospace">
+        Accuracy
+      </text>
     </svg>
   );
 }
@@ -1870,14 +1958,20 @@ function TrainedAttentionHeatmap({
             <div className="inline-block">
               <div className="flex" style={{ marginLeft: 32 }}>
                 {inputTokens.map((t, i) => (
-                  <div key={i} className="text-[10px] font-mono text-text-muted text-center" style={{ width: 40 }}>
+                  <div
+                    key={i}
+                    className="text-[10px] font-mono text-text-muted text-center"
+                    style={{ width: 40 }}
+                  >
                     {t}
                   </div>
                 ))}
               </div>
               {inputTokens.map((rowToken, ri) => (
                 <div key={ri} className="flex items-center">
-                  <div className="w-8 text-[10px] font-mono text-text-muted text-right pr-1">{rowToken}</div>
+                  <div className="w-8 text-[10px] font-mono text-text-muted text-right pr-1">
+                    {rowToken}
+                  </div>
                   {inputTokens.map((_, ci) => {
                     const w = matrix[ri][ci];
                     return (
@@ -1893,7 +1987,10 @@ function TrainedAttentionHeatmap({
                           borderRadius: 3,
                         }}
                       >
-                        <span className="text-[9px] font-mono" style={{ color: w > 0.35 ? '#f1f5f9' : '#94a3b8' }}>
+                        <span
+                          className="text-[9px] font-mono"
+                          style={{ color: w > 0.35 ? '#f1f5f9' : '#94a3b8' }}
+                        >
                           {w.toFixed(2)}
                         </span>
                       </div>
@@ -1944,9 +2041,12 @@ function RealTransformerTraining() {
     const api = worker.current;
     if (!api || initedRef.current) return;
     initedRef.current = true;
-    initPromiseRef.current = api.init().then(() => {}).catch((e) => {
-      console.error('[TransformerTraining] Worker init failed:', e);
-    });
+    initPromiseRef.current = api
+      .init()
+      .then(() => {})
+      .catch((e) => {
+        console.error('[TransformerTraining] Worker init failed:', e);
+      });
   }, [worker]);
 
   // Cleanup on unmount
@@ -2026,7 +2126,9 @@ function RealTransformerTraining() {
       <div className="space-y-6">
         {/* Architecture info */}
         <div className="text-xs text-text-muted bg-surface-light rounded-lg p-3 border border-white/[0.06] space-y-1">
-          <div className="font-semibold text-text text-sm mb-2">Tiny Sorting Transformer (~9K params)</div>
+          <div className="font-semibold text-text text-sm mb-2">
+            Tiny Sorting Transformer (~9K params)
+          </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 font-mono">
             <span>Vocab: 0–{DEFAULT_CONFIG.vocabSize - 1}</span>
             <span>Seq length: {DEFAULT_CONFIG.seqLen}</span>
@@ -2105,7 +2207,9 @@ function RealTransformerTraining() {
                 <span className="text-text-muted w-16">Input:</span>
                 <div className="flex gap-1">
                   {lastInput.map((v, i) => (
-                    <span key={i} className="px-2 py-1 rounded bg-surface-lighter text-text">{v}</span>
+                    <span key={i} className="px-2 py-1 rounded bg-surface-lighter text-text">
+                      {v}
+                    </span>
                   ))}
                 </div>
               </div>
@@ -2130,7 +2234,9 @@ function RealTransformerTraining() {
                 <span className="text-text-muted w-16">Correct:</span>
                 <div className="flex gap-1">
                   {lastTarget.map((v, i) => (
-                    <span key={i} className="px-2 py-1 rounded bg-primary/10 text-primary-light">{v}</span>
+                    <span key={i} className="px-2 py-1 rounded bg-primary/10 text-primary-light">
+                      {v}
+                    </span>
                   ))}
                 </div>
               </div>
@@ -2155,7 +2261,10 @@ function RealTransformerTraining() {
                     value={v}
                     onChange={(e) => {
                       const next = [...customInput];
-                      next[i] = Math.max(0, Math.min(DEFAULT_CONFIG.vocabSize - 1, parseInt(e.target.value) || 0));
+                      next[i] = Math.max(
+                        0,
+                        Math.min(DEFAULT_CONFIG.vocabSize - 1, parseInt(e.target.value) || 0),
+                      );
                       setCustomInput(next);
                     }}
                     className="w-14 px-2 py-1.5 text-sm font-mono text-center rounded-lg bg-surface-lighter
@@ -2191,7 +2300,9 @@ function RealTransformerTraining() {
                 <span className="text-text-muted">Correct:</span>
                 <div className="flex gap-1">
                   {customTarget.map((v, i) => (
-                    <span key={i} className="px-2 py-1 rounded bg-primary/10 text-primary-light">{v}</span>
+                    <span key={i} className="px-2 py-1 rounded bg-primary/10 text-primary-light">
+                      {v}
+                    </span>
                   ))}
                 </div>
               </div>
@@ -2401,8 +2512,8 @@ export default function TransformerMathPage() {
         <Prose>
           <p>
             Everything above used hardcoded weights for illustration. Now let's train a real
-            Transformer from scratch, right in your browser. The task: <strong>sort a sequence of
-            small integers</strong> (e.g., [5, 2, 8, 3] → [2, 3, 5, 8]).
+            Transformer from scratch, right in your browser. The task:{' '}
+            <strong>sort a sequence of small integers</strong> (e.g., [5, 2, 8, 3] → [2, 3, 5, 8]).
           </p>
           <p>
             This is a tiny encoder-only Transformer with ~9K parameters. It uses the same

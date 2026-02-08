@@ -141,7 +141,8 @@ function NeuronDiagram({
         fontFamily="monospace"
         opacity={0.8}
       >
-        {'\u00d7'}{fmt(w1)}
+        {'\u00d7'}
+        {fmt(w1)}
       </text>
       <text
         x={130}
@@ -151,20 +152,49 @@ function NeuronDiagram({
         fontFamily="monospace"
         opacity={0.8}
       >
-        {'\u00d7'}{fmt(w2)}
+        {'\u00d7'}
+        {fmt(w2)}
       </text>
 
       {/* Input nodes */}
-      <circle cx={inX} cy={y1} r={18} fill={COLORS.surfaceLight} stroke={COLORS.border} strokeWidth={1.5} />
-      <text x={inX} y={y1 + 5} textAnchor="middle" fill={COLORS.text} fontSize={13} fontFamily="monospace">
+      <circle
+        cx={inX}
+        cy={y1}
+        r={18}
+        fill={COLORS.surfaceLight}
+        stroke={COLORS.border}
+        strokeWidth={1.5}
+      />
+      <text
+        x={inX}
+        y={y1 + 5}
+        textAnchor="middle"
+        fill={COLORS.text}
+        fontSize={13}
+        fontFamily="monospace"
+      >
         {fmt(x1)}
       </text>
       <text x={inX} y={y1 - 24} textAnchor="middle" fill={COLORS.textMuted} fontSize={10}>
         x{'\u2081'}
       </text>
 
-      <circle cx={inX} cy={y2} r={18} fill={COLORS.surfaceLight} stroke={COLORS.border} strokeWidth={1.5} />
-      <text x={inX} y={y2 + 5} textAnchor="middle" fill={COLORS.text} fontSize={13} fontFamily="monospace">
+      <circle
+        cx={inX}
+        cy={y2}
+        r={18}
+        fill={COLORS.surfaceLight}
+        stroke={COLORS.border}
+        strokeWidth={1.5}
+      />
+      <text
+        x={inX}
+        y={y2 + 5}
+        textAnchor="middle"
+        fill={COLORS.text}
+        fontSize={13}
+        fontFamily="monospace"
+      >
         {fmt(x2)}
       </text>
       <text x={inX} y={y2 - 24} textAnchor="middle" fill={COLORS.textMuted} fontSize={10}>
@@ -182,7 +212,14 @@ function NeuronDiagram({
         strokeDasharray="3 2"
         opacity={0.8}
       />
-      <text x={inX} y={biasY + 4} textAnchor="middle" fill={COLORS.accentPurple} fontSize={10} fontFamily="monospace">
+      <text
+        x={inX}
+        y={biasY + 4}
+        textAnchor="middle"
+        fill={COLORS.accentPurple}
+        fontSize={10}
+        fontFamily="monospace"
+      >
         {fmt(bias)}
       </text>
       <text x={inX} y={biasY - 18} textAnchor="middle" fill={COLORS.textMuted} fontSize={9}>
@@ -190,11 +227,26 @@ function NeuronDiagram({
       </text>
 
       {/* Sum node — big circle with Σ */}
-      <circle cx={sumX} cy={sumY} r={sumR} fill={COLORS.surfaceLight} stroke={COLORS.primary} strokeWidth={2} />
+      <circle
+        cx={sumX}
+        cy={sumY}
+        r={sumR}
+        fill={COLORS.surfaceLight}
+        stroke={COLORS.primary}
+        strokeWidth={2}
+      />
       <text x={sumX} y={sumY - 6} textAnchor="middle" fill={COLORS.primary} fontSize={20}>
         {'\u03a3'}
       </text>
-      <text x={sumX} y={sumY + 14} textAnchor="middle" fill={COLORS.text} fontSize={13} fontFamily="monospace" fontWeight="bold">
+      <text
+        x={sumX}
+        y={sumY + 14}
+        textAnchor="middle"
+        fill={COLORS.text}
+        fontSize={13}
+        fontFamily="monospace"
+        fontWeight="bold"
+      >
         {fmt(z)}
       </text>
       {/* z label above */}
@@ -224,8 +276,21 @@ function NeuronDiagram({
       </text>
 
       {/* Output node */}
-      <circle cx={outX} cy={outY} r={outR} fill={output >= 0.5 ? COLORS.positive : COLORS.negative} opacity={0.15} />
-      <circle cx={outX} cy={outY} r={outR} fill="none" stroke={output >= 0.5 ? COLORS.positive : COLORS.negative} strokeWidth={2} />
+      <circle
+        cx={outX}
+        cy={outY}
+        r={outR}
+        fill={output >= 0.5 ? COLORS.positive : COLORS.negative}
+        opacity={0.15}
+      />
+      <circle
+        cx={outX}
+        cy={outY}
+        r={outR}
+        fill="none"
+        stroke={output >= 0.5 ? COLORS.positive : COLORS.negative}
+        strokeWidth={2}
+      />
       <text
         x={outX}
         y={outY + 6}
@@ -253,13 +318,7 @@ function NeuronDiagram({
       >
         {output >= 0.5 ? 'Class 1' : 'Class 0'}
       </text>
-      <text
-        x={outX}
-        y={outY + outR + 34}
-        textAnchor="middle"
-        fill={COLORS.textMuted}
-        fontSize={9}
-      >
+      <text x={outX} y={outY + outR + 34} textAnchor="middle" fill={COLORS.textMuted} fontSize={9}>
         {output >= 0.5 ? `${fmt(output)} \u2265 0.5` : `${fmt(output)} < 0.5`}
       </text>
     </svg>
@@ -1306,8 +1365,12 @@ export default function PerceptronMathPage() {
                   Step 3: Classification
                 </h4>
                 <p className="text-sm">
-                  <span className="text-text">{fmt(wsOutput)} {wsOutput >= 0.5 ? '\u2265' : '<'} 0.5 → </span>
-                  <span className={`font-bold ${wsOutput >= 0.5 ? 'text-[#3b82f6]' : 'text-[#ef4444]'}`}>
+                  <span className="text-text">
+                    {fmt(wsOutput)} {wsOutput >= 0.5 ? '\u2265' : '<'} 0.5 →{' '}
+                  </span>
+                  <span
+                    className={`font-bold ${wsOutput >= 0.5 ? 'text-[#3b82f6]' : 'text-[#ef4444]'}`}
+                  >
                     {wsOutput >= 0.5 ? 'Class 1' : 'Class 0'}
                   </span>
                 </p>

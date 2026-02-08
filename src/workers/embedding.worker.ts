@@ -4,9 +4,7 @@ import { pipeline, type FeatureExtractionPipeline } from '@huggingface/transform
 let extractor: FeatureExtractionPipeline | null = null;
 
 const api = {
-  async init(
-    onProgress: (progress: { status: string; progress?: number; file?: string }) => void,
-  ) {
+  async init(onProgress: (progress: { status: string; progress?: number; file?: string }) => void) {
     if (extractor) return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- pipeline() overloads produce union too complex for TS
     extractor = await (pipeline as any)('feature-extraction', 'Xenova/all-MiniLM-L6-v2', {
