@@ -38,13 +38,14 @@ export default defineConfig(async () => {
             tfjs: ['@tensorflow/tfjs'],
             three: ['three', '@react-three/fiber', '@react-three/drei'],
             webllm: ['@mlc-ai/web-llm'],
+            transformers: ['@huggingface/transformers'],
             d3: ['d3-scale', 'd3-scale-chromatic', 'd3-array'],
           },
         },
       },
     },
     optimizeDeps: {
-      exclude: ['@mlc-ai/web-llm'],
+      exclude: ['@mlc-ai/web-llm', '@huggingface/transformers'],
     },
   };
 });

@@ -1,10 +1,17 @@
-import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect, type ReactNode } from 'react';
+import * as Comlink from 'comlink';
 import { MathLayout } from '../../components/math/MathLayout';
 import { Section } from '../../components/math/Section';
 import { Eq } from '../../components/math/Eq';
 import { Prose } from '../../components/math/Prose';
 import { InteractiveDemo } from '../../components/math/InteractiveDemo';
 import { ParameterSlider } from '../../components/shared/ParameterSlider';
+import { TrainingMetrics } from '../../components/shared/TrainingMetrics';
+import { useTrainingWorker } from '../../hooks/useTrainingWorker';
+import { useTransformerTrainingStore } from '../../stores/useTransformerTrainingStore';
+import type { TransformerWorkerAPI } from '../../workers/transformer.worker';
+import { DEFAULT_CONFIG } from '../../ml/transformer';
+import { useEmbeddings } from '../../hooks/useEmbeddings';
 
 /* ─────────────────────────── helpers ─────────────────────────── */
 
@@ -28,8 +35,8 @@ function seededRandom(seed: number): () => number {
   };
 }
 
-/** Generate a consistent embedding vector for a word */
-function wordEmbedding(word: string, dims: number): number[] {
+/** Generate a consistent pseudo-random embedding vector for a word (hash-based fallback) */
+function wordEmbeddingHash(word: string, dims: number): number[] {
   const rng = seededRandom(hashWord(word.toLowerCase()));
   return Array.from({ length: dims }, () => +(rng() * 2 - 1).toFixed(3));
 }
@@ -88,6 +95,19 @@ function layerNorm(A: number[][]): number[][] {
     const std = Math.sqrt(variance + 1e-5);
     return row.map((v) => +((v - mean) / std).toFixed(3));
   });
+}
+
+/** Cosine similarity between two vectors */
+function cosineSimilarity(a: number[], b: number[]): number {
+  let dot = 0,
+    normA = 0,
+    normB = 0;
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+    normA += a[i] * a[i];
+    normB += b[i] * b[i];
+  }
+  return dot / (Math.sqrt(normA) * Math.sqrt(normB) + 1e-8);
 }
 
 /** Format number for display */
@@ -393,10 +413,14 @@ function ArchitectureOverview() {
    Section 2: Token Embeddings
    ═══════════════════════════════════════════════════════════════════ */
 
-const EMBED_DIMS = 6;
+const EMBED_DISPLAY_DIMS = 8;
+const HASH_EMBED_DIMS = 6;
 
 function TokenEmbeddingsDemo() {
   const [sentence, setSentence] = useState('The cat sat');
+  const { embed, loadModel, status, progress, progressFile } = useEmbeddings();
+  const [realEmbeddings, setRealEmbeddings] = useState<number[][] | null>(null);
+
   const tokens = useMemo(
     () =>
       sentence
@@ -407,26 +431,105 @@ function TokenEmbeddingsDemo() {
     [sentence],
   );
 
-  const embeddings = useMemo(() => tokens.map((t) => wordEmbedding(t, EMBED_DIMS)), [tokens]);
+  const hashEmbeddings = useMemo(
+    () => tokens.map((t) => wordEmbeddingHash(t, HASH_EMBED_DIMS)),
+    [tokens],
+  );
 
-  const colLabels = Array.from({ length: EMBED_DIMS }, (_, i) => `d${i}`);
+  // Fetch real embeddings whenever tokens change and model is ready
+  useEffect(() => {
+    if (status !== 'ready' || tokens.length === 0) return;
+    let cancelled = false;
+    embed(tokens).then((vecs) => {
+      if (!cancelled) setRealEmbeddings(vecs);
+    });
+    return () => {
+      cancelled = true;
+      setRealEmbeddings(null);
+    };
+  }, [tokens, status, embed]);
+
+  const useReal = status === 'ready' && realEmbeddings != null;
+  const displayEmbeddings = useReal
+    ? realEmbeddings.map((v) => v.slice(0, EMBED_DISPLAY_DIMS))
+    : hashEmbeddings;
+  const dims = useReal ? EMBED_DISPLAY_DIMS : HASH_EMBED_DIMS;
+  const colLabels = Array.from({ length: dims }, (_, i) => `d${i}`);
+
+  // Compute pairwise cosine similarity when we have real embeddings
+  const similarities = useMemo(() => {
+    if (!useReal || !realEmbeddings) return null;
+    const n = realEmbeddings.length;
+    const sim: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        sim[i][j] = +cosineSimilarity(realEmbeddings[i], realEmbeddings[j]).toFixed(3);
+      }
+    }
+    return sim;
+  }, [useReal, realEmbeddings]);
+
+  let loadButton: ReactNode = null;
+  if (status === 'idle') {
+    loadButton = (
+      <button
+        onClick={loadModel}
+        className="px-3 py-1.5 text-xs font-medium rounded-lg bg-primary text-white
+          hover:bg-primary-light transition-colors"
+      >
+        Load Real Embeddings
+      </button>
+    );
+  } else if (status === 'loading') {
+    loadButton = (
+      <div className="space-y-1">
+        <div className="flex items-center gap-2">
+          <div className="w-32 h-1.5 rounded-full bg-surface-lighter overflow-hidden">
+            <div
+              className="h-full bg-primary rounded-full transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <span className="text-[10px] text-text-muted font-mono">{progress}%</span>
+        </div>
+        {progressFile && (
+          <p className="text-[10px] text-text-muted font-mono truncate max-w-xs">
+            {progressFile}
+          </p>
+        )}
+      </div>
+    );
+  } else if (status === 'error') {
+    loadButton = (
+      <button
+        onClick={loadModel}
+        className="px-3 py-1.5 text-xs font-medium rounded-lg bg-accent-red/20 text-accent-red border border-accent-red/30
+          hover:bg-accent-red/30 transition-colors"
+      >
+        Retry Loading Model
+      </button>
+    );
+  }
 
   return (
     <InteractiveDemo title="Token Embedding Lookup">
       <div className="space-y-4">
-        <div className="space-y-1.5">
-          <label htmlFor="token-embed-input" className="text-xs text-text-muted">
-            Input sentence:
-          </label>
-          <input
-            id="token-embed-input"
-            type="text"
-            value={sentence}
-            onChange={(e) => setSentence(e.target.value)}
-            className="w-full px-3 py-2 text-sm font-mono rounded-lg bg-surface-light border border-white/[0.06]
-              text-text focus:outline-none focus:ring-1 focus:ring-primary"
-            placeholder="Type a sentence..."
-          />
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex-1 min-w-0 space-y-1.5">
+            <label htmlFor="token-embed-input" className="text-xs text-text-muted">
+              Input sentence:
+            </label>
+            <input
+              id="token-embed-input"
+              type="text"
+              value={sentence}
+              onChange={(e) => setSentence(e.target.value)}
+              className="w-full px-3 py-2 text-sm font-mono rounded-lg bg-surface-light border border-white/[0.06]
+                text-text focus:outline-none focus:ring-1 focus:ring-primary"
+              placeholder="Type a sentence..."
+            />
+          </div>
+          {loadButton}
         </div>
 
         {/* Token chips */}
@@ -443,17 +546,78 @@ function TokenEmbeddingsDemo() {
 
         {/* Embedding matrix */}
         {tokens.length > 0 && (
-          <MatrixDisplay
-            label={`Embedding Matrix (${tokens.length} x ${EMBED_DIMS})`}
-            data={embeddings}
-            rowLabels={tokens.map((t) => `"${t}"`)}
-            colLabels={colLabels}
-          />
+          <div className="space-y-1">
+            <MatrixDisplay
+              label={`Embedding Matrix (${tokens.length} x ${dims})${useReal ? '' : ' — hash-based'}`}
+              data={displayEmbeddings}
+              rowLabels={tokens.map((t) => `"${t}"`)}
+              colLabels={colLabels}
+            />
+            {useReal && (
+              <p className="text-[10px] text-text-muted">
+                Showing first {EMBED_DISPLAY_DIMS} of 384 dimensions from all-MiniLM-L6-v2
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Cosine similarity table */}
+        {similarities && tokens.length > 1 && (
+          <div className="space-y-1.5">
+            <div className="text-xs font-semibold text-text-muted uppercase tracking-wider">
+              Pairwise Cosine Similarity
+            </div>
+            <div className="overflow-x-auto">
+              <table className="border-collapse">
+                <thead>
+                  <tr>
+                    <th className="p-1" />
+                    {tokens.map((t, i) => (
+                      <th
+                        key={i}
+                        className="p-1.5 text-[10px] text-text-muted font-mono font-normal text-center"
+                      >
+                        {t}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {tokens.map((t, ri) => (
+                    <tr key={ri}>
+                      <td className="pr-2 text-[10px] text-text-muted font-mono whitespace-nowrap">
+                        {t}
+                      </td>
+                      {similarities[ri].map((val, ci) => {
+                        const bg =
+                          ri === ci
+                            ? 'bg-primary/10'
+                            : val > 0.5
+                              ? 'bg-accent-green/20'
+                              : val > 0.2
+                                ? 'bg-accent-amber/10'
+                                : 'bg-surface-light';
+                        return (
+                          <td
+                            key={ci}
+                            className={`p-1.5 text-xs font-mono text-center border border-white/[0.06] ${bg} text-text-muted`}
+                          >
+                            {val.toFixed(2)}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         )}
 
         <p className="text-[11px] text-text-muted italic">
-          Each word maps to a unique vector (seeded by word hash). In a real Transformer these are
-          learned during training and are typically 512 or 768 dimensions.
+          {useReal
+            ? 'These are real embeddings from a pre-trained sentence-transformer model (all-MiniLM-L6-v2, 384 dims). Semantically similar words produce similar vectors — check the cosine similarity table above.'
+            : 'Showing pseudo-random vectors (hash-based). Click "Load Real Embeddings" to download a pre-trained model (~23 MB, cached after first load) and see real semantic vectors.'}
         </p>
       </div>
     </InteractiveDemo>
@@ -643,7 +807,7 @@ const W_V: number[][] = [
 function SelfAttentionDemo() {
   const [step, setStep] = useState(0);
 
-  const X = useMemo(() => DEMO_TOKENS.map((t) => wordEmbedding(t, D_MODEL)), []);
+  const X = useMemo(() => DEMO_TOKENS.map((t) => wordEmbeddingHash(t, D_MODEL)), []);
 
   const Q = useMemo(() => matMul(X, W_Q), [X]);
   const K = useMemo(() => matMul(X, W_K), [X]);
@@ -805,7 +969,11 @@ function SelfAttentionDemo() {
 
 type AttentionPattern = 'uniform' | 'positional' | 'content-based';
 
-function generateAttentionPattern(tokens: string[], pattern: AttentionPattern): number[][] {
+function generateAttentionPattern(
+  tokens: string[],
+  pattern: AttentionPattern,
+  realEmbs?: number[][] | null,
+): number[][] {
   const n = tokens.length;
 
   if (pattern === 'uniform') {
@@ -819,8 +987,8 @@ function generateAttentionPattern(tokens: string[], pattern: AttentionPattern): 
     return softmaxRows(raw.map((r) => r.map((v) => Math.log(v + 1e-8))));
   }
 
-  // content-based: simulate semantic similarity via word hash similarity
-  const embs = tokens.map((t) => wordEmbedding(t, 8));
+  // content-based: use real embeddings if available, else hash-based fallback
+  const embs = realEmbs && realEmbs.length === n ? realEmbs : tokens.map((t) => wordEmbeddingHash(t, 8));
   const raw = embs.map((q) =>
     embs.map((k) => {
       let dot = 0;
@@ -841,10 +1009,29 @@ function AttentionHeatmap() {
   const [sentIdx, setSentIdx] = useState(0);
   const [pattern, setPattern] = useState<AttentionPattern>('content-based');
   const [hoverCell, setHoverCell] = useState<{ r: number; c: number } | null>(null);
+  const { embed, status } = useEmbeddings();
+  const [realEmbs, setRealEmbs] = useState<number[][] | null>(null);
 
   // eslint-disable-next-line react-hooks/preserve-manual-memoization -- SENTENCES is a module-level constant
   const tokens = useMemo(() => SENTENCES[sentIdx].split(' '), [sentIdx]);
-  const weights = useMemo(() => generateAttentionPattern(tokens, pattern), [tokens, pattern]);
+
+  // Fetch real embeddings for heatmap when model is ready
+  useEffect(() => {
+    if (status !== 'ready') return;
+    let cancelled = false;
+    embed(tokens).then((vecs) => {
+      if (!cancelled) setRealEmbs(vecs);
+    });
+    return () => {
+      cancelled = true;
+      setRealEmbs(null);
+    };
+  }, [tokens, status, embed]);
+
+  const weights = useMemo(
+    () => generateAttentionPattern(tokens, pattern, realEmbs),
+    [tokens, pattern, realEmbs],
+  );
 
   return (
     <InteractiveDemo title="Attention Heatmap Visualization">
@@ -1408,7 +1595,7 @@ function FullPipelineDemo() {
 
   // Compute actual data at each stage
   const tokens = DEMO_TOKENS;
-  const X = useMemo(() => tokens.map((t) => wordEmbedding(t, D_MODEL)), [tokens]);
+  const X = useMemo(() => tokens.map((t) => wordEmbeddingHash(t, D_MODEL)), [tokens]);
 
   const PE = useMemo(() => {
     const mat: number[][] = [];
@@ -1572,6 +1759,451 @@ function FullPipelineDemo() {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   Section 10: Train a Real Transformer
+   ═══════════════════════════════════════════════════════════════════ */
+
+const createTransformerWorker = () =>
+  new Worker(new URL('../../workers/transformer.worker.ts', import.meta.url), {
+    type: 'module',
+  });
+
+/** SVG chart for loss and accuracy history */
+function TrainingChart({
+  lossHistory,
+  accuracyHistory,
+}: {
+  lossHistory: number[];
+  accuracyHistory: number[];
+}) {
+  const width = 500;
+  const height = 200;
+  const padL = 45;
+  const padR = 10;
+  const padT = 20;
+  const padB = 30;
+  const plotW = width - padL - padR;
+  const plotH = height - padT - padB;
+
+  if (lossHistory.length < 2) {
+    return (
+      <div className="flex items-center justify-center h-[200px] text-xs text-text-muted border border-white/[0.06] rounded-lg">
+        Training chart will appear here...
+      </div>
+    );
+  }
+
+  const maxLoss = Math.max(...lossHistory, 0.1);
+  const n = lossHistory.length;
+
+  const toX = (i: number) => padL + (i / (n - 1)) * plotW;
+  const lossToY = (v: number) => padT + (1 - v / maxLoss) * plotH;
+  const accToY = (v: number) => padT + (1 - v) * plotH;
+
+  const lossPath = lossHistory.map((v, i) => `${i === 0 ? 'M' : 'L'}${toX(i)},${lossToY(v)}`).join('');
+  const accPath = accuracyHistory.map((v, i) => `${i === 0 ? 'M' : 'L'}${toX(i)},${accToY(v)}`).join('');
+
+  return (
+    <svg viewBox={`0 0 ${width} ${height}`} className="w-full max-w-[500px]">
+      {/* Grid */}
+      {[0, 0.25, 0.5, 0.75, 1].map((t) => (
+        <line key={t} x1={padL} y1={padT + t * plotH} x2={padL + plotW} y2={padT + t * plotH}
+          stroke="#334155" strokeWidth="0.5" />
+      ))}
+
+      {/* Loss axis labels (left) */}
+      <text x={padL - 4} y={padT + 3} textAnchor="end" fill="#ef4444" fontSize="9" fontFamily="monospace">{maxLoss.toFixed(1)}</text>
+      <text x={padL - 4} y={padT + plotH + 3} textAnchor="end" fill="#ef4444" fontSize="9" fontFamily="monospace">0</text>
+      <text x={4} y={padT + plotH / 2} fill="#ef4444" fontSize="8" fontFamily="monospace" transform={`rotate(-90, 4, ${padT + plotH / 2})`} textAnchor="middle">Loss</text>
+
+      {/* Accuracy axis labels (right) */}
+      <text x={padL + plotW + padR} y={padT + 3} textAnchor="end" fill="#10b981" fontSize="9" fontFamily="monospace">100%</text>
+      <text x={padL + plotW + padR} y={padT + plotH + 3} textAnchor="end" fill="#10b981" fontSize="9" fontFamily="monospace">0%</text>
+
+      {/* X axis */}
+      <text x={padL + plotW / 2} y={height - 4} textAnchor="middle" fill="#64748b" fontSize="9" fontFamily="monospace">Step</text>
+      <text x={padL} y={height - 4} textAnchor="start" fill="#64748b" fontSize="8" fontFamily="monospace">1</text>
+      <text x={padL + plotW} y={height - 4} textAnchor="end" fill="#64748b" fontSize="8" fontFamily="monospace">{n}</text>
+
+      {/* Loss line */}
+      <path d={lossPath} fill="none" stroke="#ef4444" strokeWidth="1.5" opacity="0.8" />
+      {/* Accuracy line */}
+      <path d={accPath} fill="none" stroke="#10b981" strokeWidth="1.5" opacity="0.8" />
+
+      {/* Legend */}
+      <line x1={padL + 10} y1={10} x2={padL + 25} y2={10} stroke="#ef4444" strokeWidth="2" />
+      <text x={padL + 28} y={13} fill="#ef4444" fontSize="9" fontFamily="monospace">Loss</text>
+      <line x1={padL + 70} y1={10} x2={padL + 85} y2={10} stroke="#10b981" strokeWidth="2" />
+      <text x={padL + 88} y={13} fill="#10b981" fontSize="9" fontFamily="monospace">Accuracy</text>
+    </svg>
+  );
+}
+
+/** Attention heatmap for trained model weights */
+function TrainedAttentionHeatmap({
+  attentionWeights,
+  inputTokens,
+  numHeads,
+  seqLen,
+}: {
+  attentionWeights: number[];
+  inputTokens: number[];
+  numHeads: number;
+  seqLen: number;
+}) {
+  // attentionWeights shape: [1, numHeads, seqLen, seqLen] flattened
+  const headColors = ['#2563eb', '#10b981'];
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {Array.from({ length: numHeads }, (_, h) => {
+        const offset = h * seqLen * seqLen;
+        const matrix = Array.from({ length: seqLen }, (_, r) =>
+          Array.from({ length: seqLen }, (_, c) => attentionWeights[offset + r * seqLen + c] ?? 0),
+        );
+        const color = headColors[h % headColors.length];
+
+        return (
+          <div key={h} className="space-y-2">
+            <div className="text-xs font-semibold" style={{ color }}>
+              Head {h + 1}
+            </div>
+            <div className="inline-block">
+              <div className="flex" style={{ marginLeft: 32 }}>
+                {inputTokens.map((t, i) => (
+                  <div key={i} className="text-[10px] font-mono text-text-muted text-center" style={{ width: 40 }}>
+                    {t}
+                  </div>
+                ))}
+              </div>
+              {inputTokens.map((rowToken, ri) => (
+                <div key={ri} className="flex items-center">
+                  <div className="w-8 text-[10px] font-mono text-text-muted text-right pr-1">{rowToken}</div>
+                  {inputTokens.map((_, ci) => {
+                    const w = matrix[ri][ci];
+                    return (
+                      <div
+                        key={ci}
+                        className="flex items-center justify-center"
+                        style={{
+                          width: 40,
+                          height: 28,
+                          backgroundColor: `${color}`,
+                          opacity: 0.1 + w * 0.8,
+                          margin: 1,
+                          borderRadius: 3,
+                        }}
+                      >
+                        <span className="text-[9px] font-mono" style={{ color: w > 0.35 ? '#f1f5f9' : '#94a3b8' }}>
+                          {w.toFixed(2)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function RealTransformerTraining() {
+  const { worker } = useTrainingWorker<TransformerWorkerAPI>(createTransformerWorker);
+  const initedRef = useRef(false);
+  const trainingLoopRef = useRef(false);
+
+  const isTraining = useTransformerTrainingStore((s) => s.isTraining);
+  const step = useTransformerTrainingStore((s) => s.step);
+  const loss = useTransformerTrainingStore((s) => s.loss);
+  const accuracy = useTransformerTrainingStore((s) => s.accuracy);
+  const lossHistory = useTransformerTrainingStore((s) => s.lossHistory);
+  const accuracyHistory = useTransformerTrainingStore((s) => s.accuracyHistory);
+  const attentionWeights = useTransformerTrainingStore((s) => s.attentionWeights);
+  const lastInput = useTransformerTrainingStore((s) => s.lastInput);
+  const lastPrediction = useTransformerTrainingStore((s) => s.lastPrediction);
+  const lastTarget = useTransformerTrainingStore((s) => s.lastTarget);
+  const learningRate = useTransformerTrainingStore((s) => s.learningRate);
+  const batchSize = useTransformerTrainingStore((s) => s.batchSize);
+
+  const startTraining = useTransformerTrainingStore((s) => s.startTraining);
+  const stopTraining = useTransformerTrainingStore((s) => s.stopTraining);
+  const updateProgress = useTransformerTrainingStore((s) => s.updateProgress);
+  const setLearningRate = useTransformerTrainingStore((s) => s.setLearningRate);
+  const setBatchSize = useTransformerTrainingStore((s) => s.setBatchSize);
+  const reset = useTransformerTrainingStore((s) => s.reset);
+
+  // "Try your own" input
+  const [customInput, setCustomInput] = useState([5, 2, 8, 3]);
+  const [customPrediction, setCustomPrediction] = useState<number[] | null>(null);
+
+  // Initialize worker
+  const initPromiseRef = useRef<Promise<void> | null>(null);
+  useEffect(() => {
+    const api = worker.current;
+    if (!api || initedRef.current) return;
+    initedRef.current = true;
+    initPromiseRef.current = api.init().then(() => {}).catch((e) => {
+      console.error('[TransformerTraining] Worker init failed:', e);
+    });
+  }, [worker]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stopTraining();
+      trainingLoopRef.current = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleToggleTraining = useCallback(async () => {
+    const api = worker.current;
+    if (!api) return;
+
+    if (isTraining) {
+      api.stop();
+      stopTraining();
+      trainingLoopRef.current = false;
+      return;
+    }
+
+    // Wait for worker to finish initializing TF.js
+    if (initPromiseRef.current) {
+      await initPromiseRef.current;
+    }
+
+    await api.createModel();
+    reset();
+    startTraining();
+    trainingLoopRef.current = true;
+
+    const runLoop = async () => {
+      let currentStep = 0;
+      while (trainingLoopRef.current) {
+        const store = useTransformerTrainingStore.getState();
+        if (!store.isTraining) break;
+
+        try {
+          await api.train(
+            {
+              learningRate: store.learningRate,
+              batchSize: store.batchSize,
+              steps: 10,
+            },
+            Comlink.proxy((progress) => {
+              updateProgress(progress);
+            }),
+            currentStep,
+          );
+          currentStep = useTransformerTrainingStore.getState().step;
+        } catch (e) {
+          console.error('[TransformerTraining] Training error:', e);
+          break;
+        }
+      }
+    };
+
+    runLoop();
+  }, [worker, isTraining, startTraining, stopTraining, updateProgress, reset]);
+
+  const handlePredict = useCallback(async () => {
+    const api = worker.current;
+    if (!api) return;
+    try {
+      const result = await api.predict(customInput);
+      setCustomPrediction(result.prediction);
+    } catch {
+      // Model not trained yet
+    }
+  }, [worker, customInput]);
+
+  const customTarget = useMemo(() => [...customInput].sort((a, b) => a - b), [customInput]);
+
+  return (
+    <InteractiveDemo title="Train a Real Transformer to Sort Numbers">
+      <div className="space-y-6">
+        {/* Architecture info */}
+        <div className="text-xs text-text-muted bg-surface-light rounded-lg p-3 border border-white/[0.06] space-y-1">
+          <div className="font-semibold text-text text-sm mb-2">Tiny Sorting Transformer (~9K params)</div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 font-mono">
+            <span>Vocab: 0–{DEFAULT_CONFIG.vocabSize - 1}</span>
+            <span>Seq length: {DEFAULT_CONFIG.seqLen}</span>
+            <span>d_model: {DEFAULT_CONFIG.dModel}</span>
+            <span>Heads: {DEFAULT_CONFIG.numHeads}</span>
+            <span>FFN dim: {DEFAULT_CONFIG.ffnDim}</span>
+            <span>Task: sort sequence</span>
+          </div>
+        </div>
+
+        {/* Controls */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+          <ParameterSlider
+            label="Learning rate"
+            value={learningRate}
+            min={0.0001}
+            max={0.01}
+            step={0.0001}
+            onChange={setLearningRate}
+            format={(v) => v.toFixed(4)}
+          />
+          <ParameterSlider
+            label="Batch size"
+            value={batchSize}
+            min={8}
+            max={128}
+            step={8}
+            onChange={setBatchSize}
+          />
+          <button
+            onClick={handleToggleTraining}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              isTraining
+                ? 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30'
+                : 'bg-primary text-white hover:bg-primary-light'
+            }`}
+          >
+            {isTraining ? 'Stop Training' : 'Start Training'}
+          </button>
+        </div>
+
+        {/* Training metrics */}
+        <TrainingMetrics epoch={step} loss={loss} accuracy={accuracy} isTraining={isTraining} />
+
+        {/* Loss/Accuracy chart */}
+        <div>
+          <div className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
+            Training Progress
+          </div>
+          <TrainingChart lossHistory={lossHistory} accuracyHistory={accuracyHistory} />
+        </div>
+
+        {/* Attention heatmaps */}
+        {attentionWeights && lastInput && (
+          <div>
+            <div className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
+              Learned Attention Patterns
+            </div>
+            <TrainedAttentionHeatmap
+              attentionWeights={attentionWeights}
+              inputTokens={lastInput}
+              numHeads={DEFAULT_CONFIG.numHeads}
+              seqLen={DEFAULT_CONFIG.seqLen}
+            />
+          </div>
+        )}
+
+        {/* Live predictions */}
+        {lastInput && lastPrediction && lastTarget && (
+          <div>
+            <div className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
+              Live Prediction Sample
+            </div>
+            <div className="bg-surface-light rounded-lg p-3 border border-white/[0.06] space-y-2">
+              <div className="flex items-center gap-2 text-xs font-mono">
+                <span className="text-text-muted w-16">Input:</span>
+                <div className="flex gap-1">
+                  {lastInput.map((v, i) => (
+                    <span key={i} className="px-2 py-1 rounded bg-surface-lighter text-text">{v}</span>
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-mono">
+                <span className="text-text-muted w-16">Predicted:</span>
+                <div className="flex gap-1">
+                  {lastPrediction.map((v, i) => (
+                    <span
+                      key={i}
+                      className={`px-2 py-1 rounded font-bold ${
+                        v === lastTarget[i]
+                          ? 'bg-green-500/20 text-green-400'
+                          : 'bg-red-500/20 text-red-400'
+                      }`}
+                    >
+                      {v}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-mono">
+                <span className="text-text-muted w-16">Correct:</span>
+                <div className="flex gap-1">
+                  {lastTarget.map((v, i) => (
+                    <span key={i} className="px-2 py-1 rounded bg-primary/10 text-primary-light">{v}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Try your own */}
+        <div>
+          <div className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
+            Try Your Own
+          </div>
+          <div className="bg-surface-light rounded-lg p-3 border border-white/[0.06] space-y-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              {customInput.map((v, i) => (
+                <div key={i} className="flex flex-col items-center gap-1">
+                  <span className="text-[10px] text-text-muted">#{i + 1}</span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={DEFAULT_CONFIG.vocabSize - 1}
+                    value={v}
+                    onChange={(e) => {
+                      const next = [...customInput];
+                      next[i] = Math.max(0, Math.min(DEFAULT_CONFIG.vocabSize - 1, parseInt(e.target.value) || 0));
+                      setCustomInput(next);
+                    }}
+                    className="w-14 px-2 py-1.5 text-sm font-mono text-center rounded-lg bg-surface-lighter
+                      border border-white/[0.06] text-text focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+              ))}
+              <button
+                onClick={handlePredict}
+                className="px-3 py-1.5 text-xs font-medium rounded-lg bg-primary/20 text-primary-light
+                  border border-primary/30 hover:bg-primary/30 transition-colors ml-2"
+              >
+                Sort it!
+              </button>
+            </div>
+            {customPrediction && (
+              <div className="flex items-center gap-3 text-xs font-mono">
+                <span className="text-text-muted">Model says:</span>
+                <div className="flex gap-1">
+                  {customPrediction.map((v, i) => (
+                    <span
+                      key={i}
+                      className={`px-2 py-1 rounded font-bold ${
+                        v === customTarget[i]
+                          ? 'bg-green-500/20 text-green-400'
+                          : 'bg-red-500/20 text-red-400'
+                      }`}
+                    >
+                      {v}
+                    </span>
+                  ))}
+                </div>
+                <span className="text-text-muted">Correct:</span>
+                <div className="flex gap-1">
+                  {customTarget.map((v, i) => (
+                    <span key={i} className="px-2 py-1 rounded bg-primary/10 text-primary-light">{v}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </InteractiveDemo>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    MAIN PAGE COMPONENT
    ═══════════════════════════════════════════════════════════════════ */
 
@@ -1609,8 +2241,9 @@ export default function TransformerMathPage() {
           </p>
           <p>
             The embedding dimension <Eq>d_model</Eq> is typically 512 or 768 in practice. Here we
-            use {EMBED_DIMS} dimensions to keep things visible. The key insight: similar words end
-            up with similar vectors after training.
+            show a few dimensions to keep things visible. Load the real embedding model to see
+            vectors from a pre-trained sentence transformer — similar words will have similar
+            vectors.
           </p>
         </Prose>
         <TokenEmbeddingsDemo />
@@ -1761,6 +2394,25 @@ export default function TransformerMathPage() {
             masked self-attention to prevent future token leakage during generation.
           </p>
         </Prose>
+      </Section>
+
+      {/* ── Section 10: Real Training ── */}
+      <Section title="10. Train a Real Transformer">
+        <Prose>
+          <p>
+            Everything above used hardcoded weights for illustration. Now let's train a real
+            Transformer from scratch, right in your browser. The task: <strong>sort a sequence of
+            small integers</strong> (e.g., [5, 2, 8, 3] → [2, 3, 5, 8]).
+          </p>
+          <p>
+            This is a tiny encoder-only Transformer with ~9K parameters. It uses the same
+            architecture we explored above — embeddings, multi-head attention, feed-forward network,
+            and layer normalization — but with real, trainable weights optimized via Adam. Training
+            data is generated on the fly (infinite supply), and you should see the loss drop and
+            accuracy climb within seconds.
+          </p>
+        </Prose>
+        <RealTransformerTraining />
       </Section>
     </MathLayout>
   );

@@ -18,6 +18,7 @@
     "ci": "npm run typecheck && npm run lint && npm run format:check && npm run test:run && npm run build"
   },
   "dependencies": {
+    "@huggingface/transformers": "^3.8.1",
     "@mlc-ai/web-llm": "^0.2.80",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
