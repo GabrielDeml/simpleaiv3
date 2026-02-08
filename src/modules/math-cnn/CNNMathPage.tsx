@@ -92,21 +92,6 @@ function convolve(image: number[][], kernel: number[][]): number[][] {
   return out;
 }
 
-/** Pad image with zeros on all sides. */
-function padImage(image: number[][], padding: number): number[][] {
-  if (padding === 0) return image;
-  const h = image.length;
-  const w = image[0]?.length ?? 0;
-  const pH = h + 2 * padding;
-  const pW = w + 2 * padding;
-  const out: number[][] = Array.from({ length: pH }, () => Array(pW).fill(0));
-  for (let i = 0; i < h; i++) {
-    for (let j = 0; j < w; j++) {
-      out[i + padding][j + padding] = image[i][j];
-    }
-  }
-  return out;
-}
 
 /** Normalize convolution output to [0,1] for display. */
 function normalizeOutput(output: number[][]): number[][] {

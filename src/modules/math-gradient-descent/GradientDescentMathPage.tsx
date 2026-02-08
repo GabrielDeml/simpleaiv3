@@ -113,8 +113,8 @@ function drawArrow(ctx: CanvasRenderingContext2D, x0: number, y0: number, x1: nu
 function drawContourDPR(
   ctx: CanvasRenderingContext2D,
   canvas: HTMLCanvasElement,
-  w: number,
-  h: number,
+  _w: number,
+  _h: number,
   xRange: [number, number],
   yRange: [number, number],
   fn: (x: number, y: number) => number,

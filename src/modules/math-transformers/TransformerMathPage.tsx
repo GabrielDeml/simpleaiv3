@@ -1476,7 +1476,7 @@ function FullPipelineDemo() {
                       ? 'bg-surface-light/50'
                       : 'bg-transparent'
                 }`}
-                style={isActive ? { ringColor: stage.color, boxShadow: `0 0 12px ${stage.color}33` } : undefined}
+                style={isActive ? { outlineColor: stage.color, boxShadow: `0 0 12px ${stage.color}33` } : undefined}
                 onClick={() => {
                   if (!isRunning) setActiveStage(i);
                 }}
