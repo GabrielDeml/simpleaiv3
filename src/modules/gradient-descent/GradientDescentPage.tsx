@@ -241,7 +241,9 @@ export default function GradientDescentPage() {
           <button
             onClick={() => setViewMode('3d')}
             className={`flex-1 px-3 py-1.5 rounded text-sm transition-colors ${
-              viewMode === '3d' ? 'bg-primary/15 text-primary-light border border-primary/30' : 'bg-transparent text-text-muted hover:text-text hover:bg-surface-lighter border border-transparent'
+              viewMode === '3d'
+                ? 'bg-primary/15 text-primary-light border border-primary/30'
+                : 'bg-transparent text-text-muted hover:text-text hover:bg-surface-lighter border border-transparent'
             }`}
           >
             3D

@@ -255,13 +255,31 @@ function ArchitectureOverview() {
                   <feMergeNode in="SourceGraphic" />
                 </feMerge>
               </filter>
-              <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <marker
+                id="arrow"
+                viewBox="0 0 10 10"
+                refX="9"
+                refY="5"
+                markerWidth="6"
+                markerHeight="6"
+                orient="auto-start-reverse"
+              >
                 <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569" />
               </marker>
             </defs>
 
             {/* Encoder bracket */}
-            <rect x="140" y="136" width="160" height="264" rx="12" fill="none" stroke="#475569" strokeWidth="1" strokeDasharray="4 4" />
+            <rect
+              x="140"
+              y="136"
+              width="160"
+              height="264"
+              rx="12"
+              fill="none"
+              stroke="#475569"
+              strokeWidth="1"
+              strokeDasharray="4 4"
+            />
             <text x="310" y="270" fill="#475569" fontSize="10" fontFamily="monospace">
               x N
             </text>
@@ -325,7 +343,9 @@ function ArchitectureOverview() {
                     <text
                       key={li}
                       x={block.x + block.w / 2}
-                      y={block.y + block.h / 2 + (li - (block.label.split('\n').length - 1) / 2) * 14}
+                      y={
+                        block.y + block.h / 2 + (li - (block.label.split('\n').length - 1) / 2) * 14
+                      }
                       fill={isActive ? block.color : '#94a3b8'}
                       fontSize="11"
                       fontWeight="600"
@@ -384,13 +404,10 @@ function TokenEmbeddingsDemo() {
         .split(/\s+/)
         .filter((t) => t.length > 0)
         .slice(0, 8),
-    [sentence]
+    [sentence],
   );
 
-  const embeddings = useMemo(
-    () => tokens.map((t) => wordEmbedding(t, EMBED_DIMS)),
-    [tokens]
-  );
+  const embeddings = useMemo(() => tokens.map((t) => wordEmbedding(t, EMBED_DIMS)), [tokens]);
 
   const colLabels = Array.from({ length: EMBED_DIMS }, (_, i) => `d${i}`);
 
@@ -398,7 +415,9 @@ function TokenEmbeddingsDemo() {
     <InteractiveDemo title="Token Embedding Lookup">
       <div className="space-y-4">
         <div className="space-y-1.5">
-          <label htmlFor="token-embed-input" className="text-xs text-text-muted">Input sentence:</label>
+          <label htmlFor="token-embed-input" className="text-xs text-text-muted">
+            Input sentence:
+          </label>
           <input
             id="token-embed-input"
             type="text"
@@ -450,7 +469,7 @@ function PositionalEncodingDemo() {
   const [seqLen] = useState(20);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hoverInfo, setHoverInfo] = useState<{ pos: number; dim: number; value: number } | null>(
-    null
+    null,
   );
 
   const peMatrix = useMemo(() => {
@@ -516,7 +535,7 @@ function PositionalEncodingDemo() {
         setHoverInfo(null);
       }
     },
-    [dModel, seqLen, peMatrix]
+    [dModel, seqLen, peMatrix],
   );
 
   return (
@@ -544,8 +563,10 @@ function PositionalEncodingDemo() {
             <span>Dimension &rarr;</span>
             <span>dim {dModel - 1}</span>
           </div>
-          <div className="absolute left-[-4px] top-0 bottom-0 flex flex-col justify-between text-[10px] text-text-muted font-mono"
-               style={{ writingMode: 'vertical-lr', transform: 'rotate(180deg)' }}>
+          <div
+            className="absolute left-[-4px] top-0 bottom-0 flex flex-col justify-between text-[10px] text-text-muted font-mono"
+            style={{ writingMode: 'vertical-lr', transform: 'rotate(180deg)' }}
+          >
             <span>pos 0</span>
             <span>Position</span>
             <span>pos {seqLen - 1}</span>
@@ -554,7 +575,7 @@ function PositionalEncodingDemo() {
 
         {hoverInfo && (
           <div className="text-xs font-mono text-text-muted bg-surface-light rounded-md px-3 py-2 border border-white/[0.06]">
-            Position {hoverInfo.pos}, Dimension {hoverInfo.dim}: {' '}
+            Position {hoverInfo.pos}, Dimension {hoverInfo.dim}:{' '}
             <span className="text-primary-light">{hoverInfo.value.toFixed(4)}</span>
           </div>
         )}
@@ -615,10 +636,7 @@ const W_V: number[][] = [
 function SelfAttentionDemo() {
   const [step, setStep] = useState(0);
 
-  const X = useMemo(
-    () => DEMO_TOKENS.map((t) => wordEmbedding(t, D_MODEL)),
-    []
-  );
+  const X = useMemo(() => DEMO_TOKENS.map((t) => wordEmbedding(t, D_MODEL)), []);
 
   const Q = useMemo(() => matMul(X, W_Q), [X]);
   const K = useMemo(() => matMul(X, W_K), [X]);
@@ -647,12 +665,9 @@ function SelfAttentionDemo() {
       content: (
         <div className="space-y-4">
           <Eq block>
-            <span className="text-accent-green">Q</span> = X &middot; W
-            <sub>Q</sub> &nbsp;&nbsp;
-            <span className="text-accent-amber">K</span> = X &middot; W
-            <sub>K</sub> &nbsp;&nbsp;
-            <span className="text-accent-red">V</span> = X &middot; W
-            <sub>V</sub>
+            <span className="text-accent-green">Q</span> = X &middot; W<sub>Q</sub> &nbsp;&nbsp;
+            <span className="text-accent-amber">K</span> = X &middot; W<sub>K</sub> &nbsp;&nbsp;
+            <span className="text-accent-red">V</span> = X &middot; W<sub>V</sub>
           </Eq>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <MatrixDisplay label="Q (Queries)" data={Q} rowLabels={DEMO_TOKENS} />
@@ -701,9 +716,7 @@ function SelfAttentionDemo() {
       desc: 'Apply softmax row-wise so each row sums to 1. These are the attention weights.',
       content: (
         <div className="space-y-4">
-          <Eq block>
-            Weights = softmax(Scaled)
-          </Eq>
+          <Eq block>Weights = softmax(Scaled)</Eq>
           <MatrixDisplay
             label="Attention Weights (each row sums to 1)"
             data={attnWeights}
@@ -744,9 +757,7 @@ function SelfAttentionDemo() {
       desc: 'Multiply attention weights by Values. Each output row is a weighted mix of all value vectors.',
       content: (
         <div className="space-y-4">
-          <Eq block>
-            Output = Weights &middot; V
-          </Eq>
+          <Eq block>Output = Weights &middot; V</Eq>
           <MatrixDisplay
             label="Self-Attention Output"
             data={output}
@@ -754,8 +765,8 @@ function SelfAttentionDemo() {
             colLabels={Array.from({ length: D_MODEL }, (_, i) => `d${i}`)}
           />
           <p className="text-[11px] text-text-muted">
-            Each token's output is now a weighted combination of all tokens' values,
-            weighted by how much attention that token pays to every other token.
+            Each token's output is now a weighted combination of all tokens' values, weighted by how
+            much attention that token pays to every other token.
           </p>
         </div>
       ),
@@ -787,21 +798,16 @@ function SelfAttentionDemo() {
 
 type AttentionPattern = 'uniform' | 'positional' | 'content-based';
 
-function generateAttentionPattern(
-  tokens: string[],
-  pattern: AttentionPattern
-): number[][] {
+function generateAttentionPattern(tokens: string[], pattern: AttentionPattern): number[][] {
   const n = tokens.length;
 
   if (pattern === 'uniform') {
-    return Array.from({ length: n }, () =>
-      Array.from({ length: n }, () => +(1 / n).toFixed(3))
-    );
+    return Array.from({ length: n }, () => Array.from({ length: n }, () => +(1 / n).toFixed(3)));
   }
 
   if (pattern === 'positional') {
     const raw = Array.from({ length: n }, (_, i) =>
-      Array.from({ length: n }, (_, j) => Math.exp(-Math.abs(i - j) * 0.8))
+      Array.from({ length: n }, (_, j) => Math.exp(-Math.abs(i - j) * 0.8)),
     );
     return softmaxRows(raw.map((r) => r.map((v) => Math.log(v + 1e-8))));
   }
@@ -813,7 +819,7 @@ function generateAttentionPattern(
       let dot = 0;
       for (let i = 0; i < q.length; i++) dot += q[i] * k[i];
       return dot;
-    })
+    }),
   );
   return softmaxRows(raw);
 }
@@ -831,10 +837,7 @@ function AttentionHeatmap() {
 
   // eslint-disable-next-line react-hooks/preserve-manual-memoization -- SENTENCES is a module-level constant
   const tokens = useMemo(() => SENTENCES[sentIdx].split(' '), [sentIdx]);
-  const weights = useMemo(
-    () => generateAttentionPattern(tokens, pattern),
-    [tokens, pattern]
-  );
+  const weights = useMemo(() => generateAttentionPattern(tokens, pattern), [tokens, pattern]);
 
   return (
     <InteractiveDemo title="Attention Heatmap Visualization">
@@ -905,9 +908,7 @@ function AttentionHeatmap() {
             {tokens.map((qt, ri) => (
               <div key={ri} className="flex items-center">
                 <div className="w-[72px] text-[10px] font-mono text-text-muted text-right pr-2 flex-shrink-0">
-                  {ri === 0 && (
-                    <span className="text-[9px] block text-right">&darr; Queries</span>
-                  )}
+                  {ri === 0 && <span className="text-[9px] block text-right">&darr; Queries</span>}
                   {qt}
                 </div>
                 {tokens.map((_, ci) => {
@@ -979,7 +980,7 @@ function MultiHeadDemo() {
     return Array.from({ length: NUM_HEADS }, (_, h) => {
       const rng = seededRandom(42 + h * 1000);
       const raw = Array.from({ length: tokens.length }, () =>
-        Array.from({ length: tokens.length }, () => rng() * 2 - 0.5)
+        Array.from({ length: tokens.length }, () => rng() * 2 - 0.5),
       );
       return softmaxRows(raw);
     });
@@ -1004,7 +1005,11 @@ function MultiHeadDemo() {
               }`}
               style={
                 activeHead === i
-                  ? { backgroundColor: `${headColors[i]}33`, borderColor: headColors[i], color: headColors[i] }
+                  ? {
+                      backgroundColor: `${headColors[i]}33`,
+                      borderColor: headColors[i],
+                      color: headColors[i],
+                    }
                   : undefined
               }
             >
@@ -1032,7 +1037,10 @@ function MultiHeadDemo() {
               <div className="text-[9px] font-semibold text-text-muted mb-1 text-center">
                 Head {h + 1}
               </div>
-              <div className="grid gap-[2px]" style={{ gridTemplateColumns: `repeat(${tokens.length}, 1fr)` }}>
+              <div
+                className="grid gap-[2px]"
+                style={{ gridTemplateColumns: `repeat(${tokens.length}, 1fr)` }}
+              >
                 {hw.flat().map((w, i) => (
                   <div
                     key={i}
@@ -1073,7 +1081,7 @@ function MultiHeadDemo() {
                         className="p-1.5 text-[10px] font-mono text-center border border-white/[0.04]"
                         style={{
                           backgroundColor: `${headColors[activeHead]}${Math.round(
-                            (0.05 + w * 0.75) * 255
+                            (0.05 + w * 0.75) * 255,
                           )
                             .toString(16)
                             .padStart(2, '0')}`,
@@ -1097,8 +1105,8 @@ function MultiHeadDemo() {
         </Eq>
 
         <p className="text-[11px] text-text-muted">
-          Each head produces a different attention pattern, capturing different relationships.
-          The outputs are concatenated and projected through W<sup>O</sup> to get the final result.
+          Each head produces a different attention pattern, capturing different relationships. The
+          outputs are concatenated and projected through W<sup>O</sup> to get the final result.
         </p>
       </div>
     </InteractiveDemo>
@@ -1109,7 +1117,17 @@ function MultiHeadDemo() {
    Section 7: Feed-Forward Network
    ═══════════════════════════════════════════════════════════════════ */
 
-function VectorBar({ values, label, color, maxAbs }: { values: number[]; label: string; color: string; maxAbs: number }) {
+function VectorBar({
+  values,
+  label,
+  color,
+  maxAbs,
+}: {
+  values: number[];
+  label: string;
+  color: string;
+  maxAbs: number;
+}) {
   return (
     <div className="space-y-1">
       <div className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
@@ -1142,7 +1160,7 @@ function FeedForwardDemo() {
   const W1 = useMemo(() => {
     const rng = seededRandom(777);
     return Array.from({ length: D_MODEL }, () =>
-      Array.from({ length: D_FF }, () => +(rng() * 1.5 - 0.75).toFixed(3))
+      Array.from({ length: D_FF }, () => +(rng() * 1.5 - 0.75).toFixed(3)),
     );
   }, []);
 
@@ -1154,7 +1172,7 @@ function FeedForwardDemo() {
   const W2 = useMemo(() => {
     const rng = seededRandom(999);
     return Array.from({ length: D_FF }, () =>
-      Array.from({ length: D_MODEL }, () => +(rng() * 1.5 - 0.75).toFixed(3))
+      Array.from({ length: D_MODEL }, () => +(rng() * 1.5 - 0.75).toFixed(3)),
     );
   }, []);
 
@@ -1180,7 +1198,7 @@ function FeedForwardDemo() {
     ...hidden.map(Math.abs),
     ...afterRelu.map(Math.abs),
     ...outputVec.map(Math.abs),
-    0.01
+    0.01,
   );
 
   return (
@@ -1213,11 +1231,22 @@ function FeedForwardDemo() {
         {/* Visual pipeline */}
         <div className="space-y-3">
           <VectorBar values={inputVec} label="Input x" color="#2563eb" maxAbs={maxAbs} />
-          <div className="text-center text-text-muted text-xs">&darr; Linear (4 &rarr; 8) + bias</div>
+          <div className="text-center text-text-muted text-xs">
+            &darr; Linear (4 &rarr; 8) + bias
+          </div>
           <VectorBar values={hidden} label="Hidden (pre-ReLU)" color="#8b5cf6" maxAbs={maxAbs} />
-          <div className="text-center text-text-muted text-xs">&darr; ReLU (negative values &rarr; 0)</div>
-          <VectorBar values={afterRelu} label="Hidden (post-ReLU)" color="#10b981" maxAbs={maxAbs} />
-          <div className="text-center text-text-muted text-xs">&darr; Linear (8 &rarr; 4) + bias</div>
+          <div className="text-center text-text-muted text-xs">
+            &darr; ReLU (negative values &rarr; 0)
+          </div>
+          <VectorBar
+            values={afterRelu}
+            label="Hidden (post-ReLU)"
+            color="#10b981"
+            maxAbs={maxAbs}
+          />
+          <div className="text-center text-text-muted text-xs">
+            &darr; Linear (8 &rarr; 4) + bias
+          </div>
           <VectorBar values={outputVec} label="FFN Output" color="#f59e0b" maxAbs={maxAbs} />
         </div>
 
@@ -1392,7 +1421,7 @@ function FullPipelineDemo() {
   const V = useMemo(() => matMul(XplusPE, W_V), [XplusPE]);
   const attnScores = useMemo(
     () => softmaxRows(scaleMatrix(matMul(Q, transpose(K)), 1 / Math.sqrt(D_K))),
-    [Q, K]
+    [Q, K],
   );
   const attnOut = useMemo(() => matMul(attnScores, V), [attnScores, V]);
   const addNorm1 = useMemo(() => layerNorm(matAdd(XplusPE, attnOut)), [XplusPE, attnOut]);
@@ -1401,13 +1430,13 @@ function FullPipelineDemo() {
   const W1ff = useMemo(() => {
     const rng = seededRandom(555);
     return Array.from({ length: D_MODEL }, () =>
-      Array.from({ length: 8 }, () => +(rng() * 1.0 - 0.5).toFixed(3))
+      Array.from({ length: 8 }, () => +(rng() * 1.0 - 0.5).toFixed(3)),
     );
   }, []);
   const W2ff = useMemo(() => {
     const rng = seededRandom(666);
     return Array.from({ length: 8 }, () =>
-      Array.from({ length: D_MODEL }, () => +(rng() * 1.0 - 0.5).toFixed(3))
+      Array.from({ length: D_MODEL }, () => +(rng() * 1.0 - 0.5).toFixed(3)),
     );
   }, []);
 
@@ -1480,7 +1509,11 @@ function FullPipelineDemo() {
                       ? 'bg-surface-light/50'
                       : 'bg-transparent'
                 }`}
-                style={isActive ? { outlineColor: stage.color, boxShadow: `0 0 12px ${stage.color}33` } : undefined}
+                style={
+                  isActive
+                    ? { outlineColor: stage.color, boxShadow: `0 0 12px ${stage.color}33` }
+                    : undefined
+                }
                 onClick={() => {
                   if (!isRunning) setActiveStage(i);
                 }}
@@ -1520,11 +1553,7 @@ function FullPipelineDemo() {
             <MatrixDisplay
               label={`${PIPELINE_STAGES[activeStage].label} — shape: ${PIPELINE_STAGES[activeStage].shape}`}
               data={stageData[activeStage]!}
-              rowLabels={
-                stageData[activeStage]!.length === tokens.length
-                  ? tokens
-                  : undefined
-              }
+              rowLabels={stageData[activeStage]!.length === tokens.length ? tokens : undefined}
             />
           </div>
         )}
@@ -1549,13 +1578,13 @@ export default function TransformerMathPage() {
           <p>
             The Transformer architecture, introduced in 2017, revolutionized natural language
             processing by replacing recurrence with <strong>self-attention</strong>. Instead of
-            processing tokens one at a time, a Transformer looks at the entire sequence simultaneously,
-            learning which tokens are relevant to each other.
+            processing tokens one at a time, a Transformer looks at the entire sequence
+            simultaneously, learning which tokens are relevant to each other.
           </p>
           <p>
-            A Transformer encoder processes an input sequence through repeated blocks of
-            multi-head attention and feed-forward networks, connected by residual connections and
-            layer normalization. Let's explore each component with real numbers.
+            A Transformer encoder processes an input sequence through repeated blocks of multi-head
+            attention and feed-forward networks, connected by residual connections and layer
+            normalization. Let's explore each component with real numbers.
           </p>
         </Prose>
         <ArchitectureOverview />
@@ -1570,9 +1599,9 @@ export default function TransformerMathPage() {
             in the vocabulary maps to a dense vector of real numbers.
           </p>
           <p>
-            The embedding dimension <Eq>d_model</Eq> is typically 512 or 768 in practice. Here
-            we use {EMBED_DIMS} dimensions to keep things visible. The key insight: similar words
-            end up with similar vectors after training.
+            The embedding dimension <Eq>d_model</Eq> is typically 512 or 768 in practice. Here we
+            use {EMBED_DIMS} dimensions to keep things visible. The key insight: similar words end
+            up with similar vectors after training.
           </p>
         </Prose>
         <TokenEmbeddingsDemo />
@@ -1586,9 +1615,7 @@ export default function TransformerMathPage() {
             order. <strong>Positional encodings</strong> are added to the embeddings to inject
             information about each token's position in the sequence.
           </p>
-          <p>
-            The original Transformer uses sinusoidal positional encodings:
-          </p>
+          <p>The original Transformer uses sinusoidal positional encodings:</p>
         </Prose>
         <Eq block>
           <span>
@@ -1603,8 +1630,8 @@ export default function TransformerMathPage() {
           <p>
             Each dimension oscillates at a different frequency. Low dimensions have long wavelengths
             (slow variation across positions), while high dimensions have short wavelengths (rapid
-            oscillation). This creates a unique positional "fingerprint" that the model can use
-            to determine both absolute and relative token positions.
+            oscillation). This creates a unique positional "fingerprint" that the model can use to
+            determine both absolute and relative token positions.
           </p>
         </Prose>
         <PositionalEncodingDemo />
@@ -1624,9 +1651,7 @@ export default function TransformerMathPage() {
             <br />
             <strong>Value (V):</strong> "What information do I provide?"
           </p>
-          <p>
-            The attention formula computes scaled dot-product attention:
-          </p>
+          <p>The attention formula computes scaled dot-product attention:</p>
         </Prose>
         <Eq block>
           Attention(Q, K, V) = softmax(Q K<sup>T</sup> / &radic;d<sub>k</sub>) &middot; V
@@ -1645,8 +1670,8 @@ export default function TransformerMathPage() {
         <Prose>
           <p>
             Attention weights form a matrix where each row shows how one token distributes its
-            "focus" across all tokens. Different patterns emerge depending on the task:
-            some heads attend to nearby words (positional), others to semantically related words
+            "focus" across all tokens. Different patterns emerge depending on the task: some heads
+            attend to nearby words (positional), others to semantically related words
             (content-based), and some spread attention uniformly.
           </p>
         </Prose>
@@ -1657,15 +1682,15 @@ export default function TransformerMathPage() {
       <Section title="6. Multi-Head Attention">
         <Prose>
           <p>
-            A single attention computation can only capture one type of relationship. <strong>
-            Multi-head attention</strong> runs attention multiple times in parallel, each with
-            different learned projection matrices. This lets the model simultaneously attend to
+            A single attention computation can only capture one type of relationship.{' '}
+            <strong>Multi-head attention</strong> runs attention multiple times in parallel, each
+            with different learned projection matrices. This lets the model simultaneously attend to
             information from different representation subspaces.
           </p>
           <p>
-            With <Eq>h</Eq> heads and <Eq>d_model = 512</Eq>, each head operates
-            on <Eq>d_k = d_model / h = 64</Eq> dimensions. The outputs from all heads are
-            concatenated and projected back to <Eq>d_model</Eq> dimensions.
+            With <Eq>h</Eq> heads and <Eq>d_model = 512</Eq>, each head operates on{' '}
+            <Eq>d_k = d_model / h = 64</Eq> dimensions. The outputs from all heads are concatenated
+            and projected back to <Eq>d_model</Eq> dimensions.
           </p>
         </Prose>
         <MultiHeadDemo />
@@ -1675,8 +1700,8 @@ export default function TransformerMathPage() {
       <Section title="7. Feed-Forward Network">
         <Prose>
           <p>
-            After attention, each token passes through a position-wise feed-forward network.
-            This is a simple two-layer neural network applied independently to each token position:
+            After attention, each token passes through a position-wise feed-forward network. This is
+            a simple two-layer neural network applied independently to each token position:
           </p>
         </Prose>
         <Eq block>
@@ -1684,8 +1709,8 @@ export default function TransformerMathPage() {
         </Eq>
         <Prose>
           <p>
-            The inner dimension is typically 4x larger than <Eq>d_model</Eq> (e.g., 2048 for
-            a 512-dim model). The expansion-compression pattern lets the network learn complex
+            The inner dimension is typically 4x larger than <Eq>d_model</Eq> (e.g., 2048 for a
+            512-dim model). The expansion-compression pattern lets the network learn complex
             transformations at each position.
           </p>
         </Prose>
@@ -1697,12 +1722,12 @@ export default function TransformerMathPage() {
         <Prose>
           <p>
             Between each sub-layer, the Transformer applies <strong>layer normalization</strong>.
-            Unlike batch normalization, layer norm normalizes across the feature dimension for
-            each individual token. This keeps activations stable throughout the deep network.
+            Unlike batch normalization, layer norm normalizes across the feature dimension for each
+            individual token. This keeps activations stable throughout the deep network.
           </p>
           <p>
-            For each token vector, we compute the mean and standard deviation, then normalize
-            so the features have zero mean and unit variance:
+            For each token vector, we compute the mean and standard deviation, then normalize so the
+            features have zero mean and unit variance:
           </p>
         </Prose>
         <LayerNormDemo />
@@ -1712,21 +1737,19 @@ export default function TransformerMathPage() {
       <Section title="9. Putting It All Together">
         <Prose>
           <p>
-            Now let's watch data flow through the complete Transformer encoder block. Starting
-            from token embeddings, the data passes through positional encoding, multi-head
-            attention, add-and-normalize, the feed-forward network, and another add-and-normalize.
-            Click "Run Pipeline" to animate the data flow and see the actual matrix values at
-            each stage.
+            Now let's watch data flow through the complete Transformer encoder block. Starting from
+            token embeddings, the data passes through positional encoding, multi-head attention,
+            add-and-normalize, the feed-forward network, and another add-and-normalize. Click "Run
+            Pipeline" to animate the data flow and see the actual matrix values at each stage.
           </p>
         </Prose>
         <FullPipelineDemo />
         <Prose>
           <p>
-            In a full Transformer, this encoder block is repeated <Eq>N</Eq> times (typically
-            6 or 12 layers). Each layer refines the representations, building increasingly
-            abstract and contextualized features. The decoder adds cross-attention to the
-            encoder output and masked self-attention to prevent future token leakage during
-            generation.
+            In a full Transformer, this encoder block is repeated <Eq>N</Eq> times (typically 6 or
+            12 layers). Each layer refines the representations, building increasingly abstract and
+            contextualized features. The decoder adds cross-attention to the encoder output and
+            masked self-attention to prevent future token leakage during generation.
           </p>
         </Prose>
       </Section>

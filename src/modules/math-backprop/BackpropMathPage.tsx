@@ -38,29 +38,30 @@ function WhyBackprop() {
     <Section title="1. Why Backpropagation?">
       <Prose>
         <p>
-          A neural network can have millions of weights. When the network makes a
-          wrong prediction, we face the <strong className="text-text">credit assignment problem</strong>:
-          which weights were responsible for the error, and how much should each
-          one change?
+          A neural network can have millions of weights. When the network makes a wrong prediction,
+          we face the <strong className="text-text">credit assignment problem</strong>: which
+          weights were responsible for the error, and how much should each one change?
         </p>
         <p>
-          We could try changing each weight one at a time and measuring whether
-          the loss goes up or down — but with millions of weights that would be
-          impossibly slow. <strong className="text-text">Backpropagation</strong> solves this by computing
-          <em> every </em> gradient in a single backward sweep through the network,
-          using the <strong className="text-text">chain rule</strong> of calculus.
+          We could try changing each weight one at a time and measuring whether the loss goes up or
+          down — but with millions of weights that would be impossibly slow.{' '}
+          <strong className="text-text">Backpropagation</strong> solves this by computing
+          <em> every </em> gradient in a single backward sweep through the network, using the{' '}
+          <strong className="text-text">chain rule</strong> of calculus.
         </p>
         <p>
-          The key insight: because a neural network is just a composition of simple
-          differentiable operations, we can decompose the total derivative of the
-          loss with respect to any weight into a product of local derivatives — each
-          one trivially easy to compute.
+          The key insight: because a neural network is just a composition of simple differentiable
+          operations, we can decompose the total derivative of the loss with respect to any weight
+          into a product of local derivatives — each one trivially easy to compute.
         </p>
       </Prose>
       <Eq block>
-        <span className="text-amber-400">dLoss/dWeight</span>{' = '}
-        <span className="text-text-muted">local gradient</span>{' × '}
-        <span className="text-text-muted">local gradient</span>{' × '}
+        <span className="text-amber-400">dLoss/dWeight</span>
+        {' = '}
+        <span className="text-text-muted">local gradient</span>
+        {' × '}
+        <span className="text-text-muted">local gradient</span>
+        {' × '}
         <span className="text-text-muted">... (chain rule)</span>
       </Eq>
     </Section>
@@ -77,27 +78,28 @@ function ChainRuleDemo() {
   // f(g(x)) where g(x) = x^2 and f(u) = sin(u)
   const gx = x * x;
   const fgx = Math.sin(gx);
-  const gPrime = 2 * x;             // dg/dx = 2x
-  const fPrime = Math.cos(gx);      // df/du = cos(u) evaluated at u=g(x)
-  const dfdx = fPrime * gPrime;     // chain rule
+  const gPrime = 2 * x; // dg/dx = 2x
+  const fPrime = Math.cos(gx); // df/du = cos(u) evaluated at u=g(x)
+  const dfdx = fPrime * gPrime; // chain rule
 
   return (
     <Section title="2. The Chain Rule — Foundation of Backprop">
       <Prose>
         <p>
-          Backpropagation is the chain rule applied systematically.
-          If <Eq>y = f(g(x))</Eq>, then:
+          Backpropagation is the chain rule applied systematically. If <Eq>y = f(g(x))</Eq>, then:
         </p>
       </Prose>
       <Eq block>
-        <span className="text-amber-400">dy/dx</span>{' = '}
-        <span className="text-primary-light">f'(g(x))</span>{' × '}
+        <span className="text-amber-400">dy/dx</span>
+        {' = '}
+        <span className="text-primary-light">f'(g(x))</span>
+        {' × '}
         <span className="text-green-400">g'(x)</span>
       </Eq>
       <Prose>
         <p>
-          Adjust <Eq>x</Eq> below and watch how the total derivative decomposes into
-          two local derivatives multiplied together.
+          Adjust <Eq>x</Eq> below and watch how the total derivative decomposes into two local
+          derivatives multiplied together.
         </p>
       </Prose>
 
@@ -116,42 +118,174 @@ function ChainRuleDemo() {
         <div className="mt-6">
           <svg viewBox="0 0 600 120" className="w-full" style={{ maxHeight: 120 }}>
             {/* x input */}
-            <rect x={10} y={35} width={70} height={50} rx={8} fill={COLORS.surface} stroke={COLORS.border} strokeWidth={1.5} />
-            <text x={45} y={65} textAnchor="middle" fill={COLORS.text} fontSize={14} fontFamily="monospace">
+            <rect
+              x={10}
+              y={35}
+              width={70}
+              height={50}
+              rx={8}
+              fill={COLORS.surface}
+              stroke={COLORS.border}
+              strokeWidth={1.5}
+            />
+            <text
+              x={45}
+              y={65}
+              textAnchor="middle"
+              fill={COLORS.text}
+              fontSize={14}
+              fontFamily="monospace"
+            >
               x={fmt(x, 1)}
             </text>
 
             {/* Arrow x -> g */}
-            <line x1={80} y1={60} x2={140} y2={60} stroke={COLORS.border} strokeWidth={1.5} markerEnd="url(#arrowG)" />
-            <text x={110} y={52} textAnchor="middle" fill={COLORS.muted} fontSize={10}>input</text>
+            <line
+              x1={80}
+              y1={60}
+              x2={140}
+              y2={60}
+              stroke={COLORS.border}
+              strokeWidth={1.5}
+              markerEnd="url(#arrowG)"
+            />
+            <text x={110} y={52} textAnchor="middle" fill={COLORS.muted} fontSize={10}>
+              input
+            </text>
 
             {/* g(x) box */}
-            <rect x={140} y={25} width={120} height={70} rx={8} fill={COLORS.surface} stroke={COLORS.green} strokeWidth={1.5} />
-            <text x={200} y={52} textAnchor="middle" fill={COLORS.green} fontSize={13} fontFamily="monospace">g(x) = x²</text>
-            <text x={200} y={72} textAnchor="middle" fill={COLORS.text} fontSize={12} fontFamily="monospace">= {fmt(gx, 2)}</text>
-            <text x={200} y={110} textAnchor="middle" fill={COLORS.green} fontSize={11} fontFamily="monospace">
+            <rect
+              x={140}
+              y={25}
+              width={120}
+              height={70}
+              rx={8}
+              fill={COLORS.surface}
+              stroke={COLORS.green}
+              strokeWidth={1.5}
+            />
+            <text
+              x={200}
+              y={52}
+              textAnchor="middle"
+              fill={COLORS.green}
+              fontSize={13}
+              fontFamily="monospace"
+            >
+              g(x) = x²
+            </text>
+            <text
+              x={200}
+              y={72}
+              textAnchor="middle"
+              fill={COLORS.text}
+              fontSize={12}
+              fontFamily="monospace"
+            >
+              = {fmt(gx, 2)}
+            </text>
+            <text
+              x={200}
+              y={110}
+              textAnchor="middle"
+              fill={COLORS.green}
+              fontSize={11}
+              fontFamily="monospace"
+            >
               g'(x)=2x = {fmt(gPrime, 2)}
             </text>
 
             {/* Arrow g -> f */}
-            <line x1={260} y1={60} x2={320} y2={60} stroke={COLORS.border} strokeWidth={1.5} markerEnd="url(#arrowG)" />
-            <text x={290} y={52} textAnchor="middle" fill={COLORS.muted} fontSize={10}>u={fmt(gx, 2)}</text>
+            <line
+              x1={260}
+              y1={60}
+              x2={320}
+              y2={60}
+              stroke={COLORS.border}
+              strokeWidth={1.5}
+              markerEnd="url(#arrowG)"
+            />
+            <text x={290} y={52} textAnchor="middle" fill={COLORS.muted} fontSize={10}>
+              u={fmt(gx, 2)}
+            </text>
 
             {/* f(u) box */}
-            <rect x={320} y={25} width={130} height={70} rx={8} fill={COLORS.surface} stroke={COLORS.primaryLight} strokeWidth={1.5} />
-            <text x={385} y={52} textAnchor="middle" fill={COLORS.primaryLight} fontSize={13} fontFamily="monospace">f(u) = sin(u)</text>
-            <text x={385} y={72} textAnchor="middle" fill={COLORS.text} fontSize={12} fontFamily="monospace">= {fmt(fgx, 4)}</text>
-            <text x={385} y={110} textAnchor="middle" fill={COLORS.primaryLight} fontSize={11} fontFamily="monospace">
+            <rect
+              x={320}
+              y={25}
+              width={130}
+              height={70}
+              rx={8}
+              fill={COLORS.surface}
+              stroke={COLORS.primaryLight}
+              strokeWidth={1.5}
+            />
+            <text
+              x={385}
+              y={52}
+              textAnchor="middle"
+              fill={COLORS.primaryLight}
+              fontSize={13}
+              fontFamily="monospace"
+            >
+              f(u) = sin(u)
+            </text>
+            <text
+              x={385}
+              y={72}
+              textAnchor="middle"
+              fill={COLORS.text}
+              fontSize={12}
+              fontFamily="monospace"
+            >
+              = {fmt(fgx, 4)}
+            </text>
+            <text
+              x={385}
+              y={110}
+              textAnchor="middle"
+              fill={COLORS.primaryLight}
+              fontSize={11}
+              fontFamily="monospace"
+            >
               f'(u)=cos(u) = {fmt(fPrime, 4)}
             </text>
 
             {/* Arrow f -> output */}
-            <line x1={450} y1={60} x2={510} y2={60} stroke={COLORS.border} strokeWidth={1.5} markerEnd="url(#arrowG)" />
+            <line
+              x1={450}
+              y1={60}
+              x2={510}
+              y2={60}
+              stroke={COLORS.border}
+              strokeWidth={1.5}
+              markerEnd="url(#arrowG)"
+            />
 
             {/* Output */}
-            <rect x={510} y={35} width={80} height={50} rx={8} fill={COLORS.surface} stroke={COLORS.amber} strokeWidth={1.5} />
-            <text x={550} y={55} textAnchor="middle" fill={COLORS.muted} fontSize={10}>dy/dx =</text>
-            <text x={550} y={72} textAnchor="middle" fill={COLORS.amber} fontSize={13} fontFamily="monospace">{fmt(dfdx, 4)}</text>
+            <rect
+              x={510}
+              y={35}
+              width={80}
+              height={50}
+              rx={8}
+              fill={COLORS.surface}
+              stroke={COLORS.amber}
+              strokeWidth={1.5}
+            />
+            <text x={550} y={55} textAnchor="middle" fill={COLORS.muted} fontSize={10}>
+              dy/dx =
+            </text>
+            <text
+              x={550}
+              y={72}
+              textAnchor="middle"
+              fill={COLORS.amber}
+              fontSize={13}
+              fontFamily="monospace"
+            >
+              {fmt(dfdx, 4)}
+            </text>
 
             <defs>
               <marker id="arrowG" markerWidth={8} markerHeight={6} refX={8} refY={3} orient="auto">
@@ -163,14 +297,17 @@ function ChainRuleDemo() {
 
         <div className="mt-4 p-3 rounded-lg bg-surface border border-white/[0.06]">
           <p className="font-mono text-sm text-text">
-            <span className="text-amber-400">dy/dx</span>{' = '}
-            <span className="text-primary-light">{fmt(fPrime, 4)}</span>{' × '}
-            <span className="text-green-400">{fmt(gPrime, 2)}</span>{' = '}
+            <span className="text-amber-400">dy/dx</span>
+            {' = '}
+            <span className="text-primary-light">{fmt(fPrime, 4)}</span>
+            {' × '}
+            <span className="text-green-400">{fmt(gPrime, 2)}</span>
+            {' = '}
             <span className="text-amber-400">{fmt(dfdx, 4)}</span>
           </p>
           <p className="text-xs text-text-muted mt-1">
-            The total derivative is the product of the two local derivatives — this is
-            exactly what backpropagation does at every node.
+            The total derivative is the product of the two local derivatives — this is exactly what
+            backpropagation does at every node.
           </p>
         </div>
       </InteractiveDemo>
@@ -198,13 +335,18 @@ interface GraphEdge {
 
 function buildGraph() {
   // Simple computation: z = w1*x1 + w2*x2, a = sigmoid(z), L = (a - t)^2
-  const x1 = 1.0, x2 = 0.5, w1 = 0.3, w2 = -0.2, b = 0.1, t = 1.0;
+  const x1 = 1.0,
+    x2 = 0.5,
+    w1 = 0.3,
+    w2 = -0.2,
+    b = 0.1,
+    t = 1.0;
 
-  const p1 = w1 * x1;             // mul node 1
-  const p2 = w2 * x2;             // mul node 2
-  const z = p1 + p2 + b;          // sum node
-  const a = sigmoid(z);           // activation node
-  const L = (a - t) ** 2;         // loss node
+  const p1 = w1 * x1; // mul node 1
+  const p2 = w2 * x2; // mul node 2
+  const z = p1 + p2 + b; // sum node
+  const a = sigmoid(z); // activation node
+  const L = (a - t) ** 2; // loss node
 
   // Backward pass
   const dL_dL = 1.0;
@@ -217,16 +359,16 @@ function buildGraph() {
   const dL_dp2 = dL_dz;
 
   const nodes: GraphNode[] = [
-    { id: 'x1',   label: 'x₁',       x: 40,  y: 40,  fwdValue: x1,  gradValue: dL_dz * w1 },
-    { id: 'x2',   label: 'x₂',       x: 40,  y: 170, fwdValue: x2,  gradValue: dL_dz * w2 },
-    { id: 'w1',   label: 'w₁',       x: 40,  y: 105, fwdValue: w1,  gradValue: dL_dw1 },
-    { id: 'w2',   label: 'w₂',       x: 40,  y: 235, fwdValue: w2,  gradValue: dL_dw2 },
-    { id: 'mul1', label: 'w₁·x₁',   x: 190, y: 70,  fwdValue: p1,  gradValue: dL_dp1 },
-    { id: 'mul2', label: 'w₂·x₂',   x: 190, y: 200, fwdValue: p2,  gradValue: dL_dp2 },
-    { id: 'b',    label: 'b',        x: 190, y: 135, fwdValue: b,   gradValue: dL_db },
-    { id: 'sum',  label: 'Σ',        x: 350, y: 135, fwdValue: z,   gradValue: dL_dz },
-    { id: 'act',  label: 'σ',        x: 480, y: 135, fwdValue: a,   gradValue: dL_da },
-    { id: 'loss', label: 'Loss',     x: 610, y: 135, fwdValue: L,   gradValue: dL_dL },
+    { id: 'x1', label: 'x₁', x: 40, y: 40, fwdValue: x1, gradValue: dL_dz * w1 },
+    { id: 'x2', label: 'x₂', x: 40, y: 170, fwdValue: x2, gradValue: dL_dz * w2 },
+    { id: 'w1', label: 'w₁', x: 40, y: 105, fwdValue: w1, gradValue: dL_dw1 },
+    { id: 'w2', label: 'w₂', x: 40, y: 235, fwdValue: w2, gradValue: dL_dw2 },
+    { id: 'mul1', label: 'w₁·x₁', x: 190, y: 70, fwdValue: p1, gradValue: dL_dp1 },
+    { id: 'mul2', label: 'w₂·x₂', x: 190, y: 200, fwdValue: p2, gradValue: dL_dp2 },
+    { id: 'b', label: 'b', x: 190, y: 135, fwdValue: b, gradValue: dL_db },
+    { id: 'sum', label: 'Σ', x: 350, y: 135, fwdValue: z, gradValue: dL_dz },
+    { id: 'act', label: 'σ', x: 480, y: 135, fwdValue: a, gradValue: dL_da },
+    { id: 'loss', label: 'Loss', x: 610, y: 135, fwdValue: L, gradValue: dL_dL },
   ];
 
   const edges: GraphEdge[] = [
@@ -279,9 +421,14 @@ function ComputationGraphDemo() {
     setStep(-1);
   };
 
-  useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current); }, []);
+  useEffect(
+    () => () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    },
+    [],
+  );
 
-  const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n]));
+  const nodeMap = Object.fromEntries(nodes.map((n) => [n.id, n]));
   const nodeR = 28;
 
   const getNodeColor = (n: GraphNode) => {
@@ -300,10 +447,9 @@ function ComputationGraphDemo() {
     <Section title="3. Computation Graphs">
       <Prose>
         <p>
-          A neural network is a <strong className="text-text">computation graph</strong> — a directed
-          acyclic graph where each node performs one simple operation. The forward
-          pass computes values left-to-right; the backward pass propagates gradients
-          right-to-left.
+          A neural network is a <strong className="text-text">computation graph</strong> — a
+          directed acyclic graph where each node performs one simple operation. The forward pass
+          computes values left-to-right; the backward pass propagates gradients right-to-left.
         </p>
       </Prose>
 
@@ -341,9 +487,17 @@ function ComputationGraphDemo() {
               return (
                 <line
                   key={`${e.from}-${e.to}`}
-                  x1={f.x + nodeR} y1={f.y}
-                  x2={t.x - nodeR} y2={t.y}
-                  stroke={highlighted ? (mode === 'forward' ? COLORS.primaryLight : COLORS.amber) : COLORS.border}
+                  x1={f.x + nodeR}
+                  y1={f.y}
+                  x2={t.x - nodeR}
+                  y2={t.y}
+                  stroke={
+                    highlighted
+                      ? mode === 'forward'
+                        ? COLORS.primaryLight
+                        : COLORS.amber
+                      : COLORS.border
+                  }
                   strokeWidth={highlighted ? 2 : 1}
                   opacity={highlighted ? 1 : 0.4}
                 />
@@ -354,24 +508,47 @@ function ComputationGraphDemo() {
             {nodes.map((n) => (
               <g key={n.id}>
                 <circle
-                  cx={n.x} cy={n.y} r={nodeR}
+                  cx={n.x}
+                  cy={n.y}
+                  r={nodeR}
                   fill={getNodeColor(n)}
                   stroke={getStrokeColor(n)}
                   strokeWidth={highlightedIds.has(n.id) ? 2.5 : 1.5}
                   style={{ transition: 'all 0.3s ease' }}
                 />
-                <text x={n.x} y={n.y - 4} textAnchor="middle" fill={COLORS.text} fontSize={11} fontWeight={600}>
+                <text
+                  x={n.x}
+                  y={n.y - 4}
+                  textAnchor="middle"
+                  fill={COLORS.text}
+                  fontSize={11}
+                  fontWeight={600}
+                >
                   {n.label}
                 </text>
                 {/* Forward value */}
                 {highlightedIds.has(n.id) && mode === 'forward' && n.fwdValue !== undefined && (
-                  <text x={n.x} y={n.y + 12} textAnchor="middle" fill={COLORS.primaryLight} fontSize={9} fontFamily="monospace">
+                  <text
+                    x={n.x}
+                    y={n.y + 12}
+                    textAnchor="middle"
+                    fill={COLORS.primaryLight}
+                    fontSize={9}
+                    fontFamily="monospace"
+                  >
                     {fmt(n.fwdValue, 3)}
                   </text>
                 )}
                 {/* Gradient value */}
                 {highlightedIds.has(n.id) && mode === 'backward' && n.gradValue !== undefined && (
-                  <text x={n.x} y={n.y + 12} textAnchor="middle" fill={COLORS.amber} fontSize={9} fontFamily="monospace">
+                  <text
+                    x={n.x}
+                    y={n.y + 12}
+                    textAnchor="middle"
+                    fill={COLORS.amber}
+                    fontSize={9}
+                    fontFamily="monospace"
+                  >
                     ∂={fmt(n.gradValue, 4)}
                   </text>
                 )}
@@ -380,9 +557,11 @@ function ComputationGraphDemo() {
           </svg>
         </div>
         <p className="text-xs text-text-muted mt-2">
-          {mode === 'idle' && 'Click a button to animate the forward or backward pass through the graph.'}
+          {mode === 'idle' &&
+            'Click a button to animate the forward or backward pass through the graph.'}
           {mode === 'forward' && 'Blue highlights show values propagating forward (left to right).'}
-          {mode === 'backward' && 'Amber highlights show gradients flowing backward (right to left).'}
+          {mode === 'backward' &&
+            'Amber highlights show gradients flowing backward (right to left).'}
         </p>
       </InteractiveDemo>
     </Section>
@@ -395,10 +574,16 @@ function ComputationGraphDemo() {
 
 function ForwardPassSection() {
   // Concrete numerical example
-  const x1 = 1.0, x2 = 0.5;
-  const w11 = 0.3, w12 = -0.2, b1 = 0.1;
-  const w21 = 0.5, w22 = 0.1, b2 = -0.1;
-  const t1 = 1.0, t2 = 0.0;
+  const x1 = 1.0,
+    x2 = 0.5;
+  const w11 = 0.3,
+    w12 = -0.2,
+    b1 = 0.1;
+  const w21 = 0.5,
+    w22 = 0.1,
+    b2 = -0.1;
+  const t1 = 1.0,
+    t2 = 0.0;
 
   const z1 = w11 * x1 + w12 * x2 + b1;
   const a1 = sigmoid(z1);
@@ -437,16 +622,38 @@ function ForwardPassSection() {
     <Section title="4. Step-by-Step Forward Pass">
       <Prose>
         <p>
-          Let us trace a concrete example through the network. We have two inputs,
-          two output neurons with sigmoid activations, and mean squared error loss.
+          Let us trace a concrete example through the network. We have two inputs, two output
+          neurons with sigmoid activations, and mean squared error loss.
         </p>
       </Prose>
 
       <div className="p-4 rounded-lg bg-surface-light border border-white/[0.06] font-mono text-sm space-y-1 mb-4">
-        <p className="text-text-muted">Inputs: <span className="text-primary-light">x = [{x1}, {x2}]</span></p>
-        <p className="text-text-muted">Weights 1: <span className="text-text">w₁ = [{w11}, {w12}]</span>, b₁ = {b1}</p>
-        <p className="text-text-muted">Weights 2: <span className="text-text">w₂ = [{w21}, {w22}]</span>, b₂ = {b2}</p>
-        <p className="text-text-muted">Targets: <span className="text-green-400">t = [{t1}, {t2}]</span></p>
+        <p className="text-text-muted">
+          Inputs:{' '}
+          <span className="text-primary-light">
+            x = [{x1}, {x2}]
+          </span>
+        </p>
+        <p className="text-text-muted">
+          Weights 1:{' '}
+          <span className="text-text">
+            w₁ = [{w11}, {w12}]
+          </span>
+          , b₁ = {b1}
+        </p>
+        <p className="text-text-muted">
+          Weights 2:{' '}
+          <span className="text-text">
+            w₂ = [{w21}, {w22}]
+          </span>
+          , b₂ = {b2}
+        </p>
+        <p className="text-text-muted">
+          Targets:{' '}
+          <span className="text-green-400">
+            t = [{t1}, {t2}]
+          </span>
+        </p>
       </div>
 
       <InteractiveDemo title="Step Through Forward Pass">
@@ -505,8 +712,11 @@ interface BackpropStep {
 }
 
 function buildBackpropSteps() {
-  const x1 = 1.0, x2 = 0.5;
-  const w1 = 0.3, w2 = -0.2, b = 0.1;
+  const x1 = 1.0,
+    x2 = 0.5;
+  const w1 = 0.3,
+    w2 = -0.2,
+    b = 0.1;
   const t = 1.0;
 
   const p1 = w1 * x1;
@@ -529,7 +739,8 @@ function buildBackpropSteps() {
       highlightId: 'loss',
       expression: '∂L/∂L = 1',
       numerical: `${fmt(dL_dL)}`,
-      explanation: 'We start at the loss node. The gradient of anything with respect to itself is 1.',
+      explanation:
+        'We start at the loss node. The gradient of anything with respect to itself is 1.',
     },
     {
       nodeLabel: 'Activation output',
@@ -541,7 +752,7 @@ function buildBackpropSteps() {
     {
       nodeLabel: 'Pre-activation (z)',
       highlightId: 'sum',
-      expression: '∂L/∂z = ∂L/∂a · σ\'(z) = ∂L/∂a · a(1-a)',
+      expression: "∂L/∂z = ∂L/∂a · σ'(z) = ∂L/∂a · a(1-a)",
       numerical: `${fmt(dL_da)} × ${fmt(a)}·(1-${fmt(a)}) = ${fmt(dL_da)} × ${fmt(da_dz)} = ${fmt(dL_dz)}`,
       explanation: 'Chain rule! Multiply the upstream gradient by the local derivative of sigmoid.',
     },
@@ -564,7 +775,8 @@ function buildBackpropSteps() {
       highlightId: 'b',
       expression: '∂L/∂b = ∂L/∂z · 1',
       numerical: `${fmt(dL_dz)} × 1 = ${fmt(dL_db)}`,
-      explanation: 'The derivative of z with respect to the bias is always 1, so the gradient passes straight through.',
+      explanation:
+        'The derivative of z with respect to the bias is always 1, so the gradient passes straight through.',
     },
   ];
 
@@ -576,20 +788,20 @@ function BackwardPassDemo() {
   const [currentStep, setCurrentStep] = useState(0);
 
   const { nodes, edges } = buildGraph();
-  const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n]));
+  const nodeMap = Object.fromEntries(nodes.map((n) => [n.id, n]));
   const nodeR = 28;
 
-  const highlightedIds = new Set(steps.slice(0, currentStep + 1).map(s => s.highlightId));
+  const highlightedIds = new Set(steps.slice(0, currentStep + 1).map((s) => s.highlightId));
   const currentId = steps[currentStep].highlightId;
 
   return (
     <Section title="5. Step-by-Step Backward Pass">
       <Prose>
         <p>
-          This is the core of backpropagation. Step through each node and watch the
-          gradient flow backward through the graph. At each step, the{' '}
-          <strong className="text-amber-400">chain rule</strong> multiplies the upstream
-          gradient by the local derivative.
+          This is the core of backpropagation. Step through each node and watch the gradient flow
+          backward through the graph. At each step, the{' '}
+          <strong className="text-amber-400">chain rule</strong> multiplies the upstream gradient by
+          the local derivative.
         </p>
       </Prose>
 
@@ -634,8 +846,10 @@ function BackwardPassDemo() {
               return (
                 <line
                   key={`${e.from}-${e.to}`}
-                  x1={f.x + nodeR} y1={f.y}
-                  x2={t.x - nodeR} y2={t.y}
+                  x1={f.x + nodeR}
+                  y1={f.y}
+                  x2={t.x - nodeR}
+                  y2={t.y}
                   stroke={bothHighlighted ? COLORS.amber : COLORS.border}
                   strokeWidth={bothHighlighted ? 2 : 1}
                   opacity={bothHighlighted ? 0.9 : 0.3}
@@ -654,7 +868,9 @@ function BackwardPassDemo() {
                   {/* Glow ring for current node */}
                   {isCurrent && (
                     <circle
-                      cx={n.x} cy={n.y} r={nodeR + 6}
+                      cx={n.x}
+                      cy={n.y}
+                      r={nodeR + 6}
                       fill="none"
                       stroke={COLORS.amber}
                       strokeWidth={2}
@@ -663,22 +879,48 @@ function BackwardPassDemo() {
                     />
                   )}
                   <circle
-                    cx={n.x} cy={n.y} r={nodeR}
-                    fill={isCurrent ? '#92400e' : isHighlighted ? COLORS.surfaceLighter : COLORS.surface}
+                    cx={n.x}
+                    cy={n.y}
+                    r={nodeR}
+                    fill={
+                      isCurrent ? '#92400e' : isHighlighted ? COLORS.surfaceLighter : COLORS.surface
+                    }
                     stroke={isCurrent ? COLORS.amber : isHighlighted ? COLORS.amber : COLORS.border}
                     strokeWidth={isCurrent ? 2.5 : isHighlighted ? 2 : 1.5}
                     style={{ transition: 'all 0.3s ease' }}
                   />
-                  <text x={n.x} y={n.y - 4} textAnchor="middle" fill={COLORS.text} fontSize={11} fontWeight={600}>
+                  <text
+                    x={n.x}
+                    y={n.y - 4}
+                    textAnchor="middle"
+                    fill={COLORS.text}
+                    fontSize={11}
+                    fontWeight={600}
+                  >
                     {n.label}
                   </text>
                   {/* Show forward value */}
-                  <text x={n.x} y={n.y + 10} textAnchor="middle" fill={COLORS.primaryLight} fontSize={8} fontFamily="monospace">
+                  <text
+                    x={n.x}
+                    y={n.y + 10}
+                    textAnchor="middle"
+                    fill={COLORS.primaryLight}
+                    fontSize={8}
+                    fontFamily="monospace"
+                  >
                     {n.fwdValue !== undefined ? fmt(n.fwdValue, 3) : ''}
                   </text>
                   {/* Show gradient value if revealed */}
                   {isHighlighted && n.gradValue !== undefined && (
-                    <text x={n.x} y={n.y + nodeR + 14} textAnchor="middle" fill={COLORS.amber} fontSize={9} fontFamily="monospace" fontWeight={700}>
+                    <text
+                      x={n.x}
+                      y={n.y + nodeR + 14}
+                      textAnchor="middle"
+                      fill={COLORS.amber}
+                      fontSize={9}
+                      fontFamily="monospace"
+                      fontWeight={700}
+                    >
                       ∂L={fmt(n.gradValue, 4)}
                     </text>
                   )}
@@ -697,7 +939,9 @@ function BackwardPassDemo() {
           </div>
           <p className="font-mono text-sm text-text">{steps[currentStep].expression}</p>
           <p className="font-mono text-sm text-amber-400">{steps[currentStep].numerical}</p>
-          <p className="text-xs text-text-muted leading-relaxed">{steps[currentStep].explanation}</p>
+          <p className="text-xs text-text-muted leading-relaxed">
+            {steps[currentStep].explanation}
+          </p>
         </div>
 
         {/* Timeline of all steps */}
@@ -714,7 +958,8 @@ function BackwardPassDemo() {
                     : 'bg-surface/30 border-transparent text-text-muted/50'
               }`}
             >
-              <span className="font-mono font-semibold">{i + 1}.</span> {s.nodeLabel}: <span className="font-mono">{s.expression}</span>
+              <span className="font-mono font-semibold">{i + 1}.</span> {s.nodeLabel}:{' '}
+              <span className="font-mono">{s.expression}</span>
             </button>
           ))}
         </div>
@@ -756,10 +1001,7 @@ function GradientFlowVisualization() {
     biases.push([0.0, 0.1]);
 
     // Layer 2->3: 2x1
-    weights.push([
-      [0.6],
-      [-0.3],
-    ]);
+    weights.push([[0.6], [-0.3]]);
     biases.push([0.05]);
 
     // Forward pass
@@ -824,7 +1066,8 @@ function GradientFlowVisualization() {
     if (!ctx) return;
 
     const dpr = window.devicePixelRatio || 1;
-    const w = 650, h = 320;
+    const w = 650,
+      h = 320;
     canvas.width = w * dpr;
     canvas.height = h * dpr;
     canvas.style.width = `${w}px`;
@@ -949,20 +1192,19 @@ function GradientFlowVisualization() {
     ctx.fillStyle = COLORS.red;
     ctx.textAlign = 'right';
     ctx.fillText('high', 15 + gw * 1.5, h - 8);
-
   }, [adjustW, forwardAndBack]);
 
   return (
     <Section title="6. Gradient Flow Visualization">
       <Prose>
         <p>
-          After backpropagation, every connection in the network has a gradient.
-          The gradient tells us how sensitive the loss is to that weight — larger
-          gradients mean the weight has more influence on the error.
+          After backpropagation, every connection in the network has a gradient. The gradient tells
+          us how sensitive the loss is to that weight — larger gradients mean the weight has more
+          influence on the error.
         </p>
         <p>
-          Adjust <Eq>w₁₁</Eq> (the first weight, input 1 to hidden 1) and watch how the
-          loss changes. The gradient IS this sensitivity.
+          Adjust <Eq>w₁₁</Eq> (the first weight, input 1 to hidden 1) and watch how the loss
+          changes. The gradient IS this sensitivity.
         </p>
       </Prose>
 
@@ -984,9 +1226,8 @@ function GradientFlowVisualization() {
           />
         </div>
         <p className="text-xs text-text-muted mt-2">
-          Red connections have large gradients (high sensitivity). Blue connections
-          have small gradients (low sensitivity). Drag the weight slider to see
-          the loss change in real time.
+          Red connections have large gradients (high sensitivity). Blue connections have small
+          gradients (low sensitivity). Drag the weight slider to see the loss change in real time.
         </p>
       </InteractiveDemo>
     </Section>
@@ -1020,7 +1261,8 @@ function VanishingGradientSection() {
     if (!ctx) return;
 
     const dpr = window.devicePixelRatio || 1;
-    const w = 500, h = 220;
+    const w = 500,
+      h = 220;
     canvas.width = w * dpr;
     canvas.height = h * dpr;
     canvas.style.width = `${w}px`;
@@ -1055,7 +1297,8 @@ function VanishingGradientSection() {
     ctx.restore();
 
     // x range: -6 to 6
-    const xMin = -6, xMax = 6;
+    const xMin = -6,
+      xMax = 6;
     const toCanvasX = (xv: number) => pad + ((xv - xMin) / (xMax - xMin)) * plotW;
     const toCanvasY = (yv: number) => pad + plotH - yv * plotH;
 
@@ -1126,26 +1369,25 @@ function VanishingGradientSection() {
     ctx.fillStyle = COLORS.primaryLight;
     ctx.fillText('--- sigmoid(z)', pad + 10, pad + plotH - 30);
     ctx.fillStyle = COLORS.amber;
-    ctx.fillText('--- sigmoid\'(z)', pad + 10, pad + plotH - 16);
+    ctx.fillText("--- sigmoid'(z)", pad + 10, pad + plotH - 16);
     ctx.fillStyle = COLORS.muted;
     ctx.fillText('max derivative = 0.25', pad + 130, pad + plotH - 16);
-
   }, []);
 
   return (
     <Section title="7. The Vanishing Gradient Problem">
       <Prose>
         <p>
-          In deep networks with sigmoid activations, gradients can shrink
-          exponentially as they flow backward through layers. The maximum
-          derivative of sigmoid is only <Eq>0.25</Eq>, so each layer multiplies
-          the gradient by at most 0.25. After several layers, the gradient
+          In deep networks with sigmoid activations, gradients can shrink exponentially as they flow
+          backward through layers. The maximum derivative of sigmoid is only <Eq>0.25</Eq>, so each
+          layer multiplies the gradient by at most 0.25. After several layers, the gradient
           effectively vanishes.
         </p>
       </Prose>
 
       <Eq block>
-        <span className="text-amber-400">∂L/∂w₁</span>{' = '}
+        <span className="text-amber-400">∂L/∂w₁</span>
+        {' = '}
         <span className="text-text-muted">σ'·</span>
         <span className="text-text-muted">σ'·</span>
         <span className="text-text-muted">σ'·...·</span>
@@ -1170,7 +1412,10 @@ function VanishingGradientSection() {
           {gradientMagnitudes.map((mag, i) => {
             const isFirst = i === 0;
             const isLast = i === gradientMagnitudes.length - 1;
-            const barWidth = Math.max(mag / gradientMagnitudes[gradientMagnitudes.length - 1] * 100, 0.5);
+            const barWidth = Math.max(
+              (mag / gradientMagnitudes[gradientMagnitudes.length - 1]) * 100,
+              0.5,
+            );
             const intensity = Math.min(mag / gradientMagnitudes[gradientMagnitudes.length - 1], 1);
 
             // Color: red for vanished, green for healthy
@@ -1204,11 +1449,13 @@ function VanishingGradientSection() {
         </div>
 
         <p className="text-xs text-text-muted mt-3">
-          Notice how the gradient at early layers becomes vanishingly small.
-          With {numLayers} layers, the first layer receives a gradient that
-          is <strong className="text-text">0.25^{numLayers - 1} = {(0.25 ** (numLayers - 1)).toExponential(2)}</strong> times
-          the output gradient. This is why deep sigmoid networks are nearly
-          impossible to train.
+          Notice how the gradient at early layers becomes vanishingly small. With {numLayers}{' '}
+          layers, the first layer receives a gradient that is{' '}
+          <strong className="text-text">
+            0.25^{numLayers - 1} = {(0.25 ** (numLayers - 1)).toExponential(2)}
+          </strong>{' '}
+          times the output gradient. This is why deep sigmoid networks are nearly impossible to
+          train.
         </p>
       </InteractiveDemo>
 
@@ -1220,15 +1467,14 @@ function VanishingGradientSection() {
         />
         <Prose>
           <p>
-            The sigmoid function squashes its input to (0, 1). When the input
-            is far from zero (the red saturation zones), the derivative is
-            nearly zero. This means the gradient signal effectively dies at
-            saturated neurons, unable to pass useful information backward.
+            The sigmoid function squashes its input to (0, 1). When the input is far from zero (the
+            red saturation zones), the derivative is nearly zero. This means the gradient signal
+            effectively dies at saturated neurons, unable to pass useful information backward.
           </p>
           <p>
-            Modern networks use <strong className="text-text">ReLU</strong> and its variants (Leaky ReLU, GELU)
-            which have a derivative of 1 for positive inputs, avoiding this
-            saturation problem entirely.
+            Modern networks use <strong className="text-text">ReLU</strong> and its variants (Leaky
+            ReLU, GELU) which have a derivative of 1 for positive inputs, avoiding this saturation
+            problem entirely.
           </p>
         </Prose>
       </InteractiveDemo>

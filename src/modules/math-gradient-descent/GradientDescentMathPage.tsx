@@ -21,7 +21,11 @@ const ACCENT_PURPLE = '#8b5cf6';
 // ── Viridis-like color map ───────────────────────────────────────────
 
 // ── Canvas setup with DPR ────────────────────────────────────────────
-function setupCanvas(canvas: HTMLCanvasElement, w: number, h: number): CanvasRenderingContext2D | null {
+function setupCanvas(
+  canvas: HTMLCanvasElement,
+  w: number,
+  h: number,
+): CanvasRenderingContext2D | null {
   const dpr = window.devicePixelRatio || 1;
   canvas.width = w * dpr;
   canvas.height = h * dpr;
@@ -70,15 +74,28 @@ function drawGrid(
   const zx = toScreenX(0);
   const zy = toScreenY(0);
   if (zx >= 0 && zx <= w) {
-    ctx.beginPath(); ctx.moveTo(zx, 0); ctx.lineTo(zx, h); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(zx, 0);
+    ctx.lineTo(zx, h);
+    ctx.stroke();
   }
   if (zy >= 0 && zy <= h) {
-    ctx.beginPath(); ctx.moveTo(0, zy); ctx.lineTo(w, zy); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, zy);
+    ctx.lineTo(w, zy);
+    ctx.stroke();
   }
 }
 
 // ── Draw a dot ───────────────────────────────────────────────────────
-function drawDot(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, fill: string, stroke?: string) {
+function drawDot(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  r: number,
+  fill: string,
+  stroke?: string,
+) {
   ctx.beginPath();
   ctx.arc(x, y, r, 0, Math.PI * 2);
   ctx.fillStyle = fill;
@@ -91,7 +108,15 @@ function drawDot(ctx: CanvasRenderingContext2D, x: number, y: number, r: number,
 }
 
 // ── Draw an arrow ────────────────────────────────────────────────────
-function drawArrow(ctx: CanvasRenderingContext2D, x0: number, y0: number, x1: number, y1: number, color: string, width: number = 2) {
+function drawArrow(
+  ctx: CanvasRenderingContext2D,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  color: string,
+  width: number = 2,
+) {
   const headLen = 8;
   const angle = Math.atan2(y1 - y0, x1 - x0);
   ctx.strokeStyle = color;
@@ -300,13 +325,16 @@ function DerivativeDemo() {
     }
   }, [xPos, deltaX, toSx, toSy, fromSx]);
 
-  const handleMouse = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDragging.current) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const sx = e.clientX - rect.left;
-    const x = fromSx(sx);
-    setXPos(Math.max(-2.8, Math.min(2.8, x)));
-  }, [fromSx]);
+  const handleMouse = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      if (!isDragging.current) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const sx = e.clientX - rect.left;
+      const x = fromSx(sx);
+      setXPos(Math.max(-2.8, Math.min(2.8, x)));
+    },
+    [fromSx],
+  );
 
   return (
     <InteractiveDemo title="Interactive: Drag the point along the curve">
@@ -314,10 +342,16 @@ function DerivativeDemo() {
         ref={canvasRef}
         className="border border-white/[0.06] rounded-lg cursor-grab active:cursor-grabbing w-full"
         style={{ maxWidth: W }}
-        onMouseDown={() => { isDragging.current = true; }}
+        onMouseDown={() => {
+          isDragging.current = true;
+        }}
         onMouseMove={handleMouse}
-        onMouseUp={() => { isDragging.current = false; }}
-        onMouseLeave={() => { isDragging.current = false; }}
+        onMouseUp={() => {
+          isDragging.current = false;
+        }}
+        onMouseLeave={() => {
+          isDragging.current = false;
+        }}
       />
       <div className="mt-4 max-w-md">
         <ParameterSlider
@@ -327,11 +361,11 @@ function DerivativeDemo() {
           max={2}
           step={0.01}
           onChange={setDeltaX}
-          format={(v) => v < 0.05 ? 'limit \u2192 0' : v.toFixed(2)}
+          format={(v) => (v < 0.05 ? 'limit \u2192 0' : v.toFixed(2))}
         />
         <p className="text-xs text-text-muted mt-2">
-          Shrink {'\u0394x'} toward zero and watch the secant line (purple) approach the tangent (green).
-          The slope of the tangent is the derivative.
+          Shrink {'\u0394x'} toward zero and watch the secant line (purple) approach the tangent
+          (green). The slope of the tangent is the derivative.
         </p>
       </div>
     </InteractiveDemo>
@@ -430,8 +464,8 @@ function GradientDemo() {
         onClick={handleClick}
       />
       <p className="text-xs text-text-muted mt-3">
-        Contour plot of f(x,y) = x{'\u00B2'} + y{'\u00B2'}. White arrows show the gradient (steepest ascent).
-        Click anywhere to highlight the gradient vector at that point.
+        Contour plot of f(x,y) = x{'\u00B2'} + y{'\u00B2'}. White arrows show the gradient (steepest
+        ascent). Click anywhere to highlight the gradient vector at that point.
       </p>
     </InteractiveDemo>
   );
@@ -510,7 +544,11 @@ function GDStepDemo() {
     ctx.fillText(`f'(\u03B8) = ${slope.toFixed(4)}`, 10, 76);
     ctx.fillStyle = ACCENT_GREEN;
     const newPos = pos - lr * slope;
-    ctx.fillText(`\u03B8_new = ${pos.toFixed(3)} - ${lr} \u00D7 ${slope.toFixed(3)} = ${newPos.toFixed(4)}`, 10, 100);
+    ctx.fillText(
+      `\u03B8_new = ${pos.toFixed(3)} - ${lr} \u00D7 ${slope.toFixed(3)} = ${newPos.toFixed(4)}`,
+      10,
+      100,
+    );
   }, [pos, trail, lr, toSx, toSy]);
 
   const step = () => {
@@ -584,7 +622,8 @@ function LearningRateDemo() {
 
   const computePath = useCallback((lr: number, steps: number): [number, number][] => {
     const path: [number, number][] = [[-3, 3]];
-    let x = -3, y = 3;
+    let x = -3,
+      y = 3;
     for (let i = 0; i < steps; i++) {
       const [gx, gy] = grad(x, y);
       x = x - lr * gx;
@@ -595,61 +634,82 @@ function LearningRateDemo() {
     return path;
   }, []);
 
-  const drawPaths = useCallback((stepCount: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = setupCanvas(canvas, W, H);
-    if (!ctx) return;
+  const drawPaths = useCallback(
+    (stepCount: number) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = setupCanvas(canvas, W, H);
+      if (!ctx) return;
 
-    // Contour
-    drawContourDPR(ctx, canvas, W, H, xRange, yRange, fn, 32);
-    const levels = [0.5, 1, 2, 4, 8, 12, 16, 24, 32];
-    drawContourLines(ctx, W, H, xRange, yRange, fn, levels);
+      // Contour
+      drawContourDPR(ctx, canvas, W, H, xRange, yRange, fn, 32);
+      const levels = [0.5, 1, 2, 4, 8, 12, 16, 24, 32];
+      drawContourLines(ctx, W, H, xRange, yRange, fn, levels);
 
-    const configs: { path: [number, number][]; color: string; label: string }[] = [
-      { path: computePath(0.005, stepCount), color: ACCENT_RED, label: '\u03B1 = 0.005 (too small)' },
-      { path: computePath(0.08, stepCount), color: ACCENT_GREEN, label: '\u03B1 = 0.08 (good)' },
-      { path: computePath(0.34, stepCount), color: ACCENT_AMBER, label: '\u03B1 = 0.34 (too large)' },
-      { path: computePath(userLr, stepCount), color: ACCENT_PURPLE, label: `\u03B1 = ${userLr.toFixed(3)} (yours)` },
-    ];
+      const configs: { path: [number, number][]; color: string; label: string }[] = [
+        {
+          path: computePath(0.005, stepCount),
+          color: ACCENT_RED,
+          label: '\u03B1 = 0.005 (too small)',
+        },
+        { path: computePath(0.08, stepCount), color: ACCENT_GREEN, label: '\u03B1 = 0.08 (good)' },
+        {
+          path: computePath(0.34, stepCount),
+          color: ACCENT_AMBER,
+          label: '\u03B1 = 0.34 (too large)',
+        },
+        {
+          path: computePath(userLr, stepCount),
+          color: ACCENT_PURPLE,
+          label: `\u03B1 = ${userLr.toFixed(3)} (yours)`,
+        },
+      ];
 
-    for (const { path, color, label } of configs) {
-      if (path.length < 2) continue;
+      for (const { path, color, label } of configs) {
+        if (path.length < 2) continue;
 
-      // Draw path
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      for (let i = 0; i < path.length; i++) {
-        const sx = toSx(path[i][0]);
-        const sy = toSy(path[i][1]);
-        if (i === 0) ctx.moveTo(sx, sy);
-        else ctx.lineTo(sx, sy);
+        // Draw path
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let i = 0; i < path.length; i++) {
+          const sx = toSx(path[i][0]);
+          const sy = toSy(path[i][1]);
+          if (i === 0) ctx.moveTo(sx, sy);
+          else ctx.lineTo(sx, sy);
+        }
+        ctx.stroke();
+
+        // Trail dots
+        for (let i = 0; i < path.length; i++) {
+          const alpha = 0.3 + 0.7 * (i / path.length);
+          drawDot(
+            ctx,
+            toSx(path[i][0]),
+            toSy(path[i][1]),
+            3,
+            color.replace(')', `,${alpha})`).replace('rgb', 'rgba'),
+          );
+        }
+
+        // Current head
+        const last = path[path.length - 1];
+        drawDot(ctx, toSx(last[0]), toSy(last[1]), 5, color, 'white');
+
+        void label;
       }
-      ctx.stroke();
 
-      // Trail dots
-      for (let i = 0; i < path.length; i++) {
-        const alpha = 0.3 + 0.7 * (i / path.length);
-        drawDot(ctx, toSx(path[i][0]), toSy(path[i][1]), 3, color.replace(')', `,${alpha})`).replace('rgb', 'rgba'));
-      }
-
-      // Current head
-      const last = path[path.length - 1];
-      drawDot(ctx, toSx(last[0]), toSy(last[1]), 5, color, 'white');
-
-      void label;
-    }
-
-    // Legend
-    ctx.font = 'bold 11px monospace';
-    configs.forEach(({ color, label }, i) => {
-      ctx.fillStyle = color;
-      ctx.fillRect(10, 12 + i * 18, 10, 10);
-      ctx.fillStyle = TEXT_COLOR;
-      ctx.fillText(label, 26, 21 + i * 18);
-    });
-  }, [computePath, toSx, toSy, userLr]);
+      // Legend
+      ctx.font = 'bold 11px monospace';
+      configs.forEach(({ color, label }, i) => {
+        ctx.fillStyle = color;
+        ctx.fillRect(10, 12 + i * 18, 10, 10);
+        ctx.fillStyle = TEXT_COLOR;
+        ctx.fillText(label, 26, 21 + i * 18);
+      });
+    },
+    [computePath, toSx, toSy, userLr],
+  );
 
   useEffect(() => {
     if (!running) {
@@ -702,7 +762,8 @@ function LearningRateDemo() {
         </div>
       </div>
       <p className="text-xs text-text-muted mt-2">
-        Surface: f(x,y) = 3x{'\u00B2'} + 0.5y{'\u00B2'} (elongated bowl). Start: (-3, 3). Adjust the purple path's learning rate.
+        Surface: f(x,y) = 3x{'\u00B2'} + 0.5y{'\u00B2'} (elongated bowl). Start: (-3, 3). Adjust the
+        purple path's learning rate.
       </p>
     </InteractiveDemo>
   );
@@ -731,7 +792,8 @@ function MomentumDemo() {
 
   const computeVanilla = useCallback((steps: number): [number, number][] => {
     const lr = 0.04;
-    let x = 0.5, y = -3.5;
+    let x = 0.5,
+      y = -3.5;
     const path: [number, number][] = [[x, y]];
     for (let i = 0; i < steps; i++) {
       const [gx, gy] = grad(x, y);
@@ -744,8 +806,10 @@ function MomentumDemo() {
 
   const computeMomentum = useCallback((steps: number, b: number): [number, number][] => {
     const lr = 0.04;
-    let x = 0.5, y = -3.5;
-    let vx = 0, vy = 0;
+    let x = 0.5,
+      y = -3.5;
+    let vx = 0,
+      vy = 0;
     const path: [number, number][] = [[x, y]];
     for (let i = 0; i < steps; i++) {
       const [gx, gy] = grad(x, y);
@@ -758,56 +822,63 @@ function MomentumDemo() {
     return path;
   }, []);
 
-  const draw = useCallback((stepCount: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = setupCanvas(canvas, W, H);
-    if (!ctx) return;
+  const draw = useCallback(
+    (stepCount: number) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = setupCanvas(canvas, W, H);
+      if (!ctx) return;
 
-    drawContourDPR(ctx, canvas, W, H, xRange, yRange, fn, 20);
-    const levels = [0.2, 0.5, 1, 2, 4, 8, 12, 16];
-    drawContourLines(ctx, W, H, xRange, yRange, fn, levels);
+      drawContourDPR(ctx, canvas, W, H, xRange, yRange, fn, 20);
+      const levels = [0.2, 0.5, 1, 2, 4, 8, 12, 16];
+      drawContourLines(ctx, W, H, xRange, yRange, fn, levels);
 
-    const vanilla = computeVanilla(stepCount);
-    const momentum = computeMomentum(stepCount, beta);
+      const vanilla = computeVanilla(stepCount);
+      const momentum = computeMomentum(stepCount, beta);
 
-    // Vanilla path
-    ctx.strokeStyle = PRIMARY;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    vanilla.forEach(([x, y], i) => {
-      const sx = toSx(x), sy = toSy(y);
-      if (i === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
-    });
-    ctx.stroke();
-    vanilla.forEach(([x, y]) => drawDot(ctx, toSx(x), toSy(y), 2.5, PRIMARY));
-    const vLast = vanilla[vanilla.length - 1];
-    drawDot(ctx, toSx(vLast[0]), toSy(vLast[1]), 5, PRIMARY, 'white');
+      // Vanilla path
+      ctx.strokeStyle = PRIMARY;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      vanilla.forEach(([x, y], i) => {
+        const sx = toSx(x),
+          sy = toSy(y);
+        if (i === 0) ctx.moveTo(sx, sy);
+        else ctx.lineTo(sx, sy);
+      });
+      ctx.stroke();
+      vanilla.forEach(([x, y]) => drawDot(ctx, toSx(x), toSy(y), 2.5, PRIMARY));
+      const vLast = vanilla[vanilla.length - 1];
+      drawDot(ctx, toSx(vLast[0]), toSy(vLast[1]), 5, PRIMARY, 'white');
 
-    // Momentum path
-    ctx.strokeStyle = ACCENT_AMBER;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    momentum.forEach(([x, y], i) => {
-      const sx = toSx(x), sy = toSy(y);
-      if (i === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
-    });
-    ctx.stroke();
-    momentum.forEach(([x, y]) => drawDot(ctx, toSx(x), toSy(y), 2.5, ACCENT_AMBER));
-    const mLast = momentum[momentum.length - 1];
-    drawDot(ctx, toSx(mLast[0]), toSy(mLast[1]), 5, ACCENT_AMBER, 'white');
+      // Momentum path
+      ctx.strokeStyle = ACCENT_AMBER;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      momentum.forEach(([x, y], i) => {
+        const sx = toSx(x),
+          sy = toSy(y);
+        if (i === 0) ctx.moveTo(sx, sy);
+        else ctx.lineTo(sx, sy);
+      });
+      ctx.stroke();
+      momentum.forEach(([x, y]) => drawDot(ctx, toSx(x), toSy(y), 2.5, ACCENT_AMBER));
+      const mLast = momentum[momentum.length - 1];
+      drawDot(ctx, toSx(mLast[0]), toSy(mLast[1]), 5, ACCENT_AMBER, 'white');
 
-    // Legend
-    ctx.font = 'bold 11px monospace';
-    ctx.fillStyle = PRIMARY;
-    ctx.fillRect(10, 12, 10, 10);
-    ctx.fillStyle = TEXT_COLOR;
-    ctx.fillText('Vanilla GD', 26, 21);
-    ctx.fillStyle = ACCENT_AMBER;
-    ctx.fillRect(10, 30, 10, 10);
-    ctx.fillStyle = TEXT_COLOR;
-    ctx.fillText(`Momentum (\u03B2 = ${beta.toFixed(2)})`, 26, 39);
-  }, [beta, computeVanilla, computeMomentum, toSx, toSy]);
+      // Legend
+      ctx.font = 'bold 11px monospace';
+      ctx.fillStyle = PRIMARY;
+      ctx.fillRect(10, 12, 10, 10);
+      ctx.fillStyle = TEXT_COLOR;
+      ctx.fillText('Vanilla GD', 26, 21);
+      ctx.fillStyle = ACCENT_AMBER;
+      ctx.fillRect(10, 30, 10, 10);
+      ctx.fillStyle = TEXT_COLOR;
+      ctx.fillText(`Momentum (\u03B2 = ${beta.toFixed(2)})`, 26, 39);
+    },
+    [beta, computeVanilla, computeMomentum, toSx, toSy],
+  );
 
   useEffect(() => {
     if (!running) {
@@ -858,8 +929,9 @@ function MomentumDemo() {
         </div>
       </div>
       <p className="text-xs text-text-muted mt-2">
-        Narrow valley: f(x,y) = 10x{'\u00B2'} + 0.1y{'\u00B2'}. Notice how vanilla GD oscillates across the narrow
-        direction while momentum smooths the path and accelerates along the valley.
+        Narrow valley: f(x,y) = 10x{'\u00B2'} + 0.1y{'\u00B2'}. Notice how vanilla GD oscillates
+        across the narrow direction while momentum smooths the path and accelerates along the
+        valley.
       </p>
     </InteractiveDemo>
   );
@@ -895,70 +967,86 @@ function StochasticDemo() {
     };
   }, []);
 
-  const computePath = useCallback((noise: number, steps: number, seed: number): [number, number][] => {
-    const lr = 0.08;
-    let x = -3, y = 3;
-    const path: [number, number][] = [[x, y]];
-    const rng = seededRandom(seed);
-    for (let i = 0; i < steps; i++) {
-      const [gx, gy] = grad(x, y);
-      const nx = (rng() - 0.5) * 2 * noise;
-      const ny = (rng() - 0.5) * 2 * noise;
-      x -= lr * (gx + nx);
-      y -= lr * (gy + ny);
-      path.push([x, y]);
-    }
-    return path;
-  }, [seededRandom]);
+  const computePath = useCallback(
+    (noise: number, steps: number, seed: number): [number, number][] => {
+      const lr = 0.08;
+      let x = -3,
+        y = 3;
+      const path: [number, number][] = [[x, y]];
+      const rng = seededRandom(seed);
+      for (let i = 0; i < steps; i++) {
+        const [gx, gy] = grad(x, y);
+        const nx = (rng() - 0.5) * 2 * noise;
+        const ny = (rng() - 0.5) * 2 * noise;
+        x -= lr * (gx + nx);
+        y -= lr * (gy + ny);
+        path.push([x, y]);
+      }
+      return path;
+    },
+    [seededRandom],
+  );
 
-  const draw = useCallback((stepCount: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = setupCanvas(canvas, W, H);
-    if (!ctx) return;
+  const draw = useCallback(
+    (stepCount: number) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = setupCanvas(canvas, W, H);
+      if (!ctx) return;
 
-    drawContourDPR(ctx, canvas, W, H, xRange, yRange, fn, 20);
-    const levels = [1, 2, 4, 8, 12, 16];
-    drawContourLines(ctx, W, H, xRange, yRange, fn, levels);
+      drawContourDPR(ctx, canvas, W, H, xRange, yRange, fn, 20);
+      const levels = [1, 2, 4, 8, 12, 16];
+      drawContourLines(ctx, W, H, xRange, yRange, fn, levels);
 
-    const configs: { key: string; noise: number; color: string; label: string; seed: number }[] = [
-      { key: 'batch', noise: 0, color: ACCENT_GREEN, label: 'Batch GD (smooth)', seed: 42 },
-      { key: 'mini', noise: 2, color: ACCENT_AMBER, label: 'Mini-Batch (medium noise)', seed: 123 },
-      { key: 'sgd', noise: 5, color: ACCENT_RED, label: 'SGD (high noise)', seed: 77 },
-    ];
+      const configs: { key: string; noise: number; color: string; label: string; seed: number }[] =
+        [
+          { key: 'batch', noise: 0, color: ACCENT_GREEN, label: 'Batch GD (smooth)', seed: 42 },
+          {
+            key: 'mini',
+            noise: 2,
+            color: ACCENT_AMBER,
+            label: 'Mini-Batch (medium noise)',
+            seed: 123,
+          },
+          { key: 'sgd', noise: 5, color: ACCENT_RED, label: 'SGD (high noise)', seed: 77 },
+        ];
 
-    for (const { key, noise, color, label, seed } of configs) {
-      if (mode !== 'all' && mode !== key) continue;
-      const path = computePath(noise, stepCount, seed);
+      for (const { key, noise, color, label, seed } of configs) {
+        if (mode !== 'all' && mode !== key) continue;
+        const path = computePath(noise, stepCount, seed);
 
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 1.8;
-      ctx.globalAlpha = 0.9;
-      ctx.beginPath();
-      path.forEach(([x, y], i) => {
-        const sx = toSx(x), sy = toSy(y);
-        if (i === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
-      });
-      ctx.stroke();
-      ctx.globalAlpha = 1;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.8;
+        ctx.globalAlpha = 0.9;
+        ctx.beginPath();
+        path.forEach(([x, y], i) => {
+          const sx = toSx(x),
+            sy = toSy(y);
+          if (i === 0) ctx.moveTo(sx, sy);
+          else ctx.lineTo(sx, sy);
+        });
+        ctx.stroke();
+        ctx.globalAlpha = 1;
 
-      const last = path[path.length - 1];
-      drawDot(ctx, toSx(last[0]), toSy(last[1]), 5, color, 'white');
-      void label;
-    }
+        const last = path[path.length - 1];
+        drawDot(ctx, toSx(last[0]), toSy(last[1]), 5, color, 'white');
+        void label;
+      }
 
-    // Legend
-    ctx.font = 'bold 11px monospace';
-    let ly = 12;
-    for (const { key, color, label } of configs) {
-      if (mode !== 'all' && mode !== key) continue;
-      ctx.fillStyle = color;
-      ctx.fillRect(10, ly, 10, 10);
-      ctx.fillStyle = TEXT_COLOR;
-      ctx.fillText(label, 26, ly + 9);
-      ly += 18;
-    }
-  }, [mode, computePath, toSx, toSy]);
+      // Legend
+      ctx.font = 'bold 11px monospace';
+      let ly = 12;
+      for (const { key, color, label } of configs) {
+        if (mode !== 'all' && mode !== key) continue;
+        ctx.fillStyle = color;
+        ctx.fillRect(10, ly, 10, 10);
+        ctx.fillStyle = TEXT_COLOR;
+        ctx.fillText(label, 26, ly + 9);
+        ly += 18;
+      }
+    },
+    [mode, computePath, toSx, toSy],
+  );
 
   useEffect(() => {
     if (!running) {
@@ -983,7 +1071,6 @@ function StochasticDemo() {
     if (!running) draw(80);
   }, [mode, running, draw]);
 
-
   return (
     <InteractiveDemo title="Interactive: SGD vs Batch vs Mini-Batch">
       <canvas
@@ -992,7 +1079,14 @@ function StochasticDemo() {
         style={{ maxWidth: W }}
       />
       <div className="mt-4 flex flex-wrap gap-2">
-        {([['all', 'Show All'], ['batch', 'Batch'], ['mini', 'Mini-Batch'], ['sgd', 'SGD']] as const).map(([key, label]) => (
+        {(
+          [
+            ['all', 'Show All'],
+            ['batch', 'Batch'],
+            ['mini', 'Mini-Batch'],
+            ['sgd', 'SGD'],
+          ] as const
+        ).map(([key, label]) => (
           <button
             key={key}
             onClick={() => setMode(key)}
@@ -1013,8 +1107,8 @@ function StochasticDemo() {
         </button>
       </div>
       <p className="text-xs text-text-muted mt-2">
-        All three converge to the same minimum. SGD adds the most noise (simulating single-sample gradients),
-        mini-batch has moderate noise, and batch GD follows the true gradient exactly.
+        All three converge to the same minimum. SGD adds the most noise (simulating single-sample
+        gradients), mini-batch has moderate noise, and batch GD follows the true gradient exactly.
       </p>
     </InteractiveDemo>
   );
@@ -1047,7 +1141,8 @@ function AdamDemo() {
 
   const computeSGD = useCallback((steps: number): [number, number][] => {
     const lr = 0.002;
-    let x = -1.5, y = 2.5;
+    let x = -1.5,
+      y = 2.5;
     const path: [number, number][] = [[x, y]];
     for (let i = 0; i < steps; i++) {
       const [gx, gy] = gradFn(x, y);
@@ -1064,8 +1159,10 @@ function AdamDemo() {
   const computeMomentum = useCallback((steps: number): [number, number][] => {
     const lr = 0.002;
     const beta = 0.9;
-    let x = -1.5, y = 2.5;
-    let vx = 0, vy = 0;
+    let x = -1.5,
+      y = 2.5;
+    let vx = 0,
+      vy = 0;
     const path: [number, number][] = [[x, y]];
     for (let i = 0; i < steps; i++) {
       const [gx, gy] = gradFn(x, y);
@@ -1082,9 +1179,15 @@ function AdamDemo() {
 
   const computeAdam = useCallback((steps: number): [number, number][] => {
     const lr = 0.05;
-    const b1 = 0.9, b2 = 0.999, eps = 1e-8;
-    let x = -1.5, y = 2.5;
-    let mx = 0, my = 0, vx = 0, vy = 0;
+    const b1 = 0.9,
+      b2 = 0.999,
+      eps = 1e-8;
+    let x = -1.5,
+      y = 2.5;
+    let mx = 0,
+      my = 0,
+      vx = 0,
+      vy = 0;
     const path: [number, number][] = [[x, y]];
     for (let i = 0; i < steps; i++) {
       const t = i + 1;
@@ -1097,8 +1200,8 @@ function AdamDemo() {
       const myh = my / (1 - Math.pow(b1, t));
       const vxh = vx / (1 - Math.pow(b2, t));
       const vyh = vy / (1 - Math.pow(b2, t));
-      x -= lr * mxh / (Math.sqrt(vxh) + eps);
-      y -= lr * myh / (Math.sqrt(vyh) + eps);
+      x -= (lr * mxh) / (Math.sqrt(vxh) + eps);
+      y -= (lr * myh) / (Math.sqrt(vyh) + eps);
       x = Math.max(xRange[0], Math.min(xRange[1], x));
       y = Math.max(yRange[0], Math.min(yRange[1], y));
       path.push([x, y]);
@@ -1106,68 +1209,77 @@ function AdamDemo() {
     return path;
   }, []);
 
-  const draw = useCallback((stepCount: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = setupCanvas(canvas, W, H);
-    if (!ctx) return;
+  const draw = useCallback(
+    (stepCount: number) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = setupCanvas(canvas, W, H);
+      if (!ctx) return;
 
-    // Contour - use log scale for Rosenbrock
-    const logFn = (x: number, y: number) => Math.log(1 + fn(x, y));
-    drawContourDPR(ctx, canvas, W, H, xRange, yRange, logFn, Math.log(1 + 50));
-    const levels = [0.1, 0.5, 1, 2, 3, 5, 10, 20, 40].map((v) => Math.log(1 + v));
-    drawContourLines(ctx, W, H, xRange, yRange, logFn, levels);
+      // Contour - use log scale for Rosenbrock
+      const logFn = (x: number, y: number) => Math.log(1 + fn(x, y));
+      drawContourDPR(ctx, canvas, W, H, xRange, yRange, logFn, Math.log(1 + 50));
+      const levels = [0.1, 0.5, 1, 2, 3, 5, 10, 20, 40].map((v) => Math.log(1 + v));
+      drawContourLines(ctx, W, H, xRange, yRange, logFn, levels);
 
-    // Mark the minimum at (1, 1)
-    drawDot(ctx, toSx(1), toSy(1), 4, 'white');
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    ctx.font = '10px monospace';
-    ctx.fillText('min (1,1)', toSx(1) + 8, toSy(1) + 4);
+      // Mark the minimum at (1, 1)
+      drawDot(ctx, toSx(1), toSy(1), 4, 'white');
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.font = '10px monospace';
+      ctx.fillText('min (1,1)', toSx(1) + 8, toSy(1) + 4);
 
-    const configs: { compute: (s: number) => [number, number][]; color: string; label: string }[] = [
-      { compute: computeSGD, color: PRIMARY, label: 'SGD' },
-      { compute: computeMomentum, color: ACCENT_AMBER, label: 'Momentum' },
-      { compute: computeAdam, color: ACCENT_GREEN, label: 'Adam' },
-    ];
+      const configs: {
+        compute: (s: number) => [number, number][];
+        color: string;
+        label: string;
+      }[] = [
+        { compute: computeSGD, color: PRIMARY, label: 'SGD' },
+        { compute: computeMomentum, color: ACCENT_AMBER, label: 'Momentum' },
+        { compute: computeAdam, color: ACCENT_GREEN, label: 'Adam' },
+      ];
 
-    for (const { compute, color, label } of configs) {
-      const path = compute(stepCount);
+      for (const { compute, color, label } of configs) {
+        const path = compute(stepCount);
 
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      path.forEach(([x, y], i) => {
-        const sx = toSx(x), sy = toSy(y);
-        if (i === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
-      });
-      ctx.stroke();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        path.forEach(([x, y], i) => {
+          const sx = toSx(x),
+            sy = toSy(y);
+          if (i === 0) ctx.moveTo(sx, sy);
+          else ctx.lineTo(sx, sy);
+        });
+        ctx.stroke();
 
-      // Dots
-      for (let i = 0; i < path.length; i += Math.max(1, Math.floor(path.length / 30))) {
-        drawDot(ctx, toSx(path[i][0]), toSy(path[i][1]), 2.5, color);
+        // Dots
+        for (let i = 0; i < path.length; i += Math.max(1, Math.floor(path.length / 30))) {
+          drawDot(ctx, toSx(path[i][0]), toSy(path[i][1]), 2.5, color);
+        }
+
+        const last = path[path.length - 1];
+        drawDot(ctx, toSx(last[0]), toSy(last[1]), 5, color, 'white');
+
+        void label;
       }
 
-      const last = path[path.length - 1];
-      drawDot(ctx, toSx(last[0]), toSy(last[1]), 5, color, 'white');
+      // Start
+      drawDot(ctx, toSx(-1.5), toSy(2.5), 6, 'white', MUTED);
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.font = '10px monospace';
+      ctx.fillText('start', toSx(-1.5) + 10, toSy(2.5) + 4);
 
-      void label;
-    }
-
-    // Start
-    drawDot(ctx, toSx(-1.5), toSy(2.5), 6, 'white', MUTED);
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    ctx.font = '10px monospace';
-    ctx.fillText('start', toSx(-1.5) + 10, toSy(2.5) + 4);
-
-    // Legend
-    ctx.font = 'bold 11px monospace';
-    configs.forEach(({ color, label }, i) => {
-      ctx.fillStyle = color;
-      ctx.fillRect(10, 12 + i * 18, 10, 10);
-      ctx.fillStyle = TEXT_COLOR;
-      ctx.fillText(label, 26, 21 + i * 18);
-    });
-  }, [computeSGD, computeMomentum, computeAdam, toSx, toSy]);
+      // Legend
+      ctx.font = 'bold 11px monospace';
+      configs.forEach(({ color, label }, i) => {
+        ctx.fillStyle = color;
+        ctx.fillRect(10, 12 + i * 18, 10, 10);
+        ctx.fillStyle = TEXT_COLOR;
+        ctx.fillText(label, 26, 21 + i * 18);
+      });
+    },
+    [computeSGD, computeMomentum, computeAdam, toSx, toSy],
+  );
 
   useEffect(() => {
     if (!running) {
@@ -1204,8 +1316,9 @@ function AdamDemo() {
         </button>
       </div>
       <p className="text-xs text-text-muted mt-2">
-        Rosenbrock-like surface: f(x,y) = (1-x){'\u00B2'} + 5(y-x{'\u00B2'}){'\u00B2'}. The minimum is at (1,1). Adam adapts
-        its step size per-dimension, navigating the curved valley much more effectively.
+        Rosenbrock-like surface: f(x,y) = (1-x){'\u00B2'} + 5(y-x{'\u00B2'}){'\u00B2'}. The minimum
+        is at (1,1). Adam adapts its step size per-dimension, navigating the curved valley much more
+        effectively.
       </p>
     </InteractiveDemo>
   );
@@ -1224,13 +1337,12 @@ export default function GradientDescentMathPage() {
       <Section title="1. What is a Derivative?">
         <Prose>
           <p>
-            Before we can understand gradient descent, we need to understand the <strong>derivative</strong>.
-            The derivative of a function at a point tells us the <em>rate of change</em> -- how much the
-            output changes when we nudge the input by a tiny amount.
+            Before we can understand gradient descent, we need to understand the{' '}
+            <strong>derivative</strong>. The derivative of a function at a point tells us the{' '}
+            <em>rate of change</em> -- how much the output changes when we nudge the input by a tiny
+            amount.
           </p>
-          <p>
-            For a function f(x), the derivative at point x is defined as the limit:
-          </p>
+          <p>For a function f(x), the derivative at point x is defined as the limit:</p>
         </Prose>
 
         <Eq block>
@@ -1246,13 +1358,14 @@ export default function GradientDescentMathPage() {
 
         <Prose>
           <p>
-            Geometrically, this is the slope of the <strong>tangent line</strong> to the curve at that point.
-            We start with two points (a secant line) and shrink the gap until it becomes the tangent.
-            For <Eq>f(x) = x{'\u00B2'}</Eq>, the derivative is <Eq>f'(x) = 2x</Eq>.
+            Geometrically, this is the slope of the <strong>tangent line</strong> to the curve at
+            that point. We start with two points (a secant line) and shrink the gap until it becomes
+            the tangent. For <Eq>f(x) = x{'\u00B2'}</Eq>, the derivative is <Eq>f'(x) = 2x</Eq>.
           </p>
           <p>
-            <strong>Try it:</strong> Drag the green point along the curve and watch the tangent line.
-            Then shrink {'\u0394'}x with the slider to see the secant (purple) approach the tangent (green).
+            <strong>Try it:</strong> Drag the green point along the curve and watch the tangent
+            line. Then shrink {'\u0394'}x with the slider to see the secant (purple) approach the
+            tangent (green).
           </p>
         </Prose>
 
@@ -1260,9 +1373,13 @@ export default function GradientDescentMathPage() {
 
         <Prose>
           <p>
-            The derivative is positive when the function is increasing (slope points up), negative when
-            decreasing (slope points down), and zero at a minimum or maximum. This is the key insight
-            for optimization: <strong>the derivative tells us which direction to move to decrease the function</strong>.
+            The derivative is positive when the function is increasing (slope points up), negative
+            when decreasing (slope points down), and zero at a minimum or maximum. This is the key
+            insight for optimization:{' '}
+            <strong>
+              the derivative tells us which direction to move to decrease the function
+            </strong>
+            .
           </p>
         </Prose>
       </Section>
@@ -1271,22 +1388,27 @@ export default function GradientDescentMathPage() {
       <Section title="2. Partial Derivatives & The Gradient">
         <Prose>
           <p>
-            In machine learning, we rarely optimize functions of a single variable. Our loss functions
-            depend on thousands or millions of parameters. We need to extend the idea of a derivative
-            to multiple dimensions.
+            In machine learning, we rarely optimize functions of a single variable. Our loss
+            functions depend on thousands or millions of parameters. We need to extend the idea of a
+            derivative to multiple dimensions.
           </p>
           <p>
             A <strong>partial derivative</strong> measures the rate of change with respect to
-            <em> one variable</em>, holding all others constant. For f(x, y) = x{'\u00B2'} + y{'\u00B2'}:
+            <em> one variable</em>, holding all others constant. For f(x, y) = x{'\u00B2'} + y
+            {'\u00B2'}:
           </p>
         </Prose>
 
         <Eq block>
-          <span className="text-primary-light">{'\u2202'}f/{'\u2202'}x</span>
+          <span className="text-primary-light">
+            {'\u2202'}f/{'\u2202'}x
+          </span>
           <span className="text-text-muted"> = </span>
           <span className="text-text">2x</span>
           <span className="text-text-muted mx-6">{'  '}</span>
-          <span className="text-accent-amber">{'\u2202'}f/{'\u2202'}y</span>
+          <span className="text-accent-amber">
+            {'\u2202'}f/{'\u2202'}y
+          </span>
           <span className="text-text-muted"> = </span>
           <span className="text-text">2y</span>
         </Eq>
@@ -1294,7 +1416,8 @@ export default function GradientDescentMathPage() {
         <Prose>
           <p>
             The <strong>gradient</strong> is the vector of all partial derivatives. It points in the
-            direction of <em>steepest ascent</em> -- the direction that increases the function the fastest:
+            direction of <em>steepest ascent</em> -- the direction that increases the function the
+            fastest:
           </p>
         </Prose>
 
@@ -1302,9 +1425,13 @@ export default function GradientDescentMathPage() {
           <span className="text-accent-amber">{'\u2207'}f</span>
           <span className="text-text-muted"> = </span>
           <span className="text-text">[</span>
-          <span className="text-primary-light">{'\u2202'}f/{'\u2202'}x</span>
+          <span className="text-primary-light">
+            {'\u2202'}f/{'\u2202'}x
+          </span>
           <span className="text-text-muted">, </span>
-          <span className="text-accent-amber">{'\u2202'}f/{'\u2202'}y</span>
+          <span className="text-accent-amber">
+            {'\u2202'}f/{'\u2202'}y
+          </span>
           <span className="text-text">]</span>
           <span className="text-text-muted"> = </span>
           <span className="text-text">[2x, 2y]</span>
@@ -1312,13 +1439,13 @@ export default function GradientDescentMathPage() {
 
         <Prose>
           <p>
-            The magnitude of the gradient tells us how steep the surface is. Near the minimum (the bowl's
-            bottom), the gradient is small. Far from the minimum, it's large.
+            The magnitude of the gradient tells us how steep the surface is. Near the minimum (the
+            bowl's bottom), the gradient is small. Far from the minimum, it's large.
           </p>
           <p>
-            <strong>Click on the contour plot</strong> below to see the gradient vector at any point.
-            Notice how the arrows always point away from the center (the minimum) and grow longer as
-            you move further out.
+            <strong>Click on the contour plot</strong> below to see the gradient vector at any
+            point. Notice how the arrows always point away from the center (the minimum) and grow
+            longer as you move further out.
           </p>
         </Prose>
 
@@ -1330,36 +1457,50 @@ export default function GradientDescentMathPage() {
         <Prose>
           <p>
             Now the key idea: if the gradient points in the direction of steepest <em>ascent</em>,
-            then the <strong>negative gradient</strong> points in the direction of steepest <em>descent</em>.
-            To minimize a function, we take steps in the negative gradient direction:
+            then the <strong>negative gradient</strong> points in the direction of steepest{' '}
+            <em>descent</em>. To minimize a function, we take steps in the negative gradient
+            direction:
           </p>
         </Prose>
 
         <Eq block>
-          <span className="text-accent-green">{'\u03B8'}<sub>new</sub></span>
+          <span className="text-accent-green">
+            {'\u03B8'}
+            <sub>new</sub>
+          </span>
           <span className="text-text-muted"> = </span>
-          <span className="text-text">{'\u03B8'}<sub>old</sub></span>
+          <span className="text-text">
+            {'\u03B8'}
+            <sub>old</sub>
+          </span>
           <span className="text-text-muted"> - </span>
           <span className="text-accent-amber">{'\u03B1'}</span>
           <span className="text-text-muted"> {'\u00D7'} </span>
-          <span className="text-primary-light">{'\u2207'}f({'\u03B8'}<sub>old</sub>)</span>
+          <span className="text-primary-light">
+            {'\u2207'}f({'\u03B8'}
+            <sub>old</sub>)
+          </span>
         </Eq>
 
         <Prose>
           <p>
-            Here, <Eq>{'\u03B1'}</Eq> (alpha) is the <strong>learning rate</strong> -- it controls how
-            big each step is. <Eq>{'\u03B8'}</Eq> represents our parameters, and <Eq>{'\u2207'}f({'\u03B8'})</Eq> is
-            the gradient of the loss function at the current parameters.
+            Here, <Eq>{'\u03B1'}</Eq> (alpha) is the <strong>learning rate</strong> -- it controls
+            how big each step is. <Eq>{'\u03B8'}</Eq> represents our parameters, and{' '}
+            <Eq>
+              {'\u2207'}f({'\u03B8'})
+            </Eq>{' '}
+            is the gradient of the loss function at the current parameters.
           </p>
           <p>
-            The algorithm is beautifully simple: <strong>compute the gradient, take a step opposite to it,
-            repeat</strong>. Each step reduces the loss (if the learning rate is small enough), eventually
-            converging to a minimum.
+            The algorithm is beautifully simple:{' '}
+            <strong>compute the gradient, take a step opposite to it, repeat</strong>. Each step
+            reduces the loss (if the learning rate is small enough), eventually converging to a
+            minimum.
           </p>
           <p>
-            <strong>Try it:</strong> Press "Take Step" to watch gradient descent minimize f(x) = x{'\u00B2'}.
-            Each step shows the exact numbers in the update equation. Adjust the learning rate to see
-            how it affects convergence.
+            <strong>Try it:</strong> Press "Take Step" to watch gradient descent minimize f(x) = x
+            {'\u00B2'}. Each step shows the exact numbers in the update equation. Adjust the
+            learning rate to see how it affects convergence.
           </p>
         </Prose>
 
@@ -1367,9 +1508,9 @@ export default function GradientDescentMathPage() {
 
         <Prose>
           <p>
-            Notice how the steps get smaller as we approach the minimum. This is because the gradient
-            itself shrinks near the minimum (the slope flattens out). With a fixed learning rate, GD
-            naturally takes smaller steps as it converges -- a desirable property.
+            Notice how the steps get smaller as we approach the minimum. This is because the
+            gradient itself shrinks near the minimum (the slope flattens out). With a fixed learning
+            rate, GD naturally takes smaller steps as it converges -- a desirable property.
           </p>
         </Prose>
       </Section>
@@ -1382,19 +1523,21 @@ export default function GradientDescentMathPage() {
             deep learning. Setting it correctly is crucial:
           </p>
           <p>
-            <strong>Too small</strong> ({'\u03B1'} = 0.005): The optimizer barely moves. Training takes forever
-            and may get stuck in a poor local minimum. You'll see the red path barely budge.
+            <strong>Too small</strong> ({'\u03B1'} = 0.005): The optimizer barely moves. Training
+            takes forever and may get stuck in a poor local minimum. You'll see the red path barely
+            budge.
           </p>
           <p>
-            <strong>Just right</strong> ({'\u03B1'} = 0.08): Steady, efficient convergence. The green path
-            moves smoothly toward the minimum without oscillating.
+            <strong>Just right</strong> ({'\u03B1'} = 0.08): Steady, efficient convergence. The
+            green path moves smoothly toward the minimum without oscillating.
           </p>
           <p>
-            <strong>Too large</strong> ({'\u03B1'} = 0.34): The optimizer overshoots, oscillates wildly, and
-            may even diverge. The amber path bounces around erratically.
+            <strong>Too large</strong> ({'\u03B1'} = 0.34): The optimizer overshoots, oscillates
+            wildly, and may even diverge. The amber path bounces around erratically.
           </p>
           <p>
-            <strong>Adjust the purple path's learning rate</strong> with the slider and find the sweet spot.
+            <strong>Adjust the purple path's learning rate</strong> with the slider and find the
+            sweet spot.
           </p>
         </Prose>
 
@@ -1413,14 +1556,14 @@ export default function GradientDescentMathPage() {
       <Section title="5. Momentum">
         <Prose>
           <p>
-            Standard gradient descent has a problem: on surfaces with narrow valleys (common in
-            deep learning), it oscillates back and forth across the valley instead of rolling
-            smoothly along it. <strong>Momentum</strong> fixes this with a physics analogy.
+            Standard gradient descent has a problem: on surfaces with narrow valleys (common in deep
+            learning), it oscillates back and forth across the valley instead of rolling smoothly
+            along it. <strong>Momentum</strong> fixes this with a physics analogy.
           </p>
           <p>
-            Think of a ball rolling downhill. It doesn't just follow the slope at each instant --
-            it accumulates velocity. Past gradients influence the current direction, smoothing
-            out the oscillations:
+            Think of a ball rolling downhill. It doesn't just follow the slope at each instant -- it
+            accumulates velocity. Past gradients influence the current direction, smoothing out the
+            oscillations:
           </p>
         </Prose>
 
@@ -1431,7 +1574,9 @@ export default function GradientDescentMathPage() {
           <span className="text-text-muted"> {'\u00D7'} </span>
           <span className="text-accent-amber">v</span>
           <span className="text-text-muted"> + </span>
-          <span className="text-primary-light">{'\u2207'}f({'\u03B8'})</span>
+          <span className="text-primary-light">
+            {'\u2207'}f({'\u03B8'})
+          </span>
         </Eq>
         <Eq block>
           <span className="text-accent-green">{'\u03B8'}</span>
@@ -1445,9 +1590,9 @@ export default function GradientDescentMathPage() {
 
         <Prose>
           <p>
-            The velocity <Eq>v</Eq> is an exponential moving average of past gradients.
-            The momentum coefficient <Eq>{'\u03B2'}</Eq> (typically 0.9) controls how much history
-            to remember. Higher {'\u03B2'} means more smoothing.
+            The velocity <Eq>v</Eq> is an exponential moving average of past gradients. The momentum
+            coefficient <Eq>{'\u03B2'}</Eq> (typically 0.9) controls how much history to remember.
+            Higher {'\u03B2'} means more smoothing.
           </p>
           <p>
             <strong>Watch the comparison:</strong> On this narrow valley surface, vanilla GD (blue)
@@ -1459,10 +1604,10 @@ export default function GradientDescentMathPage() {
 
         <Prose>
           <p>
-            With {'\u03B2'} = 0, momentum reduces to vanilla GD. As you increase it toward 0.99,
-            the ball carries more inertia. Too much momentum and it might overshoot, but the
-            sweet spot around 0.9 typically works well. The oscillating component cancels out over
-            time while the consistent downhill component accumulates.
+            With {'\u03B2'} = 0, momentum reduces to vanilla GD. As you increase it toward 0.99, the
+            ball carries more inertia. Too much momentum and it might overshoot, but the sweet spot
+            around 0.9 typically works well. The oscillating component cancels out over time while
+            the consistent downhill component accumulates.
           </p>
         </Prose>
       </Section>
@@ -1471,22 +1616,22 @@ export default function GradientDescentMathPage() {
       <Section title="6. Stochastic vs Batch vs Mini-Batch Gradient Descent">
         <Prose>
           <p>
-            So far we've assumed we compute the gradient over the <em>entire</em> dataset. In practice,
-            datasets have millions of examples. Computing the full gradient is expensive. There are
-            three approaches:
+            So far we've assumed we compute the gradient over the <em>entire</em> dataset. In
+            practice, datasets have millions of examples. Computing the full gradient is expensive.
+            There are three approaches:
           </p>
           <p>
-            <strong>Batch GD:</strong> Use all data for each gradient step. Smooth, exact gradients but
-            very slow per step. The green path is perfectly smooth.
+            <strong>Batch GD:</strong> Use all data for each gradient step. Smooth, exact gradients
+            but very slow per step. The green path is perfectly smooth.
           </p>
           <p>
-            <strong>Stochastic GD (SGD):</strong> Use a single random sample for each step. Very noisy
-            gradients (the red path zigzags), but many more steps per second. The noise can actually
-            help escape local minima.
+            <strong>Stochastic GD (SGD):</strong> Use a single random sample for each step. Very
+            noisy gradients (the red path zigzags), but many more steps per second. The noise can
+            actually help escape local minima.
           </p>
           <p>
-            <strong>Mini-Batch GD:</strong> Use a small batch (32-512 samples) for each step. A practical
-            compromise -- the amber path has moderate noise but converges reliably.
+            <strong>Mini-Batch GD:</strong> Use a small batch (32-512 samples) for each step. A
+            practical compromise -- the amber path has moderate noise but converges reliably.
           </p>
         </Prose>
 
@@ -1494,9 +1639,9 @@ export default function GradientDescentMathPage() {
 
         <Prose>
           <p>
-            In modern deep learning, mini-batch SGD is the standard. Batch sizes of 32-256 provide
-            a good balance of gradient accuracy and computational efficiency. The noise from stochastic
-            estimation acts as a form of regularization, often improving generalization.
+            In modern deep learning, mini-batch SGD is the standard. Batch sizes of 32-256 provide a
+            good balance of gradient accuracy and computational efficiency. The noise from
+            stochastic estimation acts as a form of regularization, often improving generalization.
           </p>
         </Prose>
       </Section>
@@ -1505,24 +1650,28 @@ export default function GradientDescentMathPage() {
       <Section title="7. The Adam Optimizer">
         <Prose>
           <p>
-            <strong>Adam</strong> (Adaptive Moment Estimation) is the most widely used optimizer in deep
-            learning. It combines two powerful ideas: <strong>momentum</strong> (tracking the direction
-            of past gradients) and <strong>adaptive learning rates</strong> (giving each parameter its
-            own learning rate based on gradient history).
+            <strong>Adam</strong> (Adaptive Moment Estimation) is the most widely used optimizer in
+            deep learning. It combines two powerful ideas: <strong>momentum</strong> (tracking the
+            direction of past gradients) and <strong>adaptive learning rates</strong> (giving each
+            parameter its own learning rate based on gradient history).
           </p>
-          <p>
-            Adam maintains two running averages for each parameter:
-          </p>
+          <p>Adam maintains two running averages for each parameter:</p>
         </Prose>
 
         <Eq block>
           <span className="text-accent-amber">m</span>
           <span className="text-text-muted"> = </span>
-          <span className="text-accent-purple">{'\u03B2'}<sub>1</sub></span>
+          <span className="text-accent-purple">
+            {'\u03B2'}
+            <sub>1</sub>
+          </span>
           <span className="text-text-muted"> {'\u00D7'} </span>
           <span className="text-accent-amber">m</span>
           <span className="text-text-muted"> + (1 - </span>
-          <span className="text-accent-purple">{'\u03B2'}<sub>1</sub></span>
+          <span className="text-accent-purple">
+            {'\u03B2'}
+            <sub>1</sub>
+          </span>
           <span className="text-text-muted">) {'\u00D7'} </span>
           <span className="text-primary-light">g</span>
           <span className="text-text-muted ml-8"> (first moment / mean)</span>
@@ -1530,11 +1679,17 @@ export default function GradientDescentMathPage() {
         <Eq block>
           <span className="text-accent-green">v</span>
           <span className="text-text-muted"> = </span>
-          <span className="text-accent-purple">{'\u03B2'}<sub>2</sub></span>
+          <span className="text-accent-purple">
+            {'\u03B2'}
+            <sub>2</sub>
+          </span>
           <span className="text-text-muted"> {'\u00D7'} </span>
           <span className="text-accent-green">v</span>
           <span className="text-text-muted"> + (1 - </span>
-          <span className="text-accent-purple">{'\u03B2'}<sub>2</sub></span>
+          <span className="text-accent-purple">
+            {'\u03B2'}
+            <sub>2</sub>
+          </span>
           <span className="text-text-muted">) {'\u00D7'} </span>
           <span className="text-primary-light">g{'\u00B2'}</span>
           <span className="text-text-muted ml-8"> (second moment / variance)</span>
@@ -1562,18 +1717,32 @@ export default function GradientDescentMathPage() {
 
         <Prose>
           <p>
-            Parameters with consistently large gradients get smaller effective learning rates (preventing
-            overshooting), while parameters with small or rare gradients get larger rates (helping them
-            learn). The {'\u03B5'} prevents division by zero.
+            Parameters with consistently large gradients get smaller effective learning rates
+            (preventing overshooting), while parameters with small or rare gradients get larger
+            rates (helping them learn). The {'\u03B5'} prevents division by zero.
           </p>
           <p>
-            Default hyperparameters (<Eq>{'\u03B2'}<sub>1</sub> = 0.9</Eq>, <Eq>{'\u03B2'}<sub>2</sub> = 0.999</Eq>, <Eq>{'\u03B5'} = 10<sup>-8</sup></Eq>)
-            work well across most problems. This "just works" quality is why Adam is the go-to optimizer.
+            Default hyperparameters (
+            <Eq>
+              {'\u03B2'}
+              <sub>1</sub> = 0.9
+            </Eq>
+            ,{' '}
+            <Eq>
+              {'\u03B2'}
+              <sub>2</sub> = 0.999
+            </Eq>
+            ,{' '}
+            <Eq>
+              {'\u03B5'} = 10<sup>-8</sup>
+            </Eq>
+            ) work well across most problems. This "just works" quality is why Adam is the go-to
+            optimizer.
           </p>
           <p>
-            <strong>Watch the comparison</strong> on the Rosenbrock function -- a notoriously difficult
-            optimization surface with a curved, narrow valley. Adam (green) navigates it far more
-            efficiently than SGD (blue) or even Momentum (amber).
+            <strong>Watch the comparison</strong> on the Rosenbrock function -- a notoriously
+            difficult optimization surface with a curved, narrow valley. Adam (green) navigates it
+            far more efficiently than SGD (blue) or even Momentum (amber).
           </p>
         </Prose>
 
@@ -1588,8 +1757,8 @@ export default function GradientDescentMathPage() {
           <p>
             In practice, Adam is the default choice for training neural networks. While SGD with
             momentum can sometimes find better solutions (especially for image classification),
-            Adam's robust default performance and minimal tuning requirements make it the
-            standard starting point.
+            Adam's robust default performance and minimal tuning requirements make it the standard
+            starting point.
           </p>
         </Prose>
       </Section>
@@ -1597,25 +1766,25 @@ export default function GradientDescentMathPage() {
       {/* ── Summary ───────────────────────────────────────────────── */}
       <Section title="Summary: The Optimization Landscape">
         <Prose>
+          <p>We've built up the full picture of gradient-based optimization:</p>
           <p>
-            We've built up the full picture of gradient-based optimization:
+            <strong>Derivatives</strong> tell us the slope at a point. <strong>Gradients</strong>{' '}
+            extend this to multiple dimensions, pointing toward steepest ascent.{' '}
+            <strong>Gradient descent</strong> steps opposite to the gradient, iteratively reducing
+            the loss.
           </p>
           <p>
-            <strong>Derivatives</strong> tell us the slope at a point. <strong>Gradients</strong> extend
-            this to multiple dimensions, pointing toward steepest ascent. <strong>Gradient descent</strong>
-            {' '}steps opposite to the gradient, iteratively reducing the loss.
+            The <strong>learning rate</strong> controls step size -- too small and we're slow, too
+            large and we diverge. <strong>Momentum</strong> smooths oscillations by accumulating
+            past gradients.
+            <strong> Mini-batch SGD</strong> makes training practical at scale by estimating
+            gradients from subsets of data.
           </p>
           <p>
-            The <strong>learning rate</strong> controls step size -- too small and we're slow, too large
-            and we diverge. <strong>Momentum</strong> smooths oscillations by accumulating past gradients.
-            <strong> Mini-batch SGD</strong> makes training practical at scale by estimating gradients from
-            subsets of data.
-          </p>
-          <p>
-            <strong>Adam</strong> combines momentum with adaptive per-parameter learning rates, making it
-            the workhorse of modern deep learning. Every time you train a neural network, these
-            algorithms are working under the hood, navigating a loss surface with millions of dimensions
-            to find good parameters.
+            <strong>Adam</strong> combines momentum with adaptive per-parameter learning rates,
+            making it the workhorse of modern deep learning. Every time you train a neural network,
+            these algorithms are working under the hood, navigating a loss surface with millions of
+            dimensions to find good parameters.
           </p>
         </Prose>
 
@@ -1627,7 +1796,9 @@ export default function GradientDescentMathPage() {
           <span className="text-text-muted"> - </span>
           <span className="text-accent-amber">{'\u03B1'}</span>
           <span className="text-text-muted"> {'\u00D7'} </span>
-          <span className="text-primary-light">{'\u2207'}L({'\u03B8'})</span>
+          <span className="text-primary-light">
+            {'\u2207'}L({'\u03B8'})
+          </span>
         </Eq>
       </Section>
     </MathLayout>

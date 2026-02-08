@@ -13,12 +13,54 @@ import { ParameterSlider } from '../../components/shared/ParameterSlider';
 const CELL = 36; // px per grid cell
 
 const PRESET_KERNELS: Record<string, { name: string; kernel: number[][] }> = {
-  edgeH: { name: 'Edge (H)', kernel: [[-1, -1, -1], [0, 0, 0], [1, 1, 1]] },
-  edgeV: { name: 'Edge (V)', kernel: [[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]] },
-  sharpen: { name: 'Sharpen', kernel: [[0, -1, 0], [-1, 5, -1], [0, -1, 0]] },
-  blur: { name: 'Blur', kernel: [[1, 1, 1], [1, 1, 1], [1, 1, 1]] },
-  emboss: { name: 'Emboss', kernel: [[-2, -1, 0], [-1, 1, 1], [0, 1, 2]] },
-  identity: { name: 'Identity', kernel: [[0, 0, 0], [0, 1, 0], [0, 0, 0]] },
+  edgeH: {
+    name: 'Edge (H)',
+    kernel: [
+      [-1, -1, -1],
+      [0, 0, 0],
+      [1, 1, 1],
+    ],
+  },
+  edgeV: {
+    name: 'Edge (V)',
+    kernel: [
+      [-1, 0, 1],
+      [-1, 0, 1],
+      [-1, 0, 1],
+    ],
+  },
+  sharpen: {
+    name: 'Sharpen',
+    kernel: [
+      [0, -1, 0],
+      [-1, 5, -1],
+      [0, -1, 0],
+    ],
+  },
+  blur: {
+    name: 'Blur',
+    kernel: [
+      [1, 1, 1],
+      [1, 1, 1],
+      [1, 1, 1],
+    ],
+  },
+  emboss: {
+    name: 'Emboss',
+    kernel: [
+      [-2, -1, 0],
+      [-1, 1, 1],
+      [0, 1, 2],
+    ],
+  },
+  identity: {
+    name: 'Identity',
+    kernel: [
+      [0, 0, 0],
+      [0, 1, 0],
+      [0, 0, 0],
+    ],
+  },
 };
 
 const INITIAL_IMAGE: number[][] = [
@@ -39,16 +81,56 @@ const POOL_GRID: number[][] = [
 ];
 
 const PIPELINE_STAGES = [
-  { label: 'Input', dim: '28 x 28 x 1', desc: 'Raw grayscale image. Each pixel is a single value between 0 and 1.' },
-  { label: 'Conv 5x5', dim: '24 x 24 x 6', desc: 'Six 5x5 kernels slide across the input. Output shrinks by (kernel_size - 1) = 4 in each dimension. Each kernel detects a different low-level feature.' },
-  { label: 'ReLU', dim: '24 x 24 x 6', desc: 'ReLU(x) = max(0, x). Negative activations are zeroed out, introducing non-linearity so the network can learn complex patterns.' },
-  { label: 'MaxPool 2x2', dim: '12 x 12 x 6', desc: '2x2 max pooling halves spatial dimensions. Keeps the strongest activation in each 2x2 window, providing translation invariance.' },
-  { label: 'Conv 5x5', dim: '8 x 8 x 16', desc: 'Sixteen 5x5 kernels over 6 input channels. Each kernel now combines patterns from multiple feature maps to detect higher-level features.' },
-  { label: 'ReLU', dim: '8 x 8 x 16', desc: 'Another non-linearity layer. Same operation, applied element-wise to every value in all 16 feature maps.' },
-  { label: 'MaxPool 2x2', dim: '4 x 4 x 16', desc: 'Spatial dimensions halved again. We now have a compact 4x4 spatial representation with 16 channels of abstract features.' },
-  { label: 'Flatten', dim: '256', desc: 'Reshape the 4x4x16 volume into a single vector of 256 values. This bridges the convolutional layers and the fully connected classifier.' },
-  { label: 'FC 128', dim: '128', desc: 'Fully connected layer with 256x128 = 32,768 weights. Combines all spatial features into 128 abstract representations.' },
-  { label: 'Output 10', dim: '10', desc: 'Final layer with 10 outputs (one per digit class). Softmax converts these into probabilities that sum to 1.' },
+  {
+    label: 'Input',
+    dim: '28 x 28 x 1',
+    desc: 'Raw grayscale image. Each pixel is a single value between 0 and 1.',
+  },
+  {
+    label: 'Conv 5x5',
+    dim: '24 x 24 x 6',
+    desc: 'Six 5x5 kernels slide across the input. Output shrinks by (kernel_size - 1) = 4 in each dimension. Each kernel detects a different low-level feature.',
+  },
+  {
+    label: 'ReLU',
+    dim: '24 x 24 x 6',
+    desc: 'ReLU(x) = max(0, x). Negative activations are zeroed out, introducing non-linearity so the network can learn complex patterns.',
+  },
+  {
+    label: 'MaxPool 2x2',
+    dim: '12 x 12 x 6',
+    desc: '2x2 max pooling halves spatial dimensions. Keeps the strongest activation in each 2x2 window, providing translation invariance.',
+  },
+  {
+    label: 'Conv 5x5',
+    dim: '8 x 8 x 16',
+    desc: 'Sixteen 5x5 kernels over 6 input channels. Each kernel now combines patterns from multiple feature maps to detect higher-level features.',
+  },
+  {
+    label: 'ReLU',
+    dim: '8 x 8 x 16',
+    desc: 'Another non-linearity layer. Same operation, applied element-wise to every value in all 16 feature maps.',
+  },
+  {
+    label: 'MaxPool 2x2',
+    dim: '4 x 4 x 16',
+    desc: 'Spatial dimensions halved again. We now have a compact 4x4 spatial representation with 16 channels of abstract features.',
+  },
+  {
+    label: 'Flatten',
+    dim: '256',
+    desc: 'Reshape the 4x4x16 volume into a single vector of 256 values. This bridges the convolutional layers and the fully connected classifier.',
+  },
+  {
+    label: 'FC 128',
+    dim: '128',
+    desc: 'Fully connected layer with 256x128 = 32,768 weights. Combines all spatial features into 128 abstract representations.',
+  },
+  {
+    label: 'Output 10',
+    dim: '10',
+    desc: 'Final layer with 10 outputs (one per digit class). Softmax converts these into probabilities that sum to 1.',
+  },
 ];
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -60,12 +142,7 @@ function clamp(v: number, lo: number, hi: number) {
 }
 
 /** Compute a single convolution output value at position (oy, ox). */
-function convAt(
-  image: number[][],
-  kernel: number[][],
-  oy: number,
-  ox: number,
-): number {
+function convAt(image: number[][], kernel: number[][], oy: number, ox: number): number {
   const kSize = kernel.length;
   let sum = 0;
   for (let m = 0; m < kSize; m++) {
@@ -92,7 +169,6 @@ function convolve(image: number[][], kernel: number[][]): number[][] {
   return out;
 }
 
-
 /** Normalize convolution output to [0,1] for display. */
 function normalizeOutput(output: number[][]): number[][] {
   let min = Infinity;
@@ -104,7 +180,7 @@ function normalizeOutput(output: number[][]): number[][] {
     }
   }
   const range = max - min || 1;
-  return output.map(row => row.map(v => (v - min) / range));
+  return output.map((row) => row.map((v) => (v - min) / range));
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -234,7 +310,7 @@ function KernelEditor({
   onChange: (k: number[][]) => void;
 }) {
   const adjust = (r: number, c: number, delta: number) => {
-    const next = kernel.map(row => [...row]);
+    const next = kernel.map((row) => [...row]);
     next[r][c] = clamp(next[r][c] + delta, -9, 9);
     onChange(next);
   };
@@ -249,9 +325,7 @@ function KernelEditor({
               className="relative flex flex-col items-center justify-center rounded-sm border border-accent-amber/40 bg-surface-light"
               style={{ width: 56, height: 44, minWidth: 56 }}
             >
-              <span className="text-xs font-mono text-text leading-none mb-1">
-                {val}
-              </span>
+              <span className="text-xs font-mono text-text leading-none mb-1">{val}</span>
               <div className="flex gap-0.5">
                 <button
                   onClick={() => adjust(r, c, -1)}
@@ -341,24 +415,23 @@ function WhatIsConvolution() {
     <Section title="1. What Is Convolution?">
       <Prose>
         <p>
-          A <strong>convolution</strong> is the core operation behind how neural
-          networks process images. It works by sliding a small matrix of weights
-          (a <em>kernel</em> or <em>filter</em>) across an input image,
-          computing a weighted sum at every position. The result is a new grid
-          called a <em>feature map</em> that encodes where certain patterns
+          A <strong>convolution</strong> is the core operation behind how neural networks process
+          images. It works by sliding a small matrix of weights (a <em>kernel</em> or{' '}
+          <em>filter</em>) across an input image, computing a weighted sum at every position. The
+          result is a new grid called a <em>feature map</em> that encodes where certain patterns
           appear in the input.
         </p>
         <p>
-          For a 2D input and a kernel of size K x K, the output at position
-          (i, j) is defined as:
+          For a 2D input and a kernel of size K x K, the output at position (i, j) is defined as:
         </p>
       </Prose>
 
       <Eq block>
         <span className="text-accent-amber">output</span>[i, j] ={' '}
         <span className="text-text-muted">
-          &Sigma;<sub>m=0</sub><sup>K-1</sup>{' '}
-          &Sigma;<sub>n=0</sub><sup>K-1</sup>
+          &Sigma;<sub>m=0</sub>
+          <sup>K-1</sup> &Sigma;<sub>n=0</sub>
+          <sup>K-1</sup>
         </span>{' '}
         <span className="text-primary-light">input</span>[i+m, j+n]{' '}
         <span className="text-text-muted">&times;</span>{' '}
@@ -368,15 +441,14 @@ function WhatIsConvolution() {
       <Prose>
         <p>
           At each position the kernel overlaps a region of the input called the{' '}
-          <strong>receptive field</strong>. We multiply every overlapping pair of
-          values element-wise, then sum them all into a single output number.
-          The kernel then slides one step to the right (or down at the end of a
-          row) and the process repeats.
+          <strong>receptive field</strong>. We multiply every overlapping pair of values
+          element-wise, then sum them all into a single output number. The kernel then slides one
+          step to the right (or down at the end of a row) and the process repeats.
         </p>
         <p>
-          This simple operation is surprisingly powerful: by learning the right
-          kernel weights, a network can detect edges, corners, textures, and
-          eventually complex objects — all from raw pixel values.
+          This simple operation is surprisingly powerful: by learning the right kernel weights, a
+          network can detect edges, corners, textures, and eventually complex objects — all from raw
+          pixel values.
         </p>
       </Prose>
     </Section>
@@ -388,9 +460,7 @@ function WhatIsConvolution() {
    ──────────────────────────────────────────────────────────────────────────── */
 
 function ConvolutionDemo() {
-  const [image, setImage] = useState<number[][]>(() =>
-    INITIAL_IMAGE.map(r => [...r]),
-  );
+  const [image, setImage] = useState<number[][]>(() => INITIAL_IMAGE.map((r) => [...r]));
   const [kernel, setKernel] = useState<number[][]>([
     [-1, -1, -1],
     [0, 0, 0],
@@ -408,25 +478,22 @@ function ConvolutionDemo() {
   const output = useMemo(() => convolve(image, kernel), [image, kernel]);
   const normalizedOut = useMemo(() => normalizeOutput(output), [output]);
 
-  const togglePixel = useCallback(
-    (r: number, c: number) => {
-      setImage(prev => {
-        const next = prev.map(row => [...row]);
-        next[r][c] = next[r][c] > 0.5 ? 0 : 1;
-        return next;
-      });
-    },
-    [],
-  );
+  const togglePixel = useCallback((r: number, c: number) => {
+    setImage((prev) => {
+      const next = prev.map((row) => [...row]);
+      next[r][c] = next[r][c] > 0.5 ? 0 : 1;
+      return next;
+    });
+  }, []);
 
   const applyPreset = (key: string) => {
     setActivePreset(key);
-    setKernel(PRESET_KERNELS[key].kernel.map(r => [...r]));
+    setKernel(PRESET_KERNELS[key].kernel.map((r) => [...r]));
     setStepPos({ row: 0, col: 0 });
   };
 
   const stepForward = () => {
-    setStepPos(prev => {
+    setStepPos((prev) => {
       let nextCol = prev.col + 1;
       let nextRow = prev.row;
       if (nextCol >= outW) {
@@ -441,7 +508,7 @@ function ConvolutionDemo() {
   };
 
   const stepBack = () => {
-    setStepPos(prev => {
+    setStepPos((prev) => {
       let nextCol = prev.col - 1;
       let nextRow = prev.row;
       if (nextCol < 0) {
@@ -459,7 +526,8 @@ function ConvolutionDemo() {
 
   // Element-wise multiplication breakdown for current step
   const products = useMemo(() => {
-    const res: { r: number; c: number; inputVal: number; kernelVal: number; product: number }[] = [];
+    const res: { r: number; c: number; inputVal: number; kernelVal: number; product: number }[] =
+      [];
     for (let m = 0; m < kSize; m++) {
       for (let n = 0; n < kSize; n++) {
         const iv = image[stepPos.row + m]?.[stepPos.col + n] ?? 0;
@@ -472,18 +540,15 @@ function ConvolutionDemo() {
 
   const stepSum = products.reduce((s, p) => s + p.product, 0);
 
-  const highlight = stepMode
-    ? { row: stepPos.row, col: stepPos.col, kSize }
-    : null;
+  const highlight = stepMode ? { row: stepPos.row, col: stepPos.col, kSize } : null;
 
   return (
     <Section title="2. Interactive Convolution Demo">
       <Prose>
         <p>
-          Click cells in the input grid to paint pixels. Choose a preset kernel
-          or edit weights manually. Toggle <strong>Step Mode</strong> to walk
-          through the convolution one position at a time and see exactly how
-          each output value is computed.
+          Click cells in the input grid to paint pixels. Choose a preset kernel or edit weights
+          manually. Toggle <strong>Step Mode</strong> to walk through the convolution one position
+          at a time and see exactly how each output value is computed.
         </p>
       </Prose>
 
@@ -506,11 +571,7 @@ function ConvolutionDemo() {
             <p className="text-[11px] uppercase tracking-wider text-text-muted mb-2 font-semibold">
               Input (click to paint)
             </p>
-            <PixelGrid
-              grid={image}
-              highlight={highlight}
-              onCellClick={togglePixel}
-            />
+            <PixelGrid grid={image} highlight={highlight} onCellClick={togglePixel} />
           </div>
 
           {/* Kernel editor */}
@@ -536,11 +597,7 @@ function ConvolutionDemo() {
               grid={normalizedOut}
               showNumbers
               highlightColor="ring-primary"
-              highlight={
-                stepMode
-                  ? { row: stepPos.row, col: stepPos.col, kSize: 1 }
-                  : null
-              }
+              highlight={stepMode ? { row: stepPos.row, col: stepPos.col, kSize: 1 } : null}
             />
           </div>
         </div>
@@ -559,14 +616,13 @@ function ConvolutionDemo() {
             </SmallButton>
             {stepMode && (
               <>
-                <SmallButton onClick={stepBack}>
-                  &larr; Prev
-                </SmallButton>
+                <SmallButton onClick={stepBack}>&larr; Prev</SmallButton>
                 <SmallButton onClick={stepForward} variant="primary">
                   Next &rarr;
                 </SmallButton>
                 <span className="text-xs text-text-muted font-mono">
-                  Step {currentStepIndex + 1} / {totalSteps} &mdash; pos ({stepPos.row}, {stepPos.col})
+                  Step {currentStepIndex + 1} / {totalSteps} &mdash; pos ({stepPos.row},{' '}
+                  {stepPos.col})
                 </span>
               </>
             )}
@@ -600,16 +656,10 @@ function ConvolutionDemo() {
 
         {/* Clear / reset */}
         <div className="mt-3 flex gap-2">
-          <SmallButton
-            onClick={() => setImage(INITIAL_IMAGE.map(r => [...r]))}
-          >
+          <SmallButton onClick={() => setImage(INITIAL_IMAGE.map((r) => [...r]))}>
             Reset Image
           </SmallButton>
-          <SmallButton
-            onClick={() =>
-              setImage(Array.from({ length: 7 }, () => Array(7).fill(0)))
-            }
-          >
+          <SmallButton onClick={() => setImage(Array.from({ length: 7 }, () => Array(7).fill(0)))}>
             Clear Image
           </SmallButton>
         </div>
@@ -670,15 +720,14 @@ function StridePaddingSection() {
     <Section title="3. Stride and Padding">
       <Prose>
         <p>
-          <strong>Stride</strong> controls how many positions the kernel jumps
-          between each computation. A stride of 1 means the kernel moves one
-          pixel at a time; a stride of 2 skips every other position, producing a
-          smaller output.
+          <strong>Stride</strong> controls how many positions the kernel jumps between each
+          computation. A stride of 1 means the kernel moves one pixel at a time; a stride of 2 skips
+          every other position, producing a smaller output.
         </p>
         <p>
-          <strong>Padding</strong> adds extra zeros around the border of the
-          input. This lets the kernel fully overlap the edge pixels and can
-          preserve the spatial dimensions in the output.
+          <strong>Padding</strong> adds extra zeros around the border of the input. This lets the
+          kernel fully overlap the edge pixels and can preserve the spatial dimensions in the
+          output.
         </p>
       </Prose>
 
@@ -698,7 +747,10 @@ function StridePaddingSection() {
             min={3}
             max={12}
             step={1}
-            onChange={v => { setInputSize(v); setStrideStep(0); }}
+            onChange={(v) => {
+              setInputSize(v);
+              setStrideStep(0);
+            }}
           />
           <ParameterSlider
             label="Kernel Size"
@@ -706,7 +758,10 @@ function StridePaddingSection() {
             min={2}
             max={5}
             step={1}
-            onChange={v => { setKernelSize(v); setStrideStep(0); }}
+            onChange={(v) => {
+              setKernelSize(v);
+              setStrideStep(0);
+            }}
           />
           <ParameterSlider
             label="Stride"
@@ -714,7 +769,10 @@ function StridePaddingSection() {
             min={1}
             max={4}
             step={1}
-            onChange={v => { setStride(v); setStrideStep(0); }}
+            onChange={(v) => {
+              setStride(v);
+              setStrideStep(0);
+            }}
           />
           <ParameterSlider
             label="Padding"
@@ -722,14 +780,19 @@ function StridePaddingSection() {
             min={0}
             max={3}
             step={1}
-            onChange={v => { setPadding(v); setStrideStep(0); }}
+            onChange={(v) => {
+              setPadding(v);
+              setStrideStep(0);
+            }}
           />
         </div>
 
         <div className="flex items-center gap-3 mb-5">
           <div className="px-4 py-2 rounded-lg bg-surface border border-white/[0.06]">
             <span className="text-xs text-text-muted">Output Size: </span>
-            <span className={`font-mono text-sm font-bold ${valid ? 'text-accent-green' : 'text-accent-red'}`}>
+            <span
+              className={`font-mono text-sm font-bold ${valid ? 'text-accent-green' : 'text-accent-red'}`}
+            >
               {valid ? `${outputSize} x ${outputSize}` : 'Invalid'}
             </span>
           </div>
@@ -797,19 +860,19 @@ function StridePaddingSection() {
         {valid && maxStrideSteps > 0 && (
           <div className="mt-4 flex items-center gap-3">
             <SmallButton
-              onClick={() => setStrideStep(s => (s - 1 + maxStrideSteps) % maxStrideSteps)}
+              onClick={() => setStrideStep((s) => (s - 1 + maxStrideSteps) % maxStrideSteps)}
             >
               &larr; Prev
             </SmallButton>
             <SmallButton
-              onClick={() => setStrideStep(s => (s + 1) % maxStrideSteps)}
+              onClick={() => setStrideStep((s) => (s + 1) % maxStrideSteps)}
               variant="primary"
             >
               Next &rarr;
             </SmallButton>
             <span className="text-xs text-text-muted font-mono">
-              Position {strideStep + 1} / {maxStrideSteps}
-              {' '}&mdash; stride jumps to ({highlightRow}, {highlightCol})
+              Position {strideStep + 1} / {maxStrideSteps} &mdash; stride jumps to ({highlightRow},{' '}
+              {highlightCol})
             </span>
           </div>
         )}
@@ -871,17 +934,15 @@ function PoolingSection() {
     <Section title="4. Pooling Operations">
       <Prose>
         <p>
-          Pooling <strong>reduces the spatial dimensions</strong> of feature maps,
-          cutting computation and making the network more robust to small
-          translations. A pooling layer slides a window across the feature map
-          (typically 2x2 with stride 2) and replaces each window with a single
-          summary value.
+          Pooling <strong>reduces the spatial dimensions</strong> of feature maps, cutting
+          computation and making the network more robust to small translations. A pooling layer
+          slides a window across the feature map (typically 2x2 with stride 2) and replaces each
+          window with a single summary value.
         </p>
         <p>
-          <strong>Max pooling</strong> takes the largest value in each window
-          (keeping the strongest activation), while <strong>average pooling</strong>{' '}
-          takes the mean. Max pooling is far more common in practice because it
-          preserves the most prominent features.
+          <strong>Max pooling</strong> takes the largest value in each window (keeping the strongest
+          activation), while <strong>average pooling</strong> takes the mean. Max pooling is far
+          more common in practice because it preserves the most prominent features.
         </p>
       </Prose>
 
@@ -906,7 +967,7 @@ function PoolingSection() {
               Input (4 x 4)
             </p>
             <PixelGrid
-              grid={POOL_GRID.map(row => row.map(v => v / 8))}
+              grid={POOL_GRID.map((row) => row.map((v) => v / 8))}
               showNumbers
               cellSize={48}
               highlight={{
@@ -933,9 +994,9 @@ function PoolingSection() {
               Output (2 x 2) &mdash; {poolType === 'max' ? 'Max' : 'Average'} Pool
             </p>
             <div className="inline-flex flex-col gap-[2px]">
-              {[0, 1].map(r => (
+              {[0, 1].map((r) => (
                 <div key={r} className="flex gap-[2px]">
-                  {[0, 1].map(c => {
+                  {[0, 1].map((c) => {
                     const idx = r * 2 + c;
                     const val = poolOutput[idx];
                     const isActive = idx === activeWindow;
@@ -947,9 +1008,10 @@ function PoolingSection() {
                         className={`
                           flex items-center justify-center rounded-sm border cursor-pointer
                           transition-all duration-150
-                          ${isActive
-                            ? 'border-accent-amber ring-2 ring-accent-amber/50 bg-accent-amber/10'
-                            : 'border-white/[0.06] bg-surface-light hover:border-primary/30'
+                          ${
+                            isActive
+                              ? 'border-accent-amber ring-2 ring-accent-amber/50 bg-accent-amber/10'
+                              : 'border-white/[0.06] bg-surface-light hover:border-primary/30'
                           }
                         `}
                         style={{ width: 56, height: 56 }}
@@ -969,19 +1031,22 @@ function PoolingSection() {
         {/* Explanation of current window */}
         <div className="mt-4 bg-surface rounded-lg border border-white/[0.06] p-4">
           <p className="text-xs text-text-muted mb-1">
-            Window {activeWindow + 1} &mdash; rows [{rowStart}, {rowStart + 1}], cols [{colStart}, {colStart + 1}]:
+            Window {activeWindow + 1} &mdash; rows [{rowStart}, {rowStart + 1}], cols [{colStart},{' '}
+            {colStart + 1}]:
           </p>
           <div className="font-mono text-sm text-text">
             Values:{' '}
-            {[0, 1].map(dr =>
-              [0, 1].map(dc => {
+            {[0, 1].map((dr) =>
+              [0, 1].map((dc) => {
                 const v = POOL_GRID[rowStart + dr][colStart + dc];
                 const isWinner =
                   poolType === 'max' && maxPoolWinners.has(`${rowStart + dr}-${colStart + dc}`);
                 return (
                   <span key={`${dr}-${dc}`}>
                     {(dr > 0 || dc > 0) && <span className="text-text-muted">, </span>}
-                    <span className={isWinner ? 'text-accent-green font-bold' : 'text-text'}>{v}</span>
+                    <span className={isWinner ? 'text-accent-green font-bold' : 'text-text'}>
+                      {v}
+                    </span>
                   </span>
                 );
               }),
@@ -995,15 +1060,10 @@ function PoolingSection() {
 
         {/* Step through windows */}
         <div className="mt-3 flex gap-2">
-          <SmallButton
-            onClick={() => setActiveWindow(w => (w - 1 + 4) % 4)}
-          >
+          <SmallButton onClick={() => setActiveWindow((w) => (w - 1 + 4) % 4)}>
             &larr; Prev Window
           </SmallButton>
-          <SmallButton
-            onClick={() => setActiveWindow(w => (w + 1) % 4)}
-            variant="primary"
-          >
+          <SmallButton onClick={() => setActiveWindow((w) => (w + 1) % 4)} variant="primary">
             Next Window &rarr;
           </SmallButton>
         </div>
@@ -1020,13 +1080,37 @@ function FeatureMapsSection() {
   const [activeKernel, setActiveKernel] = useState(0);
 
   const featureKernels = [
-    { name: 'Horizontal Edges', kernel: [[-1, -1, -1], [0, 0, 0], [1, 1, 1]], color: 'text-accent-amber' },
-    { name: 'Vertical Edges', kernel: [[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]], color: 'text-accent-green' },
-    { name: 'Emboss / Texture', kernel: [[-2, -1, 0], [-1, 1, 1], [0, 1, 2]], color: 'text-accent-purple' },
+    {
+      name: 'Horizontal Edges',
+      kernel: [
+        [-1, -1, -1],
+        [0, 0, 0],
+        [1, 1, 1],
+      ],
+      color: 'text-accent-amber',
+    },
+    {
+      name: 'Vertical Edges',
+      kernel: [
+        [-1, 0, 1],
+        [-1, 0, 1],
+        [-1, 0, 1],
+      ],
+      color: 'text-accent-green',
+    },
+    {
+      name: 'Emboss / Texture',
+      kernel: [
+        [-2, -1, 0],
+        [-1, 1, 1],
+        [0, 1, 2],
+      ],
+      color: 'text-accent-purple',
+    },
   ];
 
   const featureMaps = useMemo(() => {
-    return featureKernels.map(fk => normalizeOutput(convolve(INITIAL_IMAGE, fk.kernel)));
+    return featureKernels.map((fk) => normalizeOutput(convolve(INITIAL_IMAGE, fk.kernel)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -1034,16 +1118,15 @@ function FeatureMapsSection() {
     <Section title="5. Building Feature Maps">
       <Prose>
         <p>
-          A single kernel produces a single feature map. In a real CNN, each
-          convolutional layer applies <strong>many kernels</strong> in parallel
-          (e.g. 32 or 64). Each kernel learns to respond to a different pattern,
-          so the output of one layer is a <em>stack</em> of feature maps — one
-          per kernel — that together describe what patterns appear where.
+          A single kernel produces a single feature map. In a real CNN, each convolutional layer
+          applies <strong>many kernels</strong> in parallel (e.g. 32 or 64). Each kernel learns to
+          respond to a different pattern, so the output of one layer is a <em>stack</em> of feature
+          maps — one per kernel — that together describe what patterns appear where.
         </p>
         <p>
-          Below, the same input letter "A" is convolved with three different
-          kernels. Notice how each feature map highlights a different aspect of
-          the shape: horizontal edges, vertical edges, and diagonal texture.
+          Below, the same input letter "A" is convolved with three different kernels. Notice how
+          each feature map highlights a different aspect of the shape: horizontal edges, vertical
+          edges, and diagonal texture.
         </p>
       </Prose>
 
@@ -1070,7 +1153,9 @@ function FeatureMapsSection() {
 
           {/* Kernel display */}
           <div>
-            <p className={`text-[11px] uppercase tracking-wider mb-2 font-semibold ${featureKernels[activeKernel].color}`}>
+            <p
+              className={`text-[11px] uppercase tracking-wider mb-2 font-semibold ${featureKernels[activeKernel].color}`}
+            >
               Kernel {activeKernel + 1}: {featureKernels[activeKernel].name}
             </p>
             <div className="inline-flex flex-col gap-[2px]">
@@ -1092,14 +1177,12 @@ function FeatureMapsSection() {
 
           {/* Feature map */}
           <div>
-            <p className={`text-[11px] uppercase tracking-wider mb-2 font-semibold ${featureKernels[activeKernel].color}`}>
+            <p
+              className={`text-[11px] uppercase tracking-wider mb-2 font-semibold ${featureKernels[activeKernel].color}`}
+            >
               Feature Map {activeKernel + 1}
             </p>
-            <PixelGrid
-              grid={featureMaps[activeKernel]}
-              showNumbers
-              cellSize={40}
-            />
+            <PixelGrid grid={featureMaps[activeKernel]} showNumbers cellSize={40} />
           </div>
         </div>
 
@@ -1114,14 +1197,17 @@ function FeatureMapsSection() {
                 type="button"
                 key={i}
                 className={`rounded-lg border p-3 transition-colors cursor-pointer text-left
-                  ${activeKernel === i
-                    ? 'border-primary/40 bg-primary/5'
-                    : 'border-white/[0.06] bg-surface hover:border-primary/20'
+                  ${
+                    activeKernel === i
+                      ? 'border-primary/40 bg-primary/5'
+                      : 'border-white/[0.06] bg-surface hover:border-primary/20'
                   }
                 `}
                 onClick={() => setActiveKernel(i)}
               >
-                <p className={`text-[10px] uppercase tracking-wider mb-2 font-semibold ${featureKernels[i].color}`}>
+                <p
+                  className={`text-[10px] uppercase tracking-wider mb-2 font-semibold ${featureKernels[i].color}`}
+                >
                   {featureKernels[i].name}
                 </p>
                 <PixelGrid grid={fm} cellSize={24} />
@@ -1142,16 +1228,16 @@ function PipelineSection() {
   const [activeStage, setActiveStage] = useState(0);
 
   const stageColors = [
-    'border-primary/40 bg-primary/10',       // Input
+    'border-primary/40 bg-primary/10', // Input
     'border-accent-purple/40 bg-accent-purple/10', // Conv
-    'border-accent-green/40 bg-accent-green/10',   // ReLU
-    'border-accent-amber/40 bg-accent-amber/10',   // Pool
+    'border-accent-green/40 bg-accent-green/10', // ReLU
+    'border-accent-amber/40 bg-accent-amber/10', // Pool
     'border-accent-purple/40 bg-accent-purple/10', // Conv
-    'border-accent-green/40 bg-accent-green/10',   // ReLU
-    'border-accent-amber/40 bg-accent-amber/10',   // Pool
-    'border-text-muted/40 bg-text-muted/10',       // Flatten
-    'border-primary/40 bg-primary/10',             // FC
-    'border-accent-red/40 bg-accent-red/10',       // Output
+    'border-accent-green/40 bg-accent-green/10', // ReLU
+    'border-accent-amber/40 bg-accent-amber/10', // Pool
+    'border-text-muted/40 bg-text-muted/10', // Flatten
+    'border-primary/40 bg-primary/10', // FC
+    'border-accent-red/40 bg-accent-red/10', // Output
   ];
 
   const stageTextColors = [
@@ -1171,15 +1257,14 @@ function PipelineSection() {
     <Section title="6. The Full CNN Pipeline">
       <Prose>
         <p>
-          A complete CNN stacks multiple layers into a pipeline that
-          progressively transforms raw pixels into a classification decision.
-          Each layer has a specific role: convolutional layers extract features,
-          ReLU adds non-linearity, pooling reduces spatial size, and fully
+          A complete CNN stacks multiple layers into a pipeline that progressively transforms raw
+          pixels into a classification decision. Each layer has a specific role: convolutional
+          layers extract features, ReLU adds non-linearity, pooling reduces spatial size, and fully
           connected layers combine everything for the final prediction.
         </p>
         <p>
-          Click any stage below to see how the data dimensions change and what
-          each layer contributes.
+          Click any stage below to see how the data dimensions change and what each layer
+          contributes.
         </p>
       </Prose>
 
@@ -1192,9 +1277,10 @@ function PipelineSection() {
                 onClick={() => setActiveStage(i)}
                 className={`
                   px-3 py-2 rounded-lg border text-xs font-medium transition-all duration-150
-                  ${activeStage === i
-                    ? `${stageColors[i]} ring-1 ring-white/20 scale-105`
-                    : 'border-white/[0.06] bg-surface-light text-text-muted hover:border-primary/30 hover:text-text'
+                  ${
+                    activeStage === i
+                      ? `${stageColors[i]} ring-1 ring-white/20 scale-105`
+                      : 'border-white/[0.06] bg-surface-light text-text-muted hover:border-primary/30 hover:text-text'
                   }
                 `}
               >
@@ -1204,8 +1290,18 @@ function PipelineSection() {
                 <div className="text-[10px] font-mono mt-0.5 opacity-70">{stage.dim}</div>
               </button>
               {i < PIPELINE_STAGES.length - 1 && (
-                <svg width="16" height="16" viewBox="0 0 16 16" className="text-text-muted/50 mx-0.5 shrink-0">
-                  <path d="M4 8H12M12 8L9 5M12 8L9 11" stroke="currentColor" strokeWidth="1.5" fill="none" />
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  className="text-text-muted/50 mx-0.5 shrink-0"
+                >
+                  <path
+                    d="M4 8H12M12 8L9 5M12 8L9 11"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    fill="none"
+                  />
                 </svg>
               )}
             </div>
@@ -1213,7 +1309,9 @@ function PipelineSection() {
         </div>
 
         {/* Active stage detail */}
-        <div className={`rounded-lg border p-5 transition-all duration-200 ${stageColors[activeStage]}`}>
+        <div
+          className={`rounded-lg border p-5 transition-all duration-200 ${stageColors[activeStage]}`}
+        >
           <div className="flex items-baseline gap-3 mb-3">
             <h4 className={`text-base font-bold ${stageTextColors[activeStage]}`}>
               {PIPELINE_STAGES[activeStage].label}
@@ -1222,9 +1320,7 @@ function PipelineSection() {
               Output: {PIPELINE_STAGES[activeStage].dim}
             </span>
           </div>
-          <p className="text-sm text-text leading-relaxed">
-            {PIPELINE_STAGES[activeStage].desc}
-          </p>
+          <p className="text-sm text-text leading-relaxed">{PIPELINE_STAGES[activeStage].desc}</p>
 
           {/* Dimension flow mini-diagram */}
           <div className="mt-4 pt-3 border-t border-white/10">
@@ -1234,12 +1330,12 @@ function PipelineSection() {
             <div className="flex items-center gap-2 flex-wrap">
               {PIPELINE_STAGES.slice(0, activeStage + 1).map((s, i) => (
                 <div key={i} className="flex items-center">
-                  <span className={`text-[11px] font-mono ${i === activeStage ? stageTextColors[i] + ' font-bold' : 'text-text-muted'}`}>
+                  <span
+                    className={`text-[11px] font-mono ${i === activeStage ? stageTextColors[i] + ' font-bold' : 'text-text-muted'}`}
+                  >
                     {s.dim}
                   </span>
-                  {i < activeStage && (
-                    <span className="text-text-muted/40 mx-1">&rarr;</span>
-                  )}
+                  {i < activeStage && <span className="text-text-muted/40 mx-1">&rarr;</span>}
                 </div>
               ))}
             </div>
@@ -1267,8 +1363,8 @@ function WhyConvWorks() {
     <Section title="7. Why Convolution Works">
       <Prose>
         <p>
-          Two key ideas make convolution dramatically more efficient and
-          effective than using fully connected layers on images:
+          Two key ideas make convolution dramatically more efficient and effective than using fully
+          connected layers on images:
         </p>
       </Prose>
 
@@ -1277,10 +1373,10 @@ function WhyConvWorks() {
         <div className="rounded-xl border border-accent-purple/20 bg-surface-light/50 p-5">
           <h3 className="text-sm font-bold text-accent-purple mb-2">Parameter Sharing</h3>
           <p className="text-sm text-text-muted leading-relaxed mb-4">
-            A single kernel uses the <strong>same weights</strong> at every
-            spatial position. Instead of learning unique weights for each pixel
-            location, one small set of weights is reused across the entire image.
-            This reduces the number of parameters by orders of magnitude.
+            A single kernel uses the <strong>same weights</strong> at every spatial position.
+            Instead of learning unique weights for each pixel location, one small set of weights is
+            reused across the entire image. This reduces the number of parameters by orders of
+            magnitude.
           </p>
           <div className="bg-surface rounded-lg border border-white/[0.06] p-3">
             <div className="flex justify-between items-center mb-2">
@@ -1307,9 +1403,11 @@ function WhyConvWorks() {
               />
             </div>
             <p className="text-[11px] text-text-muted mt-2">
-              That is a <span className="text-accent-green font-bold">
+              That is a{' '}
+              <span className="text-accent-green font-bold">
                 {Math.round(fcParams / convParams).toLocaleString()}x
-              </span> reduction in parameters.
+              </span>{' '}
+              reduction in parameters.
             </p>
           </div>
         </div>
@@ -1318,11 +1416,10 @@ function WhyConvWorks() {
         <div className="rounded-xl border border-accent-amber/20 bg-surface-light/50 p-5">
           <h3 className="text-sm font-bold text-accent-amber mb-2">Translation Invariance</h3>
           <p className="text-sm text-text-muted leading-relaxed mb-4">
-            Because the same kernel is applied everywhere, a feature detector
-            works <strong>regardless of position</strong>. An edge-detection
-            kernel finds edges whether they appear in the top-left corner or the
-            bottom-right. This means the network does not need to re-learn the
-            same pattern for every possible location.
+            Because the same kernel is applied everywhere, a feature detector works{' '}
+            <strong>regardless of position</strong>. An edge-detection kernel finds edges whether
+            they appear in the top-left corner or the bottom-right. This means the network does not
+            need to re-learn the same pattern for every possible location.
           </p>
           <div className="bg-surface rounded-lg border border-white/[0.06] p-3">
             {/* Visual: same kernel, two positions, same detection */}
@@ -1394,10 +1491,9 @@ function WhyConvWorks() {
 
       <Prose>
         <p>
-          Together, parameter sharing and translation invariance make CNNs
-          remarkably data-efficient for image tasks. A network with a few
-          thousand convolutional parameters can outperform one with millions of
-          fully-connected parameters, while also generalizing better to unseen
+          Together, parameter sharing and translation invariance make CNNs remarkably data-efficient
+          for image tasks. A network with a few thousand convolutional parameters can outperform one
+          with millions of fully-connected parameters, while also generalizing better to unseen
           inputs.
         </p>
       </Prose>

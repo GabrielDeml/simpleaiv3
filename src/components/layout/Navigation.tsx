@@ -68,7 +68,9 @@ export function Navigation() {
         {!collapsed && (
           <NavLink to="/" className="text-lg font-bold tracking-tight">
             <span className="text-text">Simple</span>
-            <span className="bg-gradient-to-r from-primary to-accent-purple bg-clip-text text-transparent">AI</span>
+            <span className="bg-gradient-to-r from-primary to-accent-purple bg-clip-text text-transparent">
+              AI
+            </span>
           </NavLink>
         )}
         {/* Desktop collapse toggle */}
@@ -172,7 +174,9 @@ export function Navigation() {
         <div className="p-4 border-t border-border">
           <div className="flex items-center gap-2 px-1 py-1.5 rounded-md bg-accent-green/5">
             <Shield size={12} className="text-accent-green/60 shrink-0" />
-            <p className="text-[11px] text-text-muted/80">100% client-side. No data leaves your device.</p>
+            <p className="text-[11px] text-text-muted/80">
+              100% client-side. No data leaves your device.
+            </p>
           </div>
         </div>
       )}

@@ -10,7 +10,12 @@ interface LossSurfaceProps {
   onSurfaceClick?: (x: number, y: number) => void;
 }
 
-export function LossSurface({ surfaceType, resolution = 60, range = 3, onSurfaceClick }: LossSurfaceProps) {
+export function LossSurface({
+  surfaceType,
+  resolution = 60,
+  range = 3,
+  onSurfaceClick,
+}: LossSurfaceProps) {
   const prevGeoRef = useRef<THREE.BufferGeometry | null>(null);
 
   const geometry = useMemo(() => {

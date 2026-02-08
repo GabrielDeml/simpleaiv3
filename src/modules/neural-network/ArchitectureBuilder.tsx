@@ -14,7 +14,9 @@ export function ArchitectureBuilder() {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h4 className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">Hidden Layers</h4>
+        <h4 className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">
+          Hidden Layers
+        </h4>
         <button
           onClick={addLayer}
           disabled={isTraining || architecture.layers.length >= 6}
@@ -31,7 +33,10 @@ export function ArchitectureBuilder() {
 
       <div className="space-y-2">
         {architecture.layers.map((layer, i) => (
-          <div key={i} className="flex items-center gap-2 bg-surface rounded-lg p-2 border border-white/[0.04]">
+          <div
+            key={i}
+            className="flex items-center gap-2 bg-surface rounded-lg p-2 border border-white/[0.04]"
+          >
             <span className="text-xs text-text-muted w-4">{i + 1}</span>
             <div className="flex-1 flex items-center gap-2">
               <input

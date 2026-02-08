@@ -126,7 +126,9 @@ export function DatasetSelector({ selected, onSelect }: DatasetSelectorProps) {
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <h4 className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">Dataset</h4>
+        <h4 className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">
+          Dataset
+        </h4>
         <div className="flex-1 h-px bg-gradient-to-r from-border/50 to-transparent" />
       </div>
       <div className="grid grid-cols-5 gap-1.5">

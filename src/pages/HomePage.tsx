@@ -52,8 +52,14 @@ export default function HomePage() {
     <div className="max-w-6xl mx-auto px-6 py-12">
       {/* Hero */}
       <div className="relative mb-16">
-        <div className="absolute -top-16 -left-16 w-96 h-96 bg-primary/15 rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ animationDuration: '4s' }} />
-        <div className="absolute top-8 -right-8 w-72 h-72 bg-accent-purple/15 rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ animationDuration: '6s' }} />
+        <div
+          className="absolute -top-16 -left-16 w-96 h-96 bg-primary/15 rounded-full blur-[100px] pointer-events-none animate-pulse"
+          style={{ animationDuration: '4s' }}
+        />
+        <div
+          className="absolute top-8 -right-8 w-72 h-72 bg-accent-purple/15 rounded-full blur-[100px] pointer-events-none animate-pulse"
+          style={{ animationDuration: '6s' }}
+        />
 
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -137,9 +143,7 @@ export default function HomePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
-          <h2 className="text-2xl font-bold text-text mb-2 tracking-tight">
-            Math Deep Dives
-          </h2>
+          <h2 className="text-2xl font-bold text-text mb-2 tracking-tight">Math Deep Dives</h2>
           <p className="text-sm text-text-muted mb-6">
             Interactive walkthroughs of the math behind AI — play with every equation.
           </p>

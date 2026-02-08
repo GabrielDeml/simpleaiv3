@@ -75,15 +75,58 @@ function NeuronDiagram({
   const outY = 110;
 
   return (
-    <svg viewBox="0 0 420 240" className="w-full max-w-md mx-auto" aria-label="Perceptron neuron diagram">
+    <svg
+      viewBox="0 0 420 240"
+      className="w-full max-w-md mx-auto"
+      aria-label="Perceptron neuron diagram"
+    >
       {/* Connection lines */}
-      <line x1={60} y1={inputY1} x2={sumX - 30} y2={sumY} stroke={COLORS.primaryLight} strokeWidth={2} opacity={0.7} />
-      <line x1={60} y1={inputY2} x2={sumX - 30} y2={sumY} stroke={COLORS.primaryLight} strokeWidth={2} opacity={0.7} />
-      <line x1={60} y1={biasY} x2={sumX - 30} y2={sumY + 15} stroke={COLORS.accentPurple} strokeWidth={2} opacity={0.7} strokeDasharray="4 3" />
-      <line x1={sumX + 30} y1={sumY} x2={outX - 30} y2={outY} stroke={COLORS.text} strokeWidth={2} opacity={0.7} />
+      <line
+        x1={60}
+        y1={inputY1}
+        x2={sumX - 30}
+        y2={sumY}
+        stroke={COLORS.primaryLight}
+        strokeWidth={2}
+        opacity={0.7}
+      />
+      <line
+        x1={60}
+        y1={inputY2}
+        x2={sumX - 30}
+        y2={sumY}
+        stroke={COLORS.primaryLight}
+        strokeWidth={2}
+        opacity={0.7}
+      />
+      <line
+        x1={60}
+        y1={biasY}
+        x2={sumX - 30}
+        y2={sumY + 15}
+        stroke={COLORS.accentPurple}
+        strokeWidth={2}
+        opacity={0.7}
+        strokeDasharray="4 3"
+      />
+      <line
+        x1={sumX + 30}
+        y1={sumY}
+        x2={outX - 30}
+        y2={outY}
+        stroke={COLORS.text}
+        strokeWidth={2}
+        opacity={0.7}
+      />
 
       {/* Weight labels on edges */}
-      <text x={110} y={inputY1 + 18} fill={COLORS.primaryLight} fontSize={12} fontFamily="monospace">
+      <text
+        x={110}
+        y={inputY1 + 18}
+        fill={COLORS.primaryLight}
+        fontSize={12}
+        fontFamily="monospace"
+      >
         w1={fmt(w1)}
       </text>
       <text x={110} y={inputY2 - 6} fill={COLORS.primaryLight} fontSize={12} fontFamily="monospace">
@@ -91,16 +134,44 @@ function NeuronDiagram({
       </text>
 
       {/* Input nodes */}
-      <circle cx={40} cy={inputY1} r={18} fill={COLORS.surfaceLight} stroke={COLORS.border} strokeWidth={1.5} />
-      <text x={40} y={inputY1 + 4} textAnchor="middle" fill={COLORS.text} fontSize={12} fontFamily="monospace">
+      <circle
+        cx={40}
+        cy={inputY1}
+        r={18}
+        fill={COLORS.surfaceLight}
+        stroke={COLORS.border}
+        strokeWidth={1.5}
+      />
+      <text
+        x={40}
+        y={inputY1 + 4}
+        textAnchor="middle"
+        fill={COLORS.text}
+        fontSize={12}
+        fontFamily="monospace"
+      >
         {fmt(x1)}
       </text>
       <text x={40} y={inputY1 - 24} textAnchor="middle" fill={COLORS.textMuted} fontSize={10}>
         x1
       </text>
 
-      <circle cx={40} cy={inputY2} r={18} fill={COLORS.surfaceLight} stroke={COLORS.border} strokeWidth={1.5} />
-      <text x={40} y={inputY2 + 4} textAnchor="middle" fill={COLORS.text} fontSize={12} fontFamily="monospace">
+      <circle
+        cx={40}
+        cy={inputY2}
+        r={18}
+        fill={COLORS.surfaceLight}
+        stroke={COLORS.border}
+        strokeWidth={1.5}
+      />
+      <text
+        x={40}
+        y={inputY2 + 4}
+        textAnchor="middle"
+        fill={COLORS.text}
+        fontSize={12}
+        fontFamily="monospace"
+      >
         {fmt(x2)}
       </text>
       <text x={40} y={inputY2 - 24} textAnchor="middle" fill={COLORS.textMuted} fontSize={10}>
@@ -108,8 +179,23 @@ function NeuronDiagram({
       </text>
 
       {/* Bias node */}
-      <circle cx={40} cy={biasY} r={14} fill={COLORS.surfaceLight} stroke={COLORS.accentPurple} strokeWidth={1.5} strokeDasharray="3 2" />
-      <text x={40} y={biasY + 4} textAnchor="middle" fill={COLORS.accentPurple} fontSize={11} fontFamily="monospace">
+      <circle
+        cx={40}
+        cy={biasY}
+        r={14}
+        fill={COLORS.surfaceLight}
+        stroke={COLORS.accentPurple}
+        strokeWidth={1.5}
+        strokeDasharray="3 2"
+      />
+      <text
+        x={40}
+        y={biasY + 4}
+        textAnchor="middle"
+        fill={COLORS.accentPurple}
+        fontSize={11}
+        fontFamily="monospace"
+      >
         {fmt(bias)}
       </text>
       <text x={40} y={biasY - 20} textAnchor="middle" fill={COLORS.textMuted} fontSize={10}>
@@ -117,32 +203,84 @@ function NeuronDiagram({
       </text>
 
       {/* Sum node */}
-      <circle cx={sumX} cy={sumY} r={28} fill={COLORS.surfaceLight} stroke={COLORS.primary} strokeWidth={2} />
+      <circle
+        cx={sumX}
+        cy={sumY}
+        r={28}
+        fill={COLORS.surfaceLight}
+        stroke={COLORS.primary}
+        strokeWidth={2}
+      />
       <text x={sumX} y={sumY - 4} textAnchor="middle" fill={COLORS.textMuted} fontSize={9}>
         sum
       </text>
-      <text x={sumX} y={sumY + 12} textAnchor="middle" fill={COLORS.text} fontSize={12} fontFamily="monospace" fontWeight="bold">
+      <text
+        x={sumX}
+        y={sumY + 12}
+        textAnchor="middle"
+        fill={COLORS.text}
+        fontSize={12}
+        fontFamily="monospace"
+        fontWeight="bold"
+      >
         {fmt(z)}
       </text>
 
       {/* Arrow */}
-      <polygon points={`${outX - 32},${outY - 4} ${outX - 32},${outY + 4} ${outX - 24},${outY}`} fill={COLORS.text} opacity={0.7} />
-      <text x={(sumX + outX) / 2 + 2} y={outY - 14} textAnchor="middle" fill={COLORS.textMuted} fontSize={9}>
+      <polygon
+        points={`${outX - 32},${outY - 4} ${outX - 32},${outY + 4} ${outX - 24},${outY}`}
+        fill={COLORS.text}
+        opacity={0.7}
+      />
+      <text
+        x={(sumX + outX) / 2 + 2}
+        y={outY - 14}
+        textAnchor="middle"
+        fill={COLORS.textMuted}
+        fontSize={9}
+      >
         activation
       </text>
 
       {/* Output node */}
-      <circle cx={outX} cy={outY} r={24} fill={output >= 0.5 ? COLORS.positive : COLORS.negative} opacity={0.25} />
-      <circle cx={outX} cy={outY} r={24} fill="none" stroke={output >= 0.5 ? COLORS.positive : COLORS.negative} strokeWidth={2} />
+      <circle
+        cx={outX}
+        cy={outY}
+        r={24}
+        fill={output >= 0.5 ? COLORS.positive : COLORS.negative}
+        opacity={0.25}
+      />
+      <circle
+        cx={outX}
+        cy={outY}
+        r={24}
+        fill="none"
+        stroke={output >= 0.5 ? COLORS.positive : COLORS.negative}
+        strokeWidth={2}
+      />
       <text x={outX} y={outY - 6} textAnchor="middle" fill={COLORS.textMuted} fontSize={9}>
         output
       </text>
-      <text x={outX} y={outY + 12} textAnchor="middle" fill={COLORS.text} fontSize={14} fontFamily="monospace" fontWeight="bold">
+      <text
+        x={outX}
+        y={outY + 12}
+        textAnchor="middle"
+        fill={COLORS.text}
+        fontSize={14}
+        fontFamily="monospace"
+        fontWeight="bold"
+      >
         {fmt(output)}
       </text>
 
       {/* Labels at very right */}
-      <text x={outX + 34} y={outY + 4} fill={output >= 0.5 ? COLORS.positive : COLORS.negative} fontSize={11} fontWeight="bold">
+      <text
+        x={outX + 34}
+        y={outY + 4}
+        fill={output >= 0.5 ? COLORS.positive : COLORS.negative}
+        fontSize={11}
+        fontWeight="bold"
+      >
         {output >= 0.5 ? 'Class 1' : 'Class 0'}
       </text>
     </svg>
@@ -160,7 +298,13 @@ const ACTIVATION_FNS = {
 
 type ActivationType = keyof typeof ACTIVATION_FNS;
 
-function ActivationCanvas({ activationType, zValue }: { activationType: ActivationType; zValue: number }) {
+function ActivationCanvas({
+  activationType,
+  zValue,
+}: {
+  activationType: ActivationType;
+  zValue: number;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const W = 400;
   const H = 260;
@@ -1032,8 +1176,9 @@ export default function PerceptronMathPage() {
         <Prose>
           <p>
             Despite its simplicity, the perceptron is the foundation of all neural networks. Every
-            neuron in a deep network performs this same weighted-sum-then-activate operation. Understanding
-            the perceptron deeply means understanding the atomic unit of deep learning.
+            neuron in a deep network performs this same weighted-sum-then-activate operation.
+            Understanding the perceptron deeply means understanding the atomic unit of deep
+            learning.
           </p>
         </Prose>
       </Section>
@@ -1044,11 +1189,10 @@ export default function PerceptronMathPage() {
       <Section title="2. The Weighted Sum">
         <Prose>
           <p>
-            The first step inside a perceptron is computing the <strong>weighted sum</strong>{' '}
-            (also called the <em>pre-activation</em> or <Eq>z</Eq>). Each input{' '}
-            <Eq>x</Eq> is scaled by its corresponding weight <Eq>w</Eq>, and a bias term{' '}
-            <Eq>b</Eq> is added. The bias allows the perceptron to shift its decision threshold
-            independent of the inputs.
+            The first step inside a perceptron is computing the <strong>weighted sum</strong> (also
+            called the <em>pre-activation</em> or <Eq>z</Eq>). Each input <Eq>x</Eq> is scaled by
+            its corresponding weight <Eq>w</Eq>, and a bias term <Eq>b</Eq> is added. The bias
+            allows the perceptron to shift its decision threshold independent of the inputs.
           </p>
         </Prose>
         <Eq block>
@@ -1080,15 +1224,59 @@ export default function PerceptronMathPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="space-y-3">
-                <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider">Inputs</h4>
-                <ParameterSlider label={'x\u2081'} value={wsX1} min={-2} max={2} step={0.1} onChange={setWsX1} format={fmt} />
-                <ParameterSlider label={'x\u2082'} value={wsX2} min={-2} max={2} step={0.1} onChange={setWsX2} format={fmt} />
+                <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider">
+                  Inputs
+                </h4>
+                <ParameterSlider
+                  label={'x\u2081'}
+                  value={wsX1}
+                  min={-2}
+                  max={2}
+                  step={0.1}
+                  onChange={setWsX1}
+                  format={fmt}
+                />
+                <ParameterSlider
+                  label={'x\u2082'}
+                  value={wsX2}
+                  min={-2}
+                  max={2}
+                  step={0.1}
+                  onChange={setWsX2}
+                  format={fmt}
+                />
               </div>
               <div className="space-y-3">
-                <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider">Weights & Bias</h4>
-                <ParameterSlider label={'w\u2081'} value={wsW1} min={-3} max={3} step={0.1} onChange={setWsW1} format={fmt} />
-                <ParameterSlider label={'w\u2082'} value={wsW2} min={-3} max={3} step={0.1} onChange={setWsW2} format={fmt} />
-                <ParameterSlider label="bias (b)" value={wsBias} min={-3} max={3} step={0.1} onChange={setWsBias} format={fmt} />
+                <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider">
+                  Weights & Bias
+                </h4>
+                <ParameterSlider
+                  label={'w\u2081'}
+                  value={wsW1}
+                  min={-3}
+                  max={3}
+                  step={0.1}
+                  onChange={setWsW1}
+                  format={fmt}
+                />
+                <ParameterSlider
+                  label={'w\u2082'}
+                  value={wsW2}
+                  min={-3}
+                  max={3}
+                  step={0.1}
+                  onChange={setWsW2}
+                  format={fmt}
+                />
+                <ParameterSlider
+                  label="bias (b)"
+                  value={wsBias}
+                  min={-3}
+                  max={3}
+                  step={0.1}
+                  onChange={setWsBias}
+                  format={fmt}
+                />
               </div>
 
               {/* Computation breakdown */}
@@ -1113,12 +1301,16 @@ export default function PerceptronMathPage() {
                   </p>
                   <div className="border-t border-white/[0.06] pt-1 mt-1">
                     <p>
-                      <span className="text-text">z = {fmt(wsW1 * wsX1)} + {fmt(wsW2 * wsX2)} + {fmt(wsBias)} = </span>
+                      <span className="text-text">
+                        z = {fmt(wsW1 * wsX1)} + {fmt(wsW2 * wsX2)} + {fmt(wsBias)} ={' '}
+                      </span>
                       <span className="text-primary-light font-bold">{fmt(wsZ)}</span>
                     </p>
                     <p className="mt-1">
                       <span className="text-text">{'\u03c3'}(z) = </span>
-                      <span className={`font-bold ${wsOutput >= 0.5 ? 'text-[#3b82f6]' : 'text-[#ef4444]'}`}>
+                      <span
+                        className={`font-bold ${wsOutput >= 0.5 ? 'text-[#3b82f6]' : 'text-[#ef4444]'}`}
+                      >
                         {fmt(wsOutput)}
                       </span>
                     </p>
@@ -1128,7 +1320,15 @@ export default function PerceptronMathPage() {
             </div>
 
             <div className="flex items-center justify-center">
-              <NeuronDiagram x1={wsX1} x2={wsX2} w1={wsW1} w2={wsW2} bias={wsBias} z={wsZ} output={wsOutput} />
+              <NeuronDiagram
+                x1={wsX1}
+                x2={wsX2}
+                w1={wsW1}
+                w2={wsW2}
+                bias={wsBias}
+                z={wsZ}
+                output={wsOutput}
+              />
             </div>
           </div>
         </InteractiveDemo>
@@ -1142,8 +1342,8 @@ export default function PerceptronMathPage() {
           <p>
             After computing the weighted sum <Eq>z</Eq>, the perceptron passes it through an{' '}
             <strong>activation function</strong>. This function introduces non-linearity, enabling
-            the perceptron to model more than just linear relationships. Without it, any
-            composition of perceptrons would still be linear.
+            the perceptron to model more than just linear relationships. Without it, any composition
+            of perceptrons would still be linear.
           </p>
           <p>
             The three most fundamental activation functions are the <strong>step function</strong>{' '}
@@ -1162,7 +1362,8 @@ export default function PerceptronMathPage() {
               f(z) = {'{'} 1 if z {'\u2265'} 0, 0 otherwise {'}'}
             </p>
             <p className="text-xs text-text-muted mt-2">
-              Hard binary output. Not differentiable at z=0, so cannot be trained with gradient descent.
+              Hard binary output. Not differentiable at z=0, so cannot be trained with gradient
+              descent.
             </p>
           </div>
           <div className="rounded-lg bg-surface-light border border-white/[0.06] p-4">
@@ -1173,18 +1374,18 @@ export default function PerceptronMathPage() {
               {'\u03c3'}(z) = 1 / (1 + e<sup>-z</sup>)
             </p>
             <p className="text-xs text-text-muted mt-2">
-              Smooth S-curve mapping to (0, 1). Differentiable everywhere. Used for output probabilities.
+              Smooth S-curve mapping to (0, 1). Differentiable everywhere. Used for output
+              probabilities.
             </p>
           </div>
           <div className="rounded-lg bg-surface-light border border-white/[0.06] p-4">
             <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
               ReLU
             </h4>
-            <p className="font-mono text-sm text-text">
-              f(z) = max(0, z)
-            </p>
+            <p className="font-mono text-sm text-text">f(z) = max(0, z)</p>
             <p className="text-xs text-text-muted mt-2">
-              Zero for negatives, identity for positives. Fast to compute. Default for hidden layers.
+              Zero for negatives, identity for positives. Fast to compute. Default for hidden
+              layers.
             </p>
           </div>
         </div>
@@ -1273,8 +1474,7 @@ export default function PerceptronMathPage() {
             This is the equation of a <strong>straight line</strong>. On one side of the line, the
             perceptron outputs class 1 (blue region); on the other side, class 0 (red region). The
             weights <Eq>w1</Eq> and <Eq>w2</Eq> determine the slope and orientation of the line,
-            while the bias <Eq>b</Eq> shifts it. By rearranging, we get
-            the slope-intercept form:
+            while the bias <Eq>b</Eq> shifts it. By rearranging, we get the slope-intercept form:
           </p>
         </Prose>
         <Eq block>
@@ -1303,9 +1503,21 @@ export default function PerceptronMathPage() {
             {/* Gate presets */}
             <div className="flex gap-2 items-center">
               <span className="text-xs text-text-muted mr-1">Presets:</span>
-              <PresetButton label="AND gate" active={gatePreset === 'and'} onClick={() => handleGatePreset('and')} />
-              <PresetButton label="OR gate" active={gatePreset === 'or'} onClick={() => handleGatePreset('or')} />
-              <PresetButton label="Custom" active={gatePreset === 'custom'} onClick={() => handleGatePreset('custom')} />
+              <PresetButton
+                label="AND gate"
+                active={gatePreset === 'and'}
+                onClick={() => handleGatePreset('and')}
+              />
+              <PresetButton
+                label="OR gate"
+                active={gatePreset === 'or'}
+                onClick={() => handleGatePreset('or')}
+              />
+              <PresetButton
+                label="Custom"
+                active={gatePreset === 'custom'}
+                onClick={() => handleGatePreset('custom')}
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1319,9 +1531,42 @@ export default function PerceptronMathPage() {
               </div>
               <div className="space-y-4">
                 <div className="space-y-3">
-                  <ParameterSlider label={'w\u2081'} value={dbW1} min={-5} max={5} step={0.1} onChange={(v) => { setDbW1(v); setGatePreset('custom'); }} format={fmt} />
-                  <ParameterSlider label={'w\u2082'} value={dbW2} min={-5} max={5} step={0.1} onChange={(v) => { setDbW2(v); setGatePreset('custom'); }} format={fmt} />
-                  <ParameterSlider label="bias (b)" value={dbBias} min={-5} max={5} step={0.1} onChange={(v) => { setDbBias(v); setGatePreset('custom'); }} format={fmt} />
+                  <ParameterSlider
+                    label={'w\u2081'}
+                    value={dbW1}
+                    min={-5}
+                    max={5}
+                    step={0.1}
+                    onChange={(v) => {
+                      setDbW1(v);
+                      setGatePreset('custom');
+                    }}
+                    format={fmt}
+                  />
+                  <ParameterSlider
+                    label={'w\u2082'}
+                    value={dbW2}
+                    min={-5}
+                    max={5}
+                    step={0.1}
+                    onChange={(v) => {
+                      setDbW2(v);
+                      setGatePreset('custom');
+                    }}
+                    format={fmt}
+                  />
+                  <ParameterSlider
+                    label="bias (b)"
+                    value={dbBias}
+                    min={-5}
+                    max={5}
+                    step={0.1}
+                    onChange={(v) => {
+                      setDbBias(v);
+                      setGatePreset('custom');
+                    }}
+                    format={fmt}
+                  />
                 </div>
 
                 {/* Line equation display */}
@@ -1361,7 +1606,9 @@ export default function PerceptronMathPage() {
                         const correct = pred === pt.label;
                         return (
                           <tr key={i} className="text-text">
-                            <td className="py-0.5">({pt.x}, {pt.y})</td>
+                            <td className="py-0.5">
+                              ({pt.x}, {pt.y})
+                            </td>
                             <td className="text-right">{fmt(z)}</td>
                             <td className="text-right">{pred}</td>
                             <td className="text-right">{pt.label}</td>
@@ -1376,8 +1623,8 @@ export default function PerceptronMathPage() {
                 <Prose>
                   <p>
                     Adjust the weights and bias to move the dashed decision line. Try setting{' '}
-                    <Eq>w1 = w2 = 2, b = -3</Eq> for AND, or <Eq>w1 = w2 = 2, b = -1</Eq>{' '}
-                    for OR. Notice how a single straight line can separate both of these patterns.
+                    <Eq>w1 = w2 = 2, b = -3</Eq> for AND, or <Eq>w1 = w2 = 2, b = -1</Eq> for OR.
+                    Notice how a single straight line can separate both of these patterns.
                   </p>
                 </Prose>
               </div>
@@ -1396,10 +1643,10 @@ export default function PerceptronMathPage() {
             otherwise. The XOR truth table is: (0,0)=0, (1,0)=1, (0,1)=1, (1,1)=0.
           </p>
           <p>
-            Look at these four points plotted below. The two blue points (class 1) sit at
-            opposite corners from the two red points (class 0). No matter how you adjust the
-            weights and bias, you <strong>cannot draw a single straight line</strong> that separates
-            the blue points from the red points. Try it!
+            Look at these four points plotted below. The two blue points (class 1) sit at opposite
+            corners from the two red points (class 0). No matter how you adjust the weights and
+            bias, you <strong>cannot draw a single straight line</strong> that separates the blue
+            points from the red points. Try it!
           </p>
         </Prose>
 
@@ -1410,9 +1657,33 @@ export default function PerceptronMathPage() {
             </div>
             <div className="space-y-4">
               <div className="space-y-3">
-                <ParameterSlider label={'w\u2081'} value={xorW1} min={-5} max={5} step={0.1} onChange={setXorW1} format={fmt} />
-                <ParameterSlider label={'w\u2082'} value={xorW2} min={-5} max={5} step={0.1} onChange={setXorW2} format={fmt} />
-                <ParameterSlider label="bias (b)" value={xorBias} min={-5} max={5} step={0.1} onChange={setXorBias} format={fmt} />
+                <ParameterSlider
+                  label={'w\u2081'}
+                  value={xorW1}
+                  min={-5}
+                  max={5}
+                  step={0.1}
+                  onChange={setXorW1}
+                  format={fmt}
+                />
+                <ParameterSlider
+                  label={'w\u2082'}
+                  value={xorW2}
+                  min={-5}
+                  max={5}
+                  step={0.1}
+                  onChange={setXorW2}
+                  format={fmt}
+                />
+                <ParameterSlider
+                  label="bias (b)"
+                  value={xorBias}
+                  min={-5}
+                  max={5}
+                  step={0.1}
+                  onChange={setXorBias}
+                  format={fmt}
+                />
               </div>
 
               <div className="rounded-lg bg-surface p-4 border border-white/[0.06]">
@@ -1441,11 +1712,15 @@ export default function PerceptronMathPage() {
                       const correct = pred === pt.label;
                       return (
                         <tr key={i} className="text-text">
-                          <td className="py-0.5">({pt.x1}, {pt.x2})</td>
+                          <td className="py-0.5">
+                            ({pt.x1}, {pt.x2})
+                          </td>
                           <td className="text-right">{fmt(z)}</td>
                           <td className="text-right">{pred}</td>
                           <td className="text-right">{pt.label}</td>
-                          <td className={`text-right ${correct ? 'text-[#22c55e]' : 'text-[#ef4444]'}`}>
+                          <td
+                            className={`text-right ${correct ? 'text-[#22c55e]' : 'text-[#ef4444]'}`}
+                          >
                             {correct ? '\u2713' : '\u2717'}
                           </td>
                         </tr>
@@ -1458,8 +1733,8 @@ export default function PerceptronMathPage() {
               <Prose>
                 <p>
                   No matter how you set the sliders, you can only get at most 3 out of 4 correct.
-                  This is Minsky and Papert's famous 1969 result: a single perceptron can only
-                  learn <strong>linearly separable</strong> functions. XOR requires at least two
+                  This is Minsky and Papert's famous 1969 result: a single perceptron can only learn{' '}
+                  <strong>linearly separable</strong> functions. XOR requires at least two
                   perceptrons composed in a <strong>multi-layer network</strong> -- one to compute
                   an intermediate feature, and another to combine.
                 </p>
@@ -1505,16 +1780,16 @@ export default function PerceptronMathPage() {
         <Prose>
           <p>
             Where <Eq>{'\u03b1'}</Eq> is the learning rate, <Eq>y</Eq> is the true label,{' '}
-            <Eq>{'\u0177'}</Eq> is the prediction, and <Eq>x</Eq> is the input. The error
-            term <Eq>{'(y - \u0177)'}</Eq> is either -1, 0, or +1 for a step activation. When the
-            error is zero (correct prediction), the weights stay the same. When positive (predicted
-            0 but should be 1), the weights increase for active inputs. When negative, they decrease.
+            <Eq>{'\u0177'}</Eq> is the prediction, and <Eq>x</Eq> is the input. The error term{' '}
+            <Eq>{'(y - \u0177)'}</Eq> is either -1, 0, or +1 for a step activation. When the error
+            is zero (correct prediction), the weights stay the same. When positive (predicted 0 but
+            should be 1), the weights increase for active inputs. When negative, they decrease.
           </p>
           <p>
             The <strong>Perceptron Convergence Theorem</strong> guarantees that if the data is
-            linearly separable, this algorithm will find a separating hyperplane in a finite
-            number of steps. The bias is updated the same way, treating it as a weight on a
-            constant input of 1.
+            linearly separable, this algorithm will find a separating hyperplane in a finite number
+            of steps. The bias is updated the same way, treating it as a weight on a constant input
+            of 1.
           </p>
         </Prose>
 
@@ -1524,8 +1799,16 @@ export default function PerceptronMathPage() {
             <div className="flex gap-4 items-center flex-wrap">
               <div className="flex gap-2 items-center">
                 <span className="text-xs text-text-muted">Pattern:</span>
-                <PresetButton label="AND" active={trainingPattern === 'and'} onClick={() => handlePatternChange('and')} />
-                <PresetButton label="OR" active={trainingPattern === 'or'} onClick={() => handlePatternChange('or')} />
+                <PresetButton
+                  label="AND"
+                  active={trainingPattern === 'and'}
+                  onClick={() => handlePatternChange('and')}
+                />
+                <PresetButton
+                  label="OR"
+                  active={trainingPattern === 'or'}
+                  onClick={() => handlePatternChange('or')}
+                />
               </div>
               <div className="w-48">
                 <ParameterSlider
@@ -1602,7 +1885,9 @@ export default function PerceptronMathPage() {
                     <span className="text-text-muted">Epoch:</span>
                     <span className="text-text">{tState.epoch}</span>
                     <span className="text-text-muted">Step in epoch:</span>
-                    <span className="text-text">{tState.stepInEpoch} / {trainingData.length}</span>
+                    <span className="text-text">
+                      {tState.stepInEpoch} / {trainingData.length}
+                    </span>
                     <span className="text-text-muted">w{'\u2081'}:</span>
                     <span className="text-primary-light">{fmt(tState.w1)}</span>
                     <span className="text-text-muted">w{'\u2082'}:</span>
@@ -1610,14 +1895,19 @@ export default function PerceptronMathPage() {
                     <span className="text-text-muted">bias:</span>
                     <span className="text-accent-purple">{fmt(tState.bias)}</span>
                     <span className="text-text-muted">Accuracy:</span>
-                    <span className={totalCorrect === trainingData.length ? 'text-[#22c55e]' : 'text-text'}>
+                    <span
+                      className={
+                        totalCorrect === trainingData.length ? 'text-[#22c55e]' : 'text-text'
+                      }
+                    >
                       {totalCorrect}/{trainingData.length}
                     </span>
                   </div>
                   {tState.converged && (
                     <div className="mt-2 px-3 py-2 rounded-md bg-[#22c55e]/10 border border-[#22c55e]/20">
                       <p className="text-xs text-[#22c55e] font-semibold">
-                        Converged! All samples classified correctly after {tState.epoch} epoch{tState.epoch !== 1 ? 's' : ''}.
+                        Converged! All samples classified correctly after {tState.epoch} epoch
+                        {tState.epoch !== 1 ? 's' : ''}.
                       </p>
                     </div>
                   )}
@@ -1631,18 +1921,23 @@ export default function PerceptronMathPage() {
                     </h4>
                     <div className="text-xs font-mono space-y-1">
                       <p className="text-text-muted">
-                        Input: ({trainingData[tState.stepInEpoch].x1}, {trainingData[tState.stepInEpoch].x2})
-                        {' \u2192 '}
-                        Label: <span className="text-[#22c55e]">{trainingData[tState.stepInEpoch].label}</span>
+                        Input: ({trainingData[tState.stepInEpoch].x1},{' '}
+                        {trainingData[tState.stepInEpoch].x2}){' \u2192 '}
+                        Label:{' '}
+                        <span className="text-[#22c55e]">
+                          {trainingData[tState.stepInEpoch].label}
+                        </span>
                       </p>
                       <p className="text-text-muted">
-                        z = {fmt(tState.w1)} {'\u00d7'} {trainingData[tState.stepInEpoch].x1} + {fmt(tState.w2)} {'\u00d7'} {trainingData[tState.stepInEpoch].x2} + {fmt(tState.bias)}
+                        z = {fmt(tState.w1)} {'\u00d7'} {trainingData[tState.stepInEpoch].x1} +{' '}
+                        {fmt(tState.w2)} {'\u00d7'} {trainingData[tState.stepInEpoch].x2} +{' '}
+                        {fmt(tState.bias)}
                         {' = '}
                         <span className="text-text">
                           {fmt(
                             tState.w1 * trainingData[tState.stepInEpoch].x1 +
-                            tState.w2 * trainingData[tState.stepInEpoch].x2 +
-                            tState.bias
+                              tState.w2 * trainingData[tState.stepInEpoch].x2 +
+                              tState.bias,
                           )}
                         </span>
                       </p>
@@ -1654,7 +1949,14 @@ export default function PerceptronMathPage() {
                         return (
                           <>
                             <p className="text-text-muted">
-                              Prediction: <span className={pred === sample.label ? 'text-[#22c55e]' : 'text-[#ef4444]'}>{pred}</span>
+                              Prediction:{' '}
+                              <span
+                                className={
+                                  pred === sample.label ? 'text-[#22c55e]' : 'text-[#ef4444]'
+                                }
+                              >
+                                {pred}
+                              </span>
                               {' | '}
                               Error: <span className="text-text">{error}</span>
                             </p>
@@ -1687,12 +1989,21 @@ export default function PerceptronMathPage() {
                     </thead>
                     <tbody>
                       {trainingPredictions.map((pt, i) => (
-                        <tr key={i} className={`text-text ${i === tState.stepInEpoch && !tState.converged ? 'bg-accent-purple/10' : ''}`}>
-                          <td className="py-0.5">({pt.x1}, {pt.x2})</td>
-                          <td className="text-right">{fmt(tState.w1 * pt.x1 + tState.w2 * pt.x2 + tState.bias)}</td>
+                        <tr
+                          key={i}
+                          className={`text-text ${i === tState.stepInEpoch && !tState.converged ? 'bg-accent-purple/10' : ''}`}
+                        >
+                          <td className="py-0.5">
+                            ({pt.x1}, {pt.x2})
+                          </td>
+                          <td className="text-right">
+                            {fmt(tState.w1 * pt.x1 + tState.w2 * pt.x2 + tState.bias)}
+                          </td>
                           <td className="text-right">{pt.predicted}</td>
                           <td className="text-right">{pt.label}</td>
-                          <td className={`text-right ${pt.correct ? 'text-[#22c55e]' : 'text-[#ef4444]'}`}>
+                          <td
+                            className={`text-right ${pt.correct ? 'text-[#22c55e]' : 'text-[#ef4444]'}`}
+                          >
                             {pt.correct ? '\u2713' : '\u2717'}
                           </td>
                         </tr>
@@ -1715,7 +2026,12 @@ export default function PerceptronMathPage() {
                       key={i}
                       className="flex-shrink-0 px-2 py-1.5 rounded bg-surface-light border border-white/[0.06] text-xs font-mono"
                     >
-                      <div className="text-text-muted text-[10px] mb-0.5">#{tState.history.length - 12 + i < 0 ? i : tState.history.length - Math.min(tState.history.length, 12) + i}</div>
+                      <div className="text-text-muted text-[10px] mb-0.5">
+                        #
+                        {tState.history.length - 12 + i < 0
+                          ? i
+                          : tState.history.length - Math.min(tState.history.length, 12) + i}
+                      </div>
                       <div className="text-primary-light">w1={fmt(h.w1)}</div>
                       <div className="text-primary-light">w2={fmt(h.w2)}</div>
                       <div className="text-accent-purple">b={fmt(h.b)}</div>
@@ -1729,11 +2045,11 @@ export default function PerceptronMathPage() {
 
         <Prose>
           <p>
-            Watch the decision boundary shift with each training step. When the perceptron makes
-            an error, the weight update rotates and shifts the boundary toward classifying that
-            sample correctly. After enough epochs with no errors, the algorithm converges. The
-            Perceptron Convergence Theorem guarantees this will happen for any linearly separable
-            dataset in a finite number of steps.
+            Watch the decision boundary shift with each training step. When the perceptron makes an
+            error, the weight update rotates and shifts the boundary toward classifying that sample
+            correctly. After enough epochs with no errors, the algorithm converges. The Perceptron
+            Convergence Theorem guarantees this will happen for any linearly separable dataset in a
+            finite number of steps.
           </p>
         </Prose>
       </Section>
@@ -1775,9 +2091,9 @@ export default function PerceptronMathPage() {
         <Prose>
           <p>
             These limitations are precisely what motivated the development of multi-layer
-            perceptrons (MLPs), backpropagation, and eventually the deep networks that power
-            modern AI. Every deep network is still, at its core, a carefully arranged collection
-            of perceptrons.
+            perceptrons (MLPs), backpropagation, and eventually the deep networks that power modern
+            AI. Every deep network is still, at its core, a carefully arranged collection of
+            perceptrons.
           </p>
         </Prose>
       </Section>

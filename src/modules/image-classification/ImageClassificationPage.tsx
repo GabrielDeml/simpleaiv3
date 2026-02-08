@@ -117,7 +117,9 @@ export default function ImageClassificationPage() {
         {/* Left: Image Input */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">Input</h2>
+            <h2 className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">
+              Input
+            </h2>
             <div className="flex gap-2">
               <button
                 onClick={() => (webcamActive ? stopWebcam() : startWebcam())}
@@ -170,7 +172,9 @@ export default function ImageClassificationPage() {
 
         {/* Right: Predictions */}
         <div className="space-y-4">
-          <h2 className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">Predictions</h2>
+          <h2 className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">
+            Predictions
+          </h2>
 
           {modelStatus === 'loading' && (
             <div className="space-y-3 p-4 bg-surface rounded-lg border border-border">
